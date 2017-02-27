@@ -1,0 +1,222 @@
+<link rel="import" href="../../bower_components/array-filter/array-filter.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
+<link rel="import" href="message-controls.html">
+<link rel="import" href="message-grid-item.html">
+<link rel="import" href="message-list-behavior.html">
+
+<dom-module id="message-inbox">
+  <template>
+    <style>
+
+      :host {
+        height: 100%;
+        display: flex; 
+      }
+
+      iron-list {
+        flex: 1 1 auto;
+        overflow-x: hidden !important;
+      }
+
+      paper-fab {
+        position: fixed;
+        right: 30px;
+        bottom: 30px;
+        --paper-fab-background: rgb(0, 188, 212); 
+      }
+
+      paper-fab.scroll-button {
+        right: 38px;
+        bottom: 155px;
+        color: rgba(0, 0, 0, .87);
+        --paper-fab-background: white;
+        --paper-fab-keyboard-focus-background: #f4f4f4;
+      }
+
+      .no-messages {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .no-messages > paper-material {
+        text-align: center;
+        margin-bottom: 100px;
+        padding: 60px;
+        width: 400px;
+        background: white;
+      }
+
+    </style>
+    <array-filter
+      id                      = "array-filter"
+      items                   = "{{messages}}"
+      filtered                = "{{filtered}}"
+      observe                 = "favorite"
+      filter                  = "_filter">
+    </array-filter>
+    <div
+      class                   = "no-messages"
+      hidden$                 = "[[!isEmpty]]">
+      <paper-material>
+        There are no messages here.
+      </paper-material>
+    </div>
+    <iron-list
+      id                      = "list"
+      as                      = "item"
+      selected-items          = "{{selection}}"
+      on-scroll               = "onScroll"
+      items                   = "[[filtered]]"
+      max-physical-count      = "1000"
+      multi-selection
+      grid>
+      <template>
+        <message-grid-item
+          on-favorite-toggled = "onFavoriteToggled"
+          on-selected-toggled = "onSelectedToggled"
+          selected            = "[[selected]]"
+          favorite            = "[[item.favorite]]"
+          item                = "[[item]]">
+        </message-grid-item>
+      </template>
+    </iron-list>
+    <paper-fab
+      hidden$                 = "[[atEnd]]"
+      class                   = "scroll-button"
+      on-tap                  = "_scrollToLast"
+      icon                    = "hardware:keyboard-arrow-down"
+      mini>
+    </paper-fab>
+    <paper-fab
+      icon                    = "communication:message"
+      style                   = "bottom: 74px;">
+    </paper-fab>
+    <message-controls
+      id                      = "controls"
+      on-iron-resize          = "onResize"
+      on-select-all           = "onSelectAll"
+      on-unselect-all         = "onUnselectAll"
+      on-delete-selection     = "onDeleteSelection"
+      on-star-selection       = "onStarSelection"
+      on-unstar-selection     = "onUnstarSelection"
+      filter-starred          = "{{filterStarred}}"
+      has-selection           = "[[hasSelection]]"
+      selection-size          = "[[selectionSize]]"
+      grid-mode               = "{{gridMode}}">
+    </message-controls>
+  </template>
+  <script>
+
+    Polymer({
+
+      is: 'message-inbox',
+
+      properties: {
+        filtered: {
+          type: Array,
+          value: [],
+        },
+        filterStarred: {
+          type: Boolean,
+          value: false,
+          notify: true,
+        },
+        scrollIndex: {
+          type: Number,
+          value: 0,
+        },
+        atEnd: {
+          type: Boolean,
+          value: false,
+        },
+        isEmpty: {
+          type: Boolean,
+          value: false,
+        },
+      },
+
+      behaviors: [
+        MessageListBehavior,
+      ],
+
+      observers: [
+        '_filterStarredChanged(filterStarred)',
+        '_updateIsEmpty(filtered, filtered.*)',
+      ],
+
+      onFavoriteToggled: function(e) {
+        var value = !e.model.item.favorite;
+        this.set('filtered.' + e.model.index + '.favorite', value);
+      },
+
+      onDeleteSelection: function() {
+        console.log('onDeleteSelection');
+      },
+
+      onStarSelection: function() {
+        console.log('onStarSelection');
+        this.selection.forEach(function(item) {
+          this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', true);
+        }, this);
+        this.$.list.clearSelection();
+      },
+
+      onUnstarSelection: function() {
+        console.log('onUnstarSelection');
+        var selection = [];
+        this.selection.forEach(function(item) { selection.push(item); });
+        selection.forEach(function(item) {
+          this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
+        }, this);
+        this.$.list.clearSelection();
+      },
+
+      onScroll: function() {
+        this._updateScrollIndex();
+      },
+
+      _filterStarredChanged: function(filterStarred) {
+        if (!filterStarred) {
+          this.messages = JSON.parse(JSON.stringify(this.messages));
+        }
+        this.$['array-filter'].update();
+      },
+
+      _updateScrollIndex: function() {
+        if (this.filterStarred) {
+          this.atEnd = true;
+        } else {
+          this.scrollIndex = this.$.list.firstVisibleIndex;
+          this.atEnd = this.$.list.lastVisibleIndex >= Math.max(0, this.filtered.length - 12);
+        }
+      },
+
+      _scrollToLast: function() {
+        this.$.list.scrollToIndex(this.filtered.length - 1);
+      },
+
+      _filter: function(item) {
+        if (this.filterStarred) {
+          return !!item.favorite;
+        }
+        return true;
+      },
+
+      _updateIsEmpty: function() {
+        var nothing = !this.filtered.length;
+        if (this.isEmpty != nothing) {
+          this.isEmpty = nothing;
+          if (this.isEmpty) 
+            this.atEnd = true;
+        }
+      },
+
+    });
+
+  </script>
+</dom-module>

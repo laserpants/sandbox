@@ -1,0 +1,98 @@
+<script>
+  MessageListBehavior = {
+
+    properties: { 
+      messages: {
+        type: Array,
+        value: [],
+      },
+      selection: {
+        type: Array,
+      },
+      selectionSize: {
+        type: Number,
+        computed: '_computedSelectionSize(selection.*)',
+        notify: true,
+      },
+      hasSelection: {
+        type: Boolean,
+        computed: '_computedHasSelection(selection.*)',
+        notify: true,
+      },
+    },
+
+    onSelectAll: function() {
+      var i = 0; 
+      var messages = this.filtered ? this.filtered : this.messages;
+      var processChunk = function() {
+        var items = messages.slice(i, i + 111);
+        items.forEach(function(item, j) {
+          this.$.list.selectItem(item);
+        }, this);
+        i += items.length;
+        if (i < messages.length) {
+          if (!this._spinner || !this._spinner.loading) {
+            this._showSpinner()
+          }
+          window.setTimeout(processChunk, 2);
+        } else {
+          console.log('== select all complete ==');
+          this._hideSpinner();
+        }
+      }.bind(this);
+      if (messages.length) {
+        processChunk();
+      }
+    },
+
+    onUnselectAll: function() {
+      this.$.list.clearSelection();
+    },
+
+    onSelectedToggled: function(e) {
+      e.model.selected ? this.$.list.deselectItem(e.model.index) 
+                       : this.$.list.selectItem(e.model.index);
+    },
+
+    notifyResize: function() {
+      this.$.list.notifyResize();
+    },
+
+    onResize: function() {
+      this._updateGeometry();
+    },
+
+    _computedSelectionSize: function() {
+      return this.selection.length;
+    },
+
+    _computedHasSelection: function() {
+      return !!this.selection.length;
+    },
+
+    _updateGeometry: function() {
+      this.$.list.style.height = this._calculatedHeight();
+      this.$.list.notifyResize();
+    },
+
+    _calculatedHeight: function() {
+      return (window.innerHeight - this.$.controls.clientHeight - 68) + 'px';
+    },
+
+    _showSpinner: function() {
+      var body = document.querySelector('body');
+      this._spinner = document.createElement('spinner-backdrop');
+      this._spinner.loading = true;
+      this._spinner.customStyle['--spinner-backdrop-overlay-color'] = 'rgba(0,0,0,0.5)';
+      Polymer.dom(body).appendChild(this._spinner);
+    },
+
+    _hideSpinner: function() {
+      if (this._spinner && this._spinner.loading) {
+        this._spinner.loading = false;
+      }
+    },
+
+  };
+</script>
+

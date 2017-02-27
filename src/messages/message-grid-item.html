@@ -1,0 +1,67 @@
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="message-item-behavior.html">
+<link rel="import" href="message-item-styles.html">
+
+<dom-module id="message-grid-item">
+  <template>
+    <style include="message-item-styles"></style>
+    <style>
+
+      .message-item { 
+        width: 290px;
+        height: 200px; 
+        border-right: 1px solid gray;
+        border-bottom: 1px solid gray;
+        background: white;
+      }
+
+    </style>
+    <div>
+    <div class="message-item">
+      <div class="layout">
+        <paper-checkbox 
+          on-tap   = "_toggleSelected"
+          checked  = "[[selected]]">
+        </paper-checkbox>
+        <paper-item-body>
+          <div secondary class="date">
+            <span>[[_formatDate(item.timestamp)]]</span>
+          </div>
+          <div>[[item.endpoint]]</div>
+        </paper-item-body>
+        <div>
+          <paper-icon-button 
+            class  = "star"
+            on-tap = "_toggleFavorite"
+            icon   = "[[_favoriteButtonIcon(item.favorite)]]">
+          </paper-icon-button>
+        </div>
+      </div>
+      <div>
+        [[selected]], fav: [[favorite]] 
+        Sultan of Salad<br />
+        Sultan of Salad<br />
+        Sultan of Salad<br />
+      </div>
+    </div>
+  </template>
+  <script>
+
+    Polymer({
+
+      is: 'message-grid-item',
+
+      properties: {
+      },
+
+      behaviors: [
+        MessageItemBehavior,
+      ],
+
+    });
+
+  </script>
+</dom-module>
