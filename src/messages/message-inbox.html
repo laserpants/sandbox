@@ -222,6 +222,9 @@
             this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
           }, this);
         this.filterStarred = false;
+        this.$.list.clearSelection();
+        this.$.grid.clearSelection();
+        this.selection = [];
       },
 
       onScroll: function() {
