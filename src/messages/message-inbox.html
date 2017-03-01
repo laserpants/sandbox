@@ -198,6 +198,7 @@
           this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', true);
         }, this);
         this._getList().clearSelection();
+        this._updateSelection();
       },
 
       onUnstarSelection: function() {
@@ -208,6 +209,7 @@
           this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
         }, this);
         this._getList().clearSelection();
+        this._updateSelection();
       },
 
       onScroll: function() {
@@ -247,9 +249,9 @@
         var list = this._getList();
         this._updateGeometry();
         list.scrollToIndex(this.scrollIndex);
-        this.selection = [];
         this.$.list.clearSelection();
         this.$.grid.clearSelection();
+        this.selection = [];
       },
 
       _updateScrollIndex: function() {
