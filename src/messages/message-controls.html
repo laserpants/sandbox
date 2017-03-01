@@ -75,6 +75,10 @@
         color: rgb(0, 188, 212);
       }
 
+      paper-button.select-all {
+        color: #ff4081;
+      }
+
       paper-button[disabled] {
         color: #cacaca;
         background: none;
@@ -110,11 +114,18 @@
               <iron-icon icon="star"></iron-icon>
               <span class="button-label">Star</span>
             </paper-button>
-            <paper-button on-tap="_unstarSelection" hidden$="[[!hasSelection]]">
+            <paper-button 
+              on-tap   = "_unstarSelection"
+              disabled = "[[!hasSelection]]"
+              hidden$  = "[[filterStarred]]">
               <iron-icon icon="star-border"></iron-icon>
               <span class="button-label">Unstar</span>
             </paper-button>
-            <paper-button on-tap="_unstarAll" hidden$="[[hasSelection]]" style="color: #ff4081;">
+            <paper-button 
+              on-tap   = "_unstarAll"
+              disabled = "[[isEmpty]]"
+              hidden$  = "[[!filterStarred]]"
+              class    = "select-all">
               <iron-icon icon="star-border"></iron-icon>
               <span class="button-label">Unstar all</span>
             </paper-button>
@@ -188,6 +199,10 @@
           type: Boolean,
           value: false,
           notify: true,
+        },
+        isEmpty: {
+          type: Boolean,
+          value: false,
         },
       },
 

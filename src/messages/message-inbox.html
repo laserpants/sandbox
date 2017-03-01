@@ -130,6 +130,7 @@
     </paper-fab>
     <message-controls
       id                      = "controls"
+      is-empty                = "[[isEmpty]]"
       on-iron-resize          = "onResize"
       on-select-all           = "onSelectAll"
       on-unselect-all         = "onUnselectAll"
@@ -217,6 +218,7 @@
           .forEach(function(item) {
             this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
           }, this);
+        this.filterStarred = false;
       },
 
       onScroll: function() {
