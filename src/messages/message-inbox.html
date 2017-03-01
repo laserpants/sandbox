@@ -160,6 +160,15 @@
           type: Boolean,
           value: false,
         },
+        freshold: {
+          type: Number,
+          value: 0,
+        },
+        unread: {
+          type: Number,
+          computed: '_unreadCount(filtered, freshold)',
+          notify: true,
+        },
       },
 
       behaviors: [
@@ -201,6 +210,10 @@
 
       onScroll: function() {
         this._updateScrollIndex();
+        var last = this._getList().lastVisibleIndex;
+        if (last > this.freshold) {
+          this.freshold = last;
+        }
       },
 
       _filterStarredChanged: function(filterStarred) {
@@ -231,6 +244,7 @@
 
       _scrollToLast: function() {
         this._getList().scrollToIndex(this.filtered.length - 1);
+        this.freshold = this.filtered.length;
       },
 
       _filter: function(item) {
@@ -247,6 +261,10 @@
           if (this.isEmpty) 
             this.atEnd = true;
         }
+      },
+
+      _unreadCount: function(filtered, freshold) {
+        return this.filtered.length - freshold;
       },
 
       _getList: function() {

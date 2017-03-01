@@ -90,7 +90,11 @@
             <div class="layout vertical center">
               <iron-icon icon="communication:message"></iron-icon>
               <label>SMS Inbox
-                <paper-badge for="number" label="100"></paper-badge>
+                <paper-badge 
+                  for     = "number"
+                  hidden$ = "[[!unread]]"
+                  label   = "[[unread]]">
+                </paper-badge>
               </label>
             </div>
           </paper-tab>
@@ -107,7 +111,7 @@
           <channel-list></channel-list>
           <paper-fab icon="communication:dialpad"></paper-fab>
         </div>
-        <message-inbox messages="[[inbox]]"></message-inbox>
+        <message-inbox unread="{{unread}}" messages="[[inbox]]"></message-inbox>
         <message-outbox messages="[[outbox]]"></message-outbox>
       </iron-pages>
     </app-header-layout>
@@ -131,6 +135,10 @@
         outbox: {
           type: Array,
           value: [],
+        },
+        unread: {
+          type: Number,
+          value: 0,
         },
       },
 
