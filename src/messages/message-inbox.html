@@ -136,6 +136,7 @@
       on-delete-selection     = "onDeleteSelection"
       on-star-selection       = "onStarSelection"
       on-unstar-selection     = "onUnstarSelection"
+      on-unstar-all           = "onUnstarAll"
       filter-starred          = "{{filterStarred}}"
       has-selection           = "[[hasSelection]]"
       selection-size          = "[[selectionSize]]"
@@ -206,6 +207,16 @@
 
       onUnstarSelection: function() {
         this._setPropertyOnSelected('favorite', false);
+      },
+
+      onUnstarAll: function() {
+        this.messages
+          .filter(function(item) { 
+            return !!item.favorite; 
+          }, this)
+          .forEach(function(item) {
+            this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
+          }, this);
       },
 
       onScroll: function() {
