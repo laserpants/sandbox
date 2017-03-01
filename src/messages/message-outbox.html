@@ -20,6 +20,7 @@
       multi-selection>
       <template>
         <message-list-item
+          on-tap              = "onTap"
           on-selected-toggled = "onSelectedToggled"
           selected            = "[[selected]]"
           item                = "[[item]]"
@@ -52,6 +53,14 @@
       ],
 
       onScroll: function() {
+      },
+
+      onTap: function(e) {
+        if (this.hasSelection && 'checkboxContainer' != e.target.id) {
+          var list = this._getList();
+          e.model.selected ? list.deselectItem(e.model.index) 
+                           : list.selectItem(e.model.index);
+        }
       },
 
       onDeleteSelection: function() {

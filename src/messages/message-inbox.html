@@ -80,6 +80,7 @@
       grid>
       <template>
         <message-grid-item
+          on-tap              = "onTap"
           on-favorite-toggled = "onFavoriteToggled"
           on-selected-toggled = "onSelectedToggled"
           selected            = "[[selected]]"
@@ -99,6 +100,7 @@
       multi-selection>
       <template>
         <message-list-item
+          on-tap              = "onTap"
           on-favorite-toggled = "onFavoriteToggled"
           on-selected-toggled = "onSelectedToggled"
           selected            = "[[selected]]"
@@ -215,6 +217,14 @@
         var last = this._getList().lastVisibleIndex;
         if (last > this.freshold) {
           this.freshold = last;
+        }
+      },
+
+      onTap: function(e) {
+        if (this.hasSelection && 'checkboxContainer' != e.target.id) {
+          var list = this._getList();
+          e.model.selected ? list.deselectItem(e.model.index) 
+                           : list.selectItem(e.model.index);
         }
       },
 
