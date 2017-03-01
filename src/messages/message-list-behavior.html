@@ -39,6 +39,7 @@
         } else {
           console.log('== select all complete ==');
           this._hideSpinner();
+          this._selectAllComplete();
         }
       }.bind(this);
       if (messages.length) {
@@ -48,6 +49,7 @@
 
     onUnselectAll: function() {
       this._getList().clearSelection();
+      this.selection = [];
     },
 
     onSelectedToggled: function(e) {
@@ -94,6 +96,9 @@
       if (this._spinner && this._spinner.loading) {
         this._spinner.loading = false;
       }
+    },
+
+    _selectAllComplete: function() {
     },
 
   };

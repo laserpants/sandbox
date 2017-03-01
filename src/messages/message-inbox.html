@@ -180,8 +180,6 @@
       observers: [
         '_filterStarredChanged(filterStarred)',
         '_gridModeChanged(gridMode)',
-        '_gridSelectionChanged(gridSelection.*)',
-        '_listSelectionChanged(listSelection.*)',
         '_updateIsEmpty(filtered, filtered.*)',
       ],
 
@@ -221,11 +219,21 @@
       },
 
       onTap: function(e) {
+        console.log('onTap');
         if (this.hasSelection && 'checkboxContainer' != e.target.id) {
           var list = this._getList();
           e.model.selected ? list.deselectItem(e.model.index) 
                            : list.selectItem(e.model.index);
+          this._updateSelection();
         }
+      },
+
+      onSelectedToggled: function(e) {
+        console.log('onSelectedToggled');
+        var list = this._getList();
+        e.model.selected ? list.deselectItem(e.model.index) 
+                         : list.selectItem(e.model.index);
+        this._updateSelection();
       },
 
       _filterStarredChanged: function(filterStarred) {
@@ -242,20 +250,6 @@
         this.selection = [];
         this.$.list.clearSelection();
         this.$.grid.clearSelection();
-      },
-
-      _gridSelectionChanged: function() {
-        this.selection = [];
-        this.gridSelection.forEach(function(item) {
-          this.push('selection', item);
-        }, this);
-      },
-
-      _listSelectionChanged: function() {
-        this.selection = [];
-        this.listSelection.forEach(function(item) {
-          this.push('selection', item);
-        }, this);
       },
 
       _updateScrollIndex: function() {
@@ -295,6 +289,18 @@
 
       _getList: function() {
         return this.gridMode ? this.$.grid : this.$.list;
+      },
+
+      _selectAllComplete: function() {
+        this._updateSelection();
+      },
+
+      _updateSelection: function() {
+        this.selection = [];
+        (this.gridMode ? this.gridSelection 
+                       : this.listSelection).forEach(function(item) {
+          this.push('selection', item);
+        }, this);
       },
 
     });
