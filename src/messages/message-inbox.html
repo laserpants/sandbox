@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
+<link rel="import" href="confirm-delete-dialog.html">
 <link rel="import" href="message-controls.html">
 <link rel="import" href="message-details.html">
 <link rel="import" href="message-grid-item.html">
@@ -55,6 +56,10 @@
       }
 
     </style>
+    <confirm-delete-dialog 
+      id                      = "confirm-delete-dialog" 
+      selection-size          = "[[selectionSize]]">
+    </confirm-delete-dialog>
     <message-details 
       id                      = "details"
       on-next                 = "showNextMessage"
@@ -198,10 +203,6 @@
       onFavoriteToggled: function(e) {
         var value = !e.model.item.favorite;
         this.set('filtered.' + e.model.index + '.favorite', value);
-      },
-
-      onDeleteSelection: function() {
-        console.log('onDeleteSelection');
       },
 
       onStarSelection: function() {

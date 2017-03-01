@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
+<link rel="import" href="confirm-delete-dialog.html">
 <link rel="import" href="message-controls.html">
 <link rel="import" href="message-details.html">
 <link rel="import" href="message-list-behavior.html">
@@ -9,6 +10,10 @@
 <dom-module id="message-outbox">
   <template>
     <style></style>
+    <confirm-delete-dialog 
+      id                      = "confirm-delete-dialog" 
+      selection-size          = "[[selectionSize]]">
+    </confirm-delete-dialog>
     <message-details 
       id                      = "details"
       on-next                 = "showNextMessage"
@@ -67,10 +72,6 @@
           e.model.selected ? list.deselectItem(e.model.index) 
                            : list.selectItem(e.model.index);
         }
-      },
-
-      onDeleteSelection: function() {
-        console.log('onDeleteSelection');
       },
 
       _getList: function() {
