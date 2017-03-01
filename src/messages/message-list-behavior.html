@@ -24,10 +24,11 @@
     onSelectAll: function() {
       var i = 0; 
       var messages = this.filtered ? this.filtered : this.messages;
+      var list = this._getList();
       var processChunk = function() {
         var items = messages.slice(i, i + 111);
         items.forEach(function(item, j) {
-          this.$.list.selectItem(item);
+          list.selectItem(item);
         }, this);
         i += items.length;
         if (i < messages.length) {
@@ -46,16 +47,17 @@
     },
 
     onUnselectAll: function() {
-      this.$.list.clearSelection();
+      this._getList().clearSelection();
     },
 
     onSelectedToggled: function(e) {
-      e.model.selected ? this.$.list.deselectItem(e.model.index) 
-                       : this.$.list.selectItem(e.model.index);
+      var list = this._getList();
+      e.model.selected ? list.deselectItem(e.model.index) 
+                       : list.selectItem(e.model.index);
     },
 
     notifyResize: function() {
-      this.$.list.notifyResize();
+      this._getList().notifyResize();
     },
 
     onResize: function() {
@@ -71,8 +73,9 @@
     },
 
     _updateGeometry: function() {
-      this.$.list.style.height = this._calculatedHeight();
-      this.$.list.notifyResize();
+      var list = this._getList();
+      list.style.height = this._calculatedHeight();
+      list.notifyResize();
     },
 
     _calculatedHeight: function() {

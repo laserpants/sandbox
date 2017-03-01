@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
 <link rel="import" href="message-controls.html">
 <link rel="import" href="message-grid-item.html">
+<link rel="import" href="message-list-item.html">
 <link rel="import" href="message-list-behavior.html">
 
 <dom-module id="message-inbox">
@@ -26,6 +27,7 @@
         right: 30px;
         bottom: 30px;
         --paper-fab-background: rgb(0, 188, 212); 
+        z-index: 2;
       }
 
       paper-fab.scroll-button {
@@ -67,8 +69,9 @@
       </paper-material>
     </div>
     <iron-list
-      id                      = "list"
+      id                      = "grid"
       as                      = "item"
+      hidden$                 = "[[!gridMode]]"
       selected-items          = "{{selection}}"
       on-scroll               = "onScroll"
       items                   = "[[filtered]]"
@@ -83,6 +86,25 @@
           favorite            = "[[item.favorite]]"
           item                = "[[item]]">
         </message-grid-item>
+      </template>
+    </iron-list>
+    <iron-list
+      id                      = "list"
+      as                      = "item"
+      hidden$                 = "[[gridMode]]"
+      selected-items          = "{{selection}}"
+      on-scroll               = "onScroll"
+      items                   = "[[filtered]]"
+      max-physical-count      = "1000"
+      multi-selection>
+      <template>
+        <message-list-item
+          on-favorite-toggled = "onFavoriteToggled"
+          on-selected-toggled = "onSelectedToggled"
+          selected            = "[[selected]]"
+          favorite            = "[[item.favorite]]"
+          item                = "[[item]]">
+        </message-list-item>
       </template>
     </iron-list>
     <paper-fab
@@ -146,6 +168,7 @@
 
       observers: [
         '_filterStarredChanged(filterStarred)',
+        '_gridModeChanged(gridMode)',
         '_updateIsEmpty(filtered, filtered.*)',
       ],
 
@@ -163,7 +186,7 @@
         this.selection.forEach(function(item) {
           this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', true);
         }, this);
-        this.$.list.clearSelection();
+        this._getList().clearSelection();
       },
 
       onUnstarSelection: function() {
@@ -173,7 +196,7 @@
         selection.forEach(function(item) {
           this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
         }, this);
-        this.$.list.clearSelection();
+        this._getList().clearSelection();
       },
 
       onScroll: function() {
@@ -187,17 +210,27 @@
         this.$['array-filter'].update();
       },
 
+      _gridModeChanged: function(gridMode) {
+        var list = this._getList();
+        this._updateGeometry();
+        list.scrollToIndex(this.scrollIndex);
+        this.selection = [];
+        this.$.list.clearSelection();
+        this.$.grid.clearSelection();
+      },
+
       _updateScrollIndex: function() {
         if (this.filterStarred) {
           this.atEnd = true;
         } else {
-          this.scrollIndex = this.$.list.firstVisibleIndex;
-          this.atEnd = this.$.list.lastVisibleIndex >= Math.max(0, this.filtered.length - 12);
+          var list = this._getList();
+          this.scrollIndex = list.firstVisibleIndex;
+          this.atEnd = list.lastVisibleIndex >= Math.max(0, this.filtered.length - 12);
         }
       },
 
       _scrollToLast: function() {
-        this.$.list.scrollToIndex(this.filtered.length - 1);
+        this._getList().scrollToIndex(this.filtered.length - 1);
       },
 
       _filter: function(item) {
@@ -214,6 +247,10 @@
           if (this.isEmpty) 
             this.atEnd = true;
         }
+      },
+
+      _getList: function() {
+        return this.gridMode ? this.$.grid : this.$.list;
       },
 
     });
