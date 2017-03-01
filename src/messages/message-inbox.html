@@ -72,7 +72,7 @@
       id                      = "grid"
       as                      = "item"
       hidden$                 = "[[!gridMode]]"
-      selected-items          = "{{selection}}"
+      selected-items          = "{{gridSelection}}"
       on-scroll               = "onScroll"
       items                   = "[[filtered]]"
       max-physical-count      = "1000"
@@ -92,7 +92,7 @@
       id                      = "list"
       as                      = "item"
       hidden$                 = "[[gridMode]]"
-      selected-items          = "{{selection}}"
+      selected-items          = "{{listSelection}}"
       on-scroll               = "onScroll"
       items                   = "[[filtered]]"
       max-physical-count      = "1000"
@@ -178,6 +178,8 @@
       observers: [
         '_filterStarredChanged(filterStarred)',
         '_gridModeChanged(gridMode)',
+        '_gridSelectionChanged(gridSelection.*)',
+        '_listSelectionChanged(listSelection.*)',
         '_updateIsEmpty(filtered, filtered.*)',
       ],
 
@@ -230,6 +232,20 @@
         this.selection = [];
         this.$.list.clearSelection();
         this.$.grid.clearSelection();
+      },
+
+      _gridSelectionChanged: function() {
+        this.selection = [];
+        this.gridSelection.forEach(function(item) {
+          this.push('selection', item);
+        }, this);
+      },
+
+      _listSelectionChanged: function() {
+        this.selection = [];
+        this.listSelection.forEach(function(item) {
+          this.push('selection', item);
+        }, this);
       },
 
       _updateScrollIndex: function() {
