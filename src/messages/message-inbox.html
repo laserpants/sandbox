@@ -209,7 +209,7 @@
       },
 
       onTap: function(e) {
-        if (this.hasSelection && 'checkboxContainer' != e.target.id) {
+        if (this.hasSelection && ['checkboxContainer', 'icon'].indexOf(e.target.id) == -1) {
           var list = this._getList();
           e.model.selected ? list.deselectItem(e.model.index) : list.selectItem(e.model.index);
           this._updateSelection();
