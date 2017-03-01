@@ -42,6 +42,12 @@
                        : list.selectItem(e.model.index);
     },
 
+    onShowDetails: function(e) {
+      var details = this.$.details;
+      Polymer.dom(document.querySelector('body')).appendChild(details);
+      details.open();
+    },
+
     notifyResize: function() {
       this._getList().notifyResize();
     },

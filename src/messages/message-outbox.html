@@ -2,14 +2,18 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
 <link rel="import" href="message-controls.html">
+<link rel="import" href="message-details.html">
 <link rel="import" href="message-list-behavior.html">
 <link rel="import" href="message-list-item.html">
 
 <dom-module id="message-outbox">
   <template>
-    <style>
-
-    </style>
+    <style></style>
+    <message-details 
+      id                      = "details"
+      on-next                 = "showNextMessage"
+      on-prev                 = "showPreviousMessage">
+    </message-details>
     <iron-list
       id                      = "list"
       as                      = "item"
@@ -22,6 +26,7 @@
         <message-list-item
           on-tap              = "onTap"
           on-selected-toggled = "onSelectedToggled"
+          on-show-details     = "onShowDetails"
           selected            = "[[selected]]"
           item                = "[[item]]"
           outgoing>

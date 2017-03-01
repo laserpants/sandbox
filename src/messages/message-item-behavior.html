@@ -28,6 +28,10 @@
       return favorite ? 'star' : 'star-border';
     },
 
+    _showMessage: function(e) {
+      this.fire('show-details');
+    },
+
   };
 </script>
 

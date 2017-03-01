@@ -4,9 +4,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
 <link rel="import" href="message-controls.html">
+<link rel="import" href="message-details.html">
 <link rel="import" href="message-grid-item.html">
-<link rel="import" href="message-list-item.html">
 <link rel="import" href="message-list-behavior.html">
+<link rel="import" href="message-list-item.html">
 
 <dom-module id="message-inbox">
   <template>
@@ -54,6 +55,11 @@
       }
 
     </style>
+    <message-details 
+      id                      = "details"
+      on-next                 = "showNextMessage"
+      on-prev                 = "showPreviousMessage">
+    </message-details>
     <array-filter
       id                      = "array-filter"
       items                   = "{{messages}}"
@@ -83,6 +89,7 @@
           on-tap              = "onTap"
           on-favorite-toggled = "onFavoriteToggled"
           on-selected-toggled = "onSelectedToggled"
+          on-show-details     = "onShowDetails"
           selected            = "[[selected]]"
           favorite            = "[[item.favorite]]"
           item                = "[[item]]">
@@ -103,6 +110,7 @@
           on-tap              = "onTap"
           on-favorite-toggled = "onFavoriteToggled"
           on-selected-toggled = "onSelectedToggled"
+          on-show-details     = "onShowDetails"
           selected            = "[[selected]]"
           favorite            = "[[item.favorite]]"
           item                = "[[item]]">
