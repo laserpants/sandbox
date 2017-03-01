@@ -193,23 +193,11 @@
       },
 
       onStarSelection: function() {
-        console.log('onStarSelection');
-        this.selection.forEach(function(item) {
-          this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', true);
-        }, this);
-        this._getList().clearSelection();
-        this._updateSelection();
+        this._setPropertyOnSelected('favorite', true);
       },
 
       onUnstarSelection: function() {
-        console.log('onUnstarSelection');
-        var selection = [];
-        this.selection.forEach(function(item) { selection.push(item); });
-        selection.forEach(function(item) {
-          this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
-        }, this);
-        this._getList().clearSelection();
-        this._updateSelection();
+        this._setPropertyOnSelected('favorite', false);
       },
 
       onScroll: function() {
@@ -221,21 +209,26 @@
       },
 
       onTap: function(e) {
-        console.log('onTap');
         if (this.hasSelection && 'checkboxContainer' != e.target.id) {
           var list = this._getList();
-          e.model.selected ? list.deselectItem(e.model.index) 
-                           : list.selectItem(e.model.index);
+          e.model.selected ? list.deselectItem(e.model.index) : list.selectItem(e.model.index);
           this._updateSelection();
         }
       },
 
       onSelectedToggled: function(e) {
-        console.log('onSelectedToggled');
         var list = this._getList();
-        e.model.selected ? list.deselectItem(e.model.index) 
-                         : list.selectItem(e.model.index);
+        e.model.selected ? list.deselectItem(e.model.index) : list.selectItem(e.model.index);
         this._updateSelection();
+      },
+
+      _setPropertyOnSelected: function(prop, value) {
+        this._process(this.selection, function(item) {
+          this.set('filtered.' + this.filtered.indexOf(item) + '.' + prop, value);
+        }, function() {
+          this._getList().clearSelection();
+          this._updateSelection();
+        });
       },
 
       _filterStarredChanged: function(filterStarred) {
@@ -286,7 +279,7 @@
       },
 
       _unreadCount: function(filtered, freshold) {
-        return this.filtered.length - freshold;
+        return this.messages.length - freshold;
       },
 
       _getList: function() {
