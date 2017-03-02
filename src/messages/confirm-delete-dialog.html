@@ -40,6 +40,10 @@
         this.$.dialog.open();
       },
 
+      close: function() {
+        this.$.dialog.close();
+      },
+
       _msgLabel: function(selection) {
         return 1 == selection ? 'this message' : (selection + ' messages');
       },
