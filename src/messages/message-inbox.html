@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
 <link rel="import" href="confirm-delete-dialog.html">
+<link rel="import" href="message-compose-dialog.html">
 <link rel="import" href="message-controls.html">
 <link rel="import" href="message-details.html">
 <link rel="import" href="message-grid-item.html">
@@ -56,6 +57,9 @@
       }
 
     </style>
+    <message-compose-dialog
+      id                      = "message-compose-dialog">
+    </message-compose-dialog>
     <confirm-delete-dialog 
       id                      = "confirm-delete-dialog" 
       selection-size          = "[[selectionSize]]">
@@ -133,6 +137,7 @@
     </paper-fab>
     <paper-fab
       icon                    = "communication:message"
+      on-tap                  = "_openComposeMsgDialog"
       style                   = "bottom: 74px;">
     </paper-fab>
     <message-controls
@@ -265,6 +270,7 @@
         this.selection = [];
 
         if (!filterStarred) {
+          // There should and could be a cleaner way to do this!
           window.setTimeout(function() {
             this._getList().scrollToIndex(this.scrollIndex);
           }.bind(this), 5);
@@ -331,6 +337,12 @@
             this.push('selection', item);
           }, this);
         }
+      },
+
+      _openComposeMsgDialog: function() {
+        var dialog = this.$['message-compose-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
       },
 
     });
