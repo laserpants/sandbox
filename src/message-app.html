@@ -15,6 +15,7 @@
 <link rel="import" href="channels/channel-list.html">
 <link rel="import" href="messages/message-inbox.html">
 <link rel="import" href="messages/message-outbox.html">
+<link rel="import" href="box/message-handler.html">
 
 <dom-module id="message-app">
   <template>
@@ -68,6 +69,13 @@
       }
 
     </style>
+    <message-handler 
+      id         = "message-handler"
+      on-open    = "handleConnectionOpened"
+      on-close   = "handleConnectionClosed"
+      on-message = "handleMessage"
+      on-error   = "handleError">
+    </message-handler>
     <iron-iconset-svg name="custom" size="24">
       <svg>
         <defs>
@@ -143,26 +151,57 @@
       },
 
       ready: function() {
-        var inbox = [];
-        for (var i = 0; i < 1000; i++) {
-          inbox.push({
-            timestamp: Date.now(),
-            endpoint: '' + i,
-            favorite: false, 
-            content: '' + i,
-          });
+      },
+
+      send: function(event, data) {
+        this.$['message-handler'].send({event: event, data: data});
+      },
+
+      handleConnectionOpened: function() {
+        this.send('inboxFetch', {
+          filter: [], 
+          after_id: null,
+          count: 1000,
+        });
+      },
+
+      handleConnectionClosed: function() {
+        console.log('handleConnectionClosed()');
+      },
+
+      handleMessage: function(event, payload) {
+        console.log(payload);
+        switch (payload.event) {
+          case 'inboxMessages':
+            var messages = payload.data.messages;
+            var ids = payload.data.ids, inbox = [], outbox = [];
+            ids.forEach(function(id) {
+              var message = messages[id];
+              message.id = id;
+              if ('sms_in' == message.type) {
+                inbox.push(message);
+              } else {
+                outbox.push(message);
+              }
+            });
+            console.log('in  : ' + inbox.length);
+            console.log('out : ' + outbox.length);
+            this.set('inbox', inbox.reverse());
+            this.set('outbox', outbox.reverse());
+            break;
+          case 'inboxUpdate':
+          case 'channelUpdate':
+          case 'initialize':
+            console.log("              .,,,''''''',,                                        \n         .,,,/           ,~~~\\.     /~~~\\     \\   \\            \n/     __/               /      \\_'''',,,/     ))  ))              \n\\_O--/                  |       \\    __ \",,  //  //             \n    |                    /  \\_  /     @)  ''//_ //                \n   |                      ',,,/      ~~    //  ~~__                \n   |          )             (           __//        ---___ _/OO    \n    \\          )     /    )   ( ,,,,   (_Q   '''----_______,_/    \n      \\       |--.-- #|   |,,,/\\_   ~~\\/                        \n        \\____________#| /    \\_ ''\\___                          \n         /  /    _/  /         ~~\\ __ \\                          \n        /__/   #|__/                 |##                           \n        |##    ~~");
+            console.log("\n~~~~~~~~~~~~~~~~~~~~~~~~~~ Connected ~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            break;
+          default:
+            console.warn('Unhandled message type: ' + payload.event);
         }
-        var outbox = [];
-        for (var i = 0; i < 10; i++) {
-          outbox.push({
-            timestamp: Date.now(),
-            endpoint: '' + i,
-            favorite: false, 
-            content: '' + i,
-          });
-        }
-        this.set('inbox', inbox);
-        this.set('outbox', outbox);
+      },
+
+      handleError: function() {
+        console.log('handleError()');
       },
 
     });

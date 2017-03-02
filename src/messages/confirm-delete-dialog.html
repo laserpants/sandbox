@@ -16,7 +16,7 @@
       style  = "width: 450px;" 
       modal>
       <h2>Confirm delete</h2>
-      <div>Are you sure that you want to delete [[_msgLabel(selectionSize)]]?</div>
+      <div>Are you sure you want to delete [[_msgLabel(selectionSize)]]?</div>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
         <paper-button dialog-confirm>Delete</paper-button>
@@ -45,7 +45,30 @@
       },
 
       _msgLabel: function(selection) {
-        return 1 == selection ? 'this message' : (selection + ' messages');
+        switch (selection) {
+          case 2:
+            selection = 'two';
+            break;
+          case 3:
+            selection = 'three';
+            break;
+          case 4:
+            selection = 'four';
+            break;
+          case 5:
+            selection = 'five';
+            break;
+          case 6:
+            selection = 'six';
+            break;
+          case 7:
+            selection = 'seven';
+            break;
+          case 8:
+            selection = 'eight';
+            break;
+        }
+        return 1 == selection ? 'this message' : ('the ' + selection + ' selected messages');
       },
 
     });
