@@ -190,7 +190,7 @@
         },
         unread: {
           type: Number,
-          computed: '_unreadCount(filtered, freshold)',
+          computed: '_unreadCount(filtered, freshold, messages.*)',
           notify: true,
         },
       },
@@ -270,7 +270,7 @@
         this.selection = [];
 
         if (!filterStarred) {
-          // There should and could be a cleaner way to do this!
+          // There should -- and could -- be a cleaner way to do this!
           window.setTimeout(function() {
             this._getList().scrollToIndex(this.scrollIndex);
           }.bind(this), 5);
@@ -317,7 +317,7 @@
         }
       },
 
-      _unreadCount: function(filtered, freshold) {
+      _unreadCount: function(filtered, freshold, messages) {
         return this.messages.length - freshold;
       },
 
