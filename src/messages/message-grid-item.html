@@ -16,12 +16,20 @@
         border: 1px solid #dadada;
         background: white;
         margin: 5px 0 0 5px;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+      }
+
+      .controls {
+        align-self: flex-end;
+        padding: 5px;
       }
 
     </style>
     <div>
     <div class$="[[_itemClass(selectMode)]]">
-      <div class="layout">
+      <div class="layout" style="margin: 0 8px;">
         <paper-checkbox 
           on-tap   = "_toggleSelected"
           checked  = "[[selected]]">
@@ -34,23 +42,21 @@
         </paper-item-body>
       </div>
       <div>
-        <div>
-          <paper-icon-button 
-            class  = "star"
-            on-tap = "_toggleFavorite"
-            icon   = "[[_favoriteButtonIcon(item.favorite)]]">
-          </paper-icon-button>
-          <paper-icon-button 
-            on-tap = "_showMessage"
-            icon   = "arrow-drop-down">
-          </paper-icon-button>
-        </div>
-      </div>
-      <div>
         [[selected]], fav: [[favorite]] 
         Sultan of Salad<br />
         Sultan of Salad<br />
         Sultan of Salad<br />
+      </div>
+      <div class="controls">
+        <paper-icon-button 
+          class  = "star"
+          on-tap = "_toggleFavorite"
+          icon   = "[[_favoriteButtonIcon(item.favorite)]]">
+        </paper-icon-button>
+        <paper-icon-button 
+          on-tap = "_showMessage"
+          icon   = "arrow-drop-down">
+        </paper-icon-button>
       </div>
     </div>
   </template>
