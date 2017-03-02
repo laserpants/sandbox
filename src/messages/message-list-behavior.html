@@ -144,6 +144,42 @@
       }
     },
 
+    _deleteMessage: function(e) {
+      e.srcElement.close();
+      this.splice('messages', e.detail, 1);
+      var toast = document.createElement('paper-toast');
+      toast.text = 'The message was deleted.';
+      document.body.appendChild(toast); 
+      toast.show();
+    },
+
+    _deleteSelection: function() {
+      var selection = [];
+      this.selection.forEach(function(item) {
+        selection.push(item);
+      }, this);
+      var count = selection.length;
+      selection.forEach(function(item) {
+        var index = this.messages.indexOf(item);
+        this.splice('messages', index, 1);
+      }, this);
+      this.$.list.clearSelection();
+      if (this.$.grid) { 
+        this.$.grid.clearSelection();
+      }
+      this.selection = [];
+      var toast = document.createElement('paper-toast');
+      var num = null;
+      if (1 == count) {
+        num = 'One message';
+      } else {
+        num = count + ' messages';
+      }
+      toast.text = num + ' deleted.';
+      document.body.appendChild(toast); 
+      toast.show();
+    },
+
   };
 </script>
 

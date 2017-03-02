@@ -12,10 +12,12 @@
     <style></style>
     <confirm-delete-dialog 
       id                      = "confirm-delete-dialog" 
+      on-delete-confirmed     = "_deleteSelection"
       selection-size          = "[[selectionSize]]">
     </confirm-delete-dialog>
     <message-details 
       id                      = "details"
+      on-delete-item          = "_deleteMessage"
       on-next                 = "showNextMessage"
       on-prev                 = "showPreviousMessage">
     </message-details>

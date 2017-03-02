@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/array-filter/array-filter.html">
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/spinner-backdrop/spinner-backdrop.html">
 <link rel="import" href="confirm-delete-dialog.html">
@@ -62,10 +63,12 @@
     </message-compose-dialog>
     <confirm-delete-dialog 
       id                      = "confirm-delete-dialog" 
+      on-delete-confirmed     = "_deleteSelection"
       selection-size          = "[[selectionSize]]">
     </confirm-delete-dialog>
     <message-details 
       id                      = "details"
+      on-delete-item          = "_deleteMessage"
       on-next                 = "showNextMessage"
       on-prev                 = "showPreviousMessage">
     </message-details>
