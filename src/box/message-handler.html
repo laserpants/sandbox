@@ -1,0 +1,56 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="message-hander">
+  <template></template>
+  <script>
+
+    Polymer({
+
+      is: 'message-handler',
+
+      ready: function() {
+        var hostUrl = 'ws://' + (this._getURLParameter('host_url') || '192.168.1.7:19998');
+        //var hostUrl = 'ws://' + (this._getURLParameter('host_url') || 'thehangar.farmradio.org:51234');
+        this.socket = new WebSocket(hostUrl); 
+        this.socket.onerror   = this.onError.bind(this);
+        this.socket.onopen    = this.onOpen.bind(this);
+        this.socket.onclose   = this.onClose.bind(this);
+        this.socket.onmessage = this.onMessage.bind(this);
+      },
+
+      onError: function(event) {
+        this.fire('error');
+      },
+
+      onOpen: function(event) {
+        this.fire('open');
+      },
+
+      onClose: function(event) {
+        this.fire('close');
+      },
+
+      onMessage: function(event) {
+        var response = null;
+        try {
+          response = JSON.parse(event.data);
+        } catch(e) {
+          console.error(e);
+          return;
+        }
+        this.fire('message', response);
+      },
+
+      send: function(data) {
+        this.socket.send(JSON.stringify(data));
+      },
+
+      _getURLParameter: function(name) {
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+      }
+
+    });
+
+  </script>
+</dom-module>
+
