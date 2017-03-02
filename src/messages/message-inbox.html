@@ -222,9 +222,6 @@
             this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
           }, this);
         this.filterStarred = false;
-        this.$.list.clearSelection();
-        this.$.grid.clearSelection();
-        this.selection = [];
       },
 
       onScroll: function() {
@@ -263,6 +260,9 @@
           this.messages = JSON.parse(JSON.stringify(this.messages));
         }
         this.$['array-filter'].update();
+        this.$.list.clearSelection();
+        this.$.grid.clearSelection();
+        this.selection = [];
       },
 
       _gridModeChanged: function(gridMode) {
@@ -319,10 +319,12 @@
 
       _updateSelection: function() {
         this.selection = [];
-        (this.gridMode ? this.gridSelection 
-                       : this.listSelection).forEach(function(item) {
-          this.push('selection', item);
-        }, this);
+        var selection = this.gridMode ? this.gridSelection : this.listSelection;
+        if (selection) {
+          selection.forEach(function(item) {
+            this.push('selection', item);
+          }, this);
+        }
       },
 
     });

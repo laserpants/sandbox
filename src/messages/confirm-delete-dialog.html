@@ -1,0 +1,50 @@
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="confirm-delete-dialog">
+  <template>
+    <style>
+
+      paper-button {
+        color: rgb(0, 188, 212);
+      }
+
+    </style>
+    <paper-dialog 
+      id     = "dialog" 
+      style  = "width: 450px;" 
+      modal>
+      <h2>Confirm delete</h2>
+      <div>Are you sure that you want to delete [[_msgLabel(selectionSize)]]?</div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm>Delete</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+  <script>
+
+    Polymer({
+
+      is: 'confirm-delete-dialog',
+
+      properties: {
+        selectionSize: {
+          type: Number,
+          value: 0,
+        },
+      },
+
+      open: function() {
+        this.$.dialog.open();
+      },
+
+      _msgLabel: function(selection) {
+        return 1 == selection ? 'this message' : (selection + ' messages');
+      },
+
+    });
+
+  </script>
+</dom-module>
