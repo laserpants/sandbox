@@ -50,7 +50,7 @@
           </paper-icon-button>
         </div>
         <div class="message-content">
-          content
+          [[content]]
         </div>
         <div class="nav">
           <paper-icon-button 
@@ -66,6 +66,21 @@
 
       is: 'message-details',
 
+      properties: {
+        content: {
+          type: String,
+          value: '',
+        },
+        sender: {
+          type: String,
+          value: '',
+        },
+        timestamp: {
+          type: String,
+          value: '',
+        },
+      },
+
       open: function() {
         this.$.dialog.open();
       },
@@ -75,6 +90,14 @@
       },
 
       _handleKeyEvent: function(e) {
+      },
+
+      _showNext: function() {
+        this.fire('next');
+      },
+
+      _showPrevious: function() {
+        this.fire('prev');
       },
 
     });

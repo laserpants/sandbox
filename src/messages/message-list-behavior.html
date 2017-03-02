@@ -45,6 +45,11 @@
     onShowDetails: function(e) {
       var details = this.$.details;
       Polymer.dom(document.querySelector('body')).appendChild(details);
+      var item = e.model.item;
+      details.index = e.model.index;
+      details.content = item.content;
+      details.timestamp = item.timestamp;
+      details.sender = item.endpoint;
       details.open();
     },
 
