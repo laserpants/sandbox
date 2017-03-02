@@ -208,8 +208,9 @@
               }
             }, this);
             var toast = document.createElement('paper-toast');
-            toast.text = only ? 'New message from ' + only.endpoint + ': ' 
-                                                    + this._truncated(only.content, 60)
+            toast.text = only ? 'New message from ' 
+                              + only.endpoint + ': ' 
+                              + this._truncated(only.content, 60)
                               : count + ' new messages!';
             document.body.appendChild(toast); 
             toast.show();
