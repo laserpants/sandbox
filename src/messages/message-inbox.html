@@ -263,6 +263,12 @@
         this.$.list.clearSelection();
         this.$.grid.clearSelection();
         this.selection = [];
+
+        if (!filterStarred) {
+          window.setTimeout(function() {
+            this._getList().scrollToIndex(this.scrollIndex);
+          }.bind(this), 5);
+        }
       },
 
       _gridModeChanged: function(gridMode) {
