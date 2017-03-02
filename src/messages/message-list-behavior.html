@@ -45,11 +45,7 @@
     onShowDetails: function(e) {
       var details = this.$.details;
       Polymer.dom(document.querySelector('body')).appendChild(details);
-      var item = e.model.item;
-      details.index = e.model.index;
-      details.content = item.content;
-      details.timestamp = item.timestamp;
-      details.sender = item.endpoint;
+      this._updateDialog(details, e.model.item, e.model.index);
       details.open();
     },
 
@@ -59,12 +55,32 @@
       dialog.open();
     },
 
+    onResize: function() {
+      this._updateGeometry();
+    },
+
+    showNextMessage: function() {
+      var details = this.$.details;
+      var index = (details.index + 1) % this.messages.length;
+      this._updateDialog(details, this.messages[index], index);
+      console.log(index);
+    },
+
+    showPreviousMessage: function() {
+      var details = this.$.details;
+      var index = (details.index == 0 ? this.messages.length : details.index) - 1;
+      this._updateDialog(details, this.messages[index], index);
+    },
+
     notifyResize: function() {
       this._getList().notifyResize();
     },
 
-    onResize: function() {
-      this._updateGeometry();
+    _updateDialog: function(dialog, item, index) {
+      dialog.index = index;
+      dialog.content = item.content;
+      dialog.timestamp = item.timestamp;
+      dialog.sender = item.endpoint;
     },
 
     _computedSelectionSize: function() {

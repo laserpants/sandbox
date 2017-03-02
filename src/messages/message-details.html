@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="confirm-delete-dialog.html">
 
 <dom-module id="message-details">
   <template>
@@ -35,29 +36,49 @@
 
       .message-content {
         flex: 2;
+        font-size: 15px;
+        line-height: 1.5;
+        min-height: 200px;
       }
 
     </style>
+    <confirm-delete-dialog 
+      id             = "confirm-delete-dialog" 
+      selection-size = "1">
+    </confirm-delete-dialog>
     <paper-dialog 
-      on-keydown   = "_handleKeyEvent"
-      id           = "dialog"
+      on-keydown     = "_handleKeyEvent"
+      id             = "dialog"
       with-backdrop>
-      <div class="message-container">
-        <div class = "nav">
-          <paper-icon-button
-            on-tap = "_showPrevious"
-            icon   = "icons:chevron-left">
-          </paper-icon-button>
+      <div>
+        <div class="message-container">
+          <div class = "nav">
+            <paper-icon-button
+              on-tap = "_showPrevious"
+              icon   = "icons:chevron-left">
+            </paper-icon-button>
+          </div>
+          <div class="message-content">
+            <p>
+              <b>From:</b> [[sender]]<br />
+              <b>Sent:</b> [[_formatDate(timestamp)]]
+            </p>
+            <p>
+              [[content]]
+            </p>
+          </div>
+          <div class="nav">
+            <paper-icon-button 
+              on-tap = "_showNext"
+              icon   = "icons:chevron-right">
+            </paper-icon-button>
+          </div>
         </div>
-        <div class="message-content">
-          [[content]]
-        </div>
-        <div class="nav">
-          <paper-icon-button 
-            on-tap = "_showNext"
-            icon   = "icons:chevron-right">
-          </paper-icon-button>
-        </div>
+      </div>
+      <div>
+        <paper-button on-tap="_handleDeleteMessage">Delete</paper-button>
+        <paper-button>Reply</paper-button>
+        <paper-button>Call number</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -98,6 +119,16 @@
 
       _showPrevious: function() {
         this.fire('prev');
+      },
+
+      _handleDeleteMessage: function() {
+        var dialog = this.$['confirm-delete-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
+      },
+
+      _formatDate: function(stamp) {
+        return moment(Number(stamp)).format("ddd, MMM Do YYYY, h:mm:ss a"); 
       },
 
     });
