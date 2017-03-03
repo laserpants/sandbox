@@ -13,11 +13,12 @@
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="box/connection-monitor.html">
 <link rel="import" href="box/message-handler.html">
 <link rel="import" href="channels/channel-list.html">
+<link rel="import" href="error-dialog.html">
 <link rel="import" href="messages/message-inbox.html">
 <link rel="import" href="messages/message-outbox.html">
-<link rel="import" href="error-dialog.html">
 
 <dom-module id="message-app">
   <template>
@@ -78,6 +79,11 @@
       on-message = "handleMessage"
       on-error   = "handleError">
     </message-handler>
+    <connection-monitor
+      id         = "monitor"
+      connected  = "{{boxConnected}}"
+      on-message = "sendMessage">
+    </connection-monitor>
     <error-dialog
       id         = "error-dialog">
     </error-dialog>
@@ -96,7 +102,7 @@
           <paper-tab>
             <div class="layout vertical center">
               <iron-icon icon="av:volume-up"></iron-icon>
-              <label>Mixer</label>
+              <label>Mixer: [[boxConnected]]</label>
             </div>
           </paper-tab>
           <paper-tab>
@@ -173,6 +179,10 @@
           type: Number,
           value: 0,
         },
+        boxConnected: {
+          type: Boolean,
+          value: false,
+        },
       },
 
       ready: function() {
@@ -191,7 +201,9 @@
       },
 
       handleMessage: function(event, payload) {
-        console.log(payload);
+        if ('pong' != payload.event) {
+          console.log(payload);
+        }
         switch (payload.event) {
           case 'inboxMessages':
             var messages = payload.data.messages;
@@ -263,6 +275,9 @@
             dialog.message = payload.data.msg;
             Polymer.dom(document.querySelector('body')).appendChild(dialog);
             dialog.open();
+            break;
+          case 'pong':
+            this.$.monitor.pong();
             break;
           case 'channelUpdate':
           default:

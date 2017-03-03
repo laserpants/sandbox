@@ -1,0 +1,43 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="connection-monitor">
+  <template></template>
+  <script>
+
+    Polymer({
+
+      is: 'connection-monitor',
+
+      properties: {
+        connected: {
+          type: Boolean,
+          value: false,
+          notify: true,
+        },
+      },
+
+      ready: function() {
+        this._lastPong = Date.now();
+        window.setInterval(function() {
+          this.fire('message', {
+            event: 'ping',
+            data: null,
+          });
+        }.bind(this), 3000);
+        window.setInterval(function() {
+          var elapsed = Date.now() - this._lastPong;
+          if (elapsed > 7000) {
+            this.connected = false;
+          }
+        }.bind(this), 30);
+      },
+
+      pong: function() {
+        this._lastPong = Date.now();
+        this.connected = true;
+      },
+
+    });
+
+  </script>
+</dom-module>

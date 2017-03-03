@@ -42,7 +42,9 @@
       },
 
       send: function(data) {
-        console.log(data);
+        if (data.event != 'ping') {
+          console.log(data);
+        }
         this.socket.send(JSON.stringify(data));
       },
 
@@ -54,4 +56,3 @@
 
   </script>
 </dom-module>
-
