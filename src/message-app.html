@@ -290,8 +290,11 @@
         if (1 === tab) {
           window.setTimeout(function() {
             var inbox = this.$['inbox'];
-            inbox._getList().scrollToIndex(0);
             var last = inbox._getList().lastVisibleIndex;
+            if (isNaN(last) || last < 0) {
+              inbox._getList().scrollToIndex(0);
+              last = inbox._getList().lastVisibleIndex;
+            }
             inbox.atEnd = last >= Math.max(0, inbox.filtered.length - 3);
             if (last > inbox.freshold) {
               inbox.freshold = last;
