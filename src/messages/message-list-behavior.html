@@ -59,6 +59,19 @@
       this._updateGeometry();
     },
 
+    deleteMessage: function(index) {
+      this.splice('messages', index, 1);
+      // ...
+    },
+
+    deleteMessageCollection: function(items) {
+      items.forEach(function(item) {
+        var index = this.messages.indexOf(item);
+        this.splice('messages', index, 1);
+      }, this);
+      // ...
+    },
+
     showNextMessage: function() {
       var details = this.$.details;
       var index = (details.index + 1) % this.messages.length;
@@ -143,38 +156,30 @@
       }
     },
 
-    _deleteMessage: function(e) {
+    _handleDeleteConfirmed: function(e) {
       e.srcElement.close();
-      this.splice('messages', e.detail, 1);
-      var toast = document.createElement('paper-toast');
-      toast.text = 'The message was deleted.';
-      document.body.appendChild(toast); 
-      toast.show();
+      this.deleteMessage(e.detail);
+      this._showToast('The message was deleted.');
     },
 
-    _deleteSelection: function() {
+    _handleDeleteSelection: function() {
       var selection = [];
       this.selection.forEach(function(item) {
         selection.push(item);
       }, this);
       var count = selection.length;
-      selection.forEach(function(item) {
-        var index = this.messages.indexOf(item);
-        this.splice('messages', index, 1);
-      }, this);
+      this.deleteMessageCollection(selection);
       this.$.list.clearSelection();
       if (this.$.grid) { 
         this.$.grid.clearSelection();
       }
       this.selection = [];
+      this._showToast((1 == count ? 'One message' : count + ' messages') + ' deleted.');
+    },
+
+    _showToast: function(text) {
       var toast = document.createElement('paper-toast');
-      var num = null;
-      if (1 == count) {
-        num = 'One message';
-      } else {
-        num = count + ' messages';
-      }
-      toast.text = num + ' deleted.';
+      toast.text = text;
       document.body.appendChild(toast); 
       toast.show();
     },
