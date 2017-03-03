@@ -118,6 +118,11 @@
       },
 
       _handleKeyEvent: function(e) {
+        if (e.keyCode === 37) {
+          this._showPrevious();
+        } else if (e.keyCode === 39) {
+          this._showNext();
+        }
       },
 
       _showNext: function() {
