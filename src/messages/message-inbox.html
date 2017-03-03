@@ -318,7 +318,7 @@
       },
 
       _unreadCount: function(filtered, freshold, messages) {
-        return messages.length - this.freshold;
+        return Math.max(0, messages.length - this.freshold);
       },
 
       _getList: function() {
