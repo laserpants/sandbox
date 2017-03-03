@@ -10,6 +10,7 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
@@ -71,6 +72,19 @@
         text-transform: uppercase;
       }
 
+      paper-spinner {
+        width: 62px;
+        height: 62px;
+      }
+
+      .spinner-container {
+        width: 100vw; 
+        height: 100vh; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+      }
+
     </style>
     <message-handler 
       id         = "message-handler"
@@ -96,7 +110,10 @@
         </defs>
       </svg>
     </iron-iconset-svg>
-    <app-header-layout fullbleed>
+    <div class="spinner-container">
+      <paper-spinner active="[[!hasInitialized]]"></paper-spinner>
+    </div>
+    <app-header-layout hidden$="[[!hasInitialized]]" fullbleed>
       <app-header fixed>
         <paper-tabs selected="{{tab}}">
           <paper-tab>
@@ -183,6 +200,10 @@
           type: Boolean,
           value: false,
         },
+        hasInitialized: {
+          type: Boolean,
+          value: false,
+        },
       },
 
       ready: function() {
@@ -204,6 +225,7 @@
         if ('pong' != payload.event) {
           console.log(payload);
         }
+        this.$.monitor.pong();
         switch (payload.event) {
           case 'inboxMessages':
             var messages = payload.data.messages;
@@ -269,6 +291,9 @@
               count: 1000,
             });
             this.channels = payload.data.mixer.channels;
+            window.setTimeout(function() {
+              this.hasInitialized = true;
+            }.bind(this), 1000);
             break;
           case 'event_error':
             var dialog = this.$['error-dialog'];
