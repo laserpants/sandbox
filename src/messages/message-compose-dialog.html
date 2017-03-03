@@ -64,7 +64,10 @@
       </div>
       <paper-input
         label                = "Number"
-        value                = "{{number}}">
+        value                = "{{number}}"
+        required 
+        auto-validate 
+        error-message        = "This field is required.">
       </paper-input>
       <paper-textarea
         label                = "Message content"
