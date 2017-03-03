@@ -124,12 +124,14 @@
           id              = "inbox"
           on-message      = "sendMessage"
           unread          = "{{unread}}"
-          messages        = "[[inbox]]">
+          messages        = "[[inbox]]"
+          channels        = "[[visibleChannels]]">
         </message-inbox>
         <message-outbox
           id              = "outbox"
           on-message      = "sendMessage"
-          messages        = "[[outbox]]">
+          messages        = "[[outbox]]"
+          channels        = "[[visibleChannels]]">
         </message-outbox>
       </iron-pages>
     </app-header-layout>
@@ -154,6 +156,14 @@
           type: Array,
           value: [],
         },
+        channels: {
+          type: Object,
+          value: {},
+        },
+        visibleChannels: {
+          type: Array,
+          computed: '_computedChannels(channels, channels.*)',
+        },
         unread: {
           type: Number,
           value: 0,
@@ -168,11 +178,7 @@
       },
 
       handleConnectionOpened: function() {
-        this.send('inboxFetch', {
-          filter: [], 
-          after_id: null,
-          count: 1000,
-        });
+        console.log('handleConnectionOpened()');
       },
 
       handleConnectionClosed: function() {
@@ -219,6 +225,12 @@
             break;
           case 'initialize':
             console.log("              .,,,''''''',,\n         .,,,/           ,~~~\\.     /~~~\\     \\   \\\n/     __/               /      \\_'''',,,/     ))  ))\n\\_O--/                  |       \\    __ \",,  //  //\n    |                    /  \\_  /     @)  ''//_ //\n   |                      ',,,/      ~~    //  ~~__\n   |          )             (           __//        ---___ _/OO\n    \\          )     /    )   ( ,,,,   (_Q   '''----_______,_/\n      \\       |--.-- #|   |,,,/\\_   ~~\\/\n        \\____________#| /    \\_ ''\\___\n         /  /    _/  /         ~~\\ __ \\\n        /__/   #|__/                 |##\n        |##    ~~");
+            this.send('inboxFetch', {
+              filter: [], 
+              after_id: null,
+              count: 1000,
+            });
+            this.channels = payload.data.mixer.channels;
             break;
           case 'channelUpdate':
           default:
@@ -232,6 +244,14 @@
 
       sendMessage: function(e) {
         this.$['message-handler'].send(e.detail);
+      },
+
+      _computedChannels: function(channels) {
+        return Object.keys(channels).map(function(id) {
+          var channel = channels[id];
+          channel.id = id;
+          return channel;
+        });
       },
 
       _truncated: function(str, lim) {
