@@ -151,6 +151,7 @@
           type: Number,
           value: 0,
           notify: true,
+          observer: '_tabChanged',
         },
         inbox: {
           type: Array,
@@ -283,6 +284,14 @@
           channel.id = id;
           return channel;
         });
+      },
+
+      _tabChanged: function(tab) {
+        if (1 === tab) {
+          window.setTimeout(function() {
+            this.$['inbox'].onScroll();
+          }.bind(this), 500);
+        }
       },
 
       _truncated: function(str, lim) {

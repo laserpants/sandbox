@@ -1,0 +1,53 @@
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="error-dialog">
+  <template>
+    <style>
+
+      paper-button {
+        color: rgb(0, 188, 212);
+      }
+
+    </style>
+    <paper-dialog 
+      id                     = "dialog"
+      style                  = "width: 550px;"
+      modal>
+      <h2>[[title]]</h2>
+      <p>[[message]]</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Ok</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+  <script>
+
+    Polymer({
+
+      is: 'error-dialog',
+
+      properties: {
+        title: {
+          type: String,
+          value: 'An error occurred',
+        },
+        message: {
+          type: String,
+          value: '',
+        },
+      },
+
+      open: function() {
+        this.$.dialog.open();
+      },
+
+      close: function() {
+        this.$.dialog.close();
+      },
+
+    });
+
+  </script>
+</dom-module>

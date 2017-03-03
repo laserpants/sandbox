@@ -220,6 +220,10 @@
       onScroll: function() {
         this._updateScrollIndex();
         var last = this._getList().lastVisibleIndex;
+        if (isNaN(last)) {
+          console.warn('lastVisibleIndex is NaN');
+          last = 1;
+        }
         if (last > this.freshold) {
           this.freshold = last;
         }
