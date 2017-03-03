@@ -196,6 +196,10 @@
       onFavoriteToggled: function(e) {
         var value = !e.model.item.favorite;
         this.set('filtered.' + e.model.index + '.favorite', value);
+        this.fire('message', {
+          event: (value ? 'messageFavoriteSet' : 'messageFavoriteUnset'),
+          data: [e.model.item.id],
+        });
       },
 
       onStarSelection: function() {
@@ -207,14 +211,22 @@
       },
 
       onUnstarAll: function() {
+        var ids = [];
         this.messages
           .filter(function(item) { 
             return !!item.favorite; 
           }, this)
           .forEach(function(item) {
             this.set('filtered.' + this.filtered.indexOf(item) + '.favorite', false);
+            ids.push(item.id);
           }, this);
         this.filterStarred = false;
+        if (ids.length) {
+          this.fire('message', {
+            event: 'messageFavoriteUnset',
+            data: ids,
+          });
+        }
       },
 
       onScroll: function() {
@@ -249,12 +261,24 @@
           var current = ('boolean' === typeof(value)) ? !!item[prop] : item[prop];
           return current != value; 
         }, this);
+        var ids = [];
         this._process(selection, function(item) {
           this.set('filtered.' + this.filtered.indexOf(item) + '.' + prop, value);
+          ids.push(item.id);
         }, function() {
           this._getList().clearSelection();
           this._updateSelection();
         });
+        if ('favorite' === prop) {
+          if (ids.length) {
+            this.fire('message', {
+              event: (value ? 'messageFavoriteSet' : 'messageFavoriteUnset'),
+              data: ids,
+            });
+          }
+        } else {
+          // ...
+        }
       },
 
       _filterStarredChanged: function(filterStarred) {
