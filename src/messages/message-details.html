@@ -44,6 +44,10 @@
         word-wrap: break-word;
       }
 
+      .buttons {
+        justify-content: flex-start;
+      }
+
     </style>
     <message-compose-dialog
       id                  = "message-compose-dialog"
@@ -84,10 +88,12 @@
           </div>
         </div>
       </div>
-      <div>
+      <div class="buttons">
         <paper-button on-tap="_confirmDeleteMessage">Delete</paper-button>
         <paper-button on-tap="_replyMessage">Reply</paper-button>
+        <!--
         <paper-button>Call number</paper-button>
+        -->
       </div>
     </paper-dialog>
   </template>

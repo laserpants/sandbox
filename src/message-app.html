@@ -289,8 +289,14 @@
       _tabChanged: function(tab) {
         if (1 === tab) {
           window.setTimeout(function() {
-            this.$['inbox'].onScroll();
-          }.bind(this), 500);
+            var inbox = this.$['inbox'];
+            inbox._getList().scrollToIndex(0);
+            var last = inbox._getList().lastVisibleIndex;
+            inbox.atEnd = last >= Math.max(0, inbox.filtered.length - 12);
+            if (last > inbox.freshold) {
+              inbox.freshold = last;
+            }
+          }.bind(this), 50);
         }
       },
 

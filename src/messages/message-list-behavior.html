@@ -164,6 +164,10 @@
       }.bind(this);
       if (selection.length) {
         processChunk();
+      } else {
+        if ('function' === typeof (done)) {
+          done.call(this);
+        }
       }
     },
 

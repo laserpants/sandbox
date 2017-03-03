@@ -232,11 +232,6 @@
       onScroll: function() {
         this._updateScrollIndex();
         var last = this._getList().lastVisibleIndex;
-        if (isNaN(last)) {
-          this._getList().scrollToIndex(0);
-          last = this._getList().lastVisibleIndex;
-          this.atEnd = last >= Math.max(0, this.filtered.length - 12);
-        }
         if (last > this.freshold) {
           this.freshold = last;
         }
