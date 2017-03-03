@@ -32,6 +32,11 @@
         --primary-color: rgb(0, 188, 212);
       }
 
+      paper-button[disabled] {
+        color: #cacaca;
+        background: none;
+      }
+
     </style>
     <paper-dialog
       id                     = "dialog"
@@ -79,7 +84,7 @@
       </paper-textarea>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm autofocus>Send</paper-button>
+        <paper-button disabled="[[_formValid(number)]]" dialog-confirm autofocus>Send</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -121,6 +126,10 @@
           this.fire('confirmed');
         }
       },
+
+      _formValid: function(number) {
+        return !number;
+      }
 
     });
 
