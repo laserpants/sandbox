@@ -6,32 +6,11 @@
 <link rel="import" href="message-details.html">
 <link rel="import" href="message-list-behavior.html">
 <link rel="import" href="message-list-item.html">
+<link rel="import" href="message-list-styles.html">
 
 <dom-module id="message-outbox">
   <template>
-    <style>
-
-      :host {
-        height: 100%;
-        display: flex; 
-      }
-
-      .no-messages {
-        display: flex;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
-      }
-      
-      .no-messages > paper-material {
-        text-align: center;
-        margin-bottom: 100px;
-        padding: 60px;
-        width: 400px;
-        background: white;
-      }
-
-    </style>
+    <style include="message-list-styles"></style>
     <confirm-delete-dialog 
       id                      = "confirm-delete-dialog" 
       on-delete-confirmed     = "_deleteSelection"
@@ -88,10 +67,18 @@
       is: 'message-outbox',
 
       properties: {
+        isEmpty: {
+          type: Boolean,
+          value: false,
+        },
       },
 
       behaviors: [
         MessageListBehavior,
+      ],
+
+      observers: [
+        '_updateIsEmpty(messages, messages.*)',
       ],
 
       onScroll: function() {
@@ -102,6 +89,13 @@
           var list = this._getList();
           e.model.selected ? list.deselectItem(e.model.index) 
                            : list.selectItem(e.model.index);
+        }
+      },
+
+      _updateIsEmpty: function(messages) {
+        var nothing = !messages.length;
+        if (this.isEmpty != nothing) {
+          this.isEmpty = nothing;
         }
       },
 
