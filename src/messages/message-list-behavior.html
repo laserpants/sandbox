@@ -201,6 +201,22 @@
       toast.show();
     },
 
+    _handleSMSOut: function(e) {
+      var message = e.detail;
+      message.type = 'sms_out';
+      this._sendSMS(message);
+    },
+
+    _sendSMS: function(message) {
+      var id = (Date.now()+'').substr(-8) + (++this._messageCount);
+      var payload = {};
+      payload[id] = message;
+      this.fire('message', {
+        event: 'messageSend',
+        data: payload,
+      });
+    },
+
   };
 </script>
 

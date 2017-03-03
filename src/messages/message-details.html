@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="confirm-delete-dialog.html">
+<link rel="import" href="message-compose-dialog.html">
 
 <dom-module id="message-details">
   <template>
@@ -44,9 +45,14 @@
       }
 
     </style>
+    <message-compose-dialog
+      id                  = "message-compose-dialog"
+      on-confirmed        = "onMessageComposeConfirmed"
+      channels            = "[[channels]]">
+    </message-compose-dialog>
     <confirm-delete-dialog 
       id                  = "confirm-delete-dialog" 
-      on-delete-confirmed = "_deleteItem"
+      on-delete-confirmed = "onDeleteConfirmed"
       selection-size      = "1">
     </confirm-delete-dialog>
     <paper-dialog 
@@ -80,7 +86,7 @@
       </div>
       <div>
         <paper-button on-tap="_confirmDeleteMessage">Delete</paper-button>
-        <paper-button>Reply</paper-button>
+        <paper-button on-tap="_replyMessage">Reply</paper-button>
         <paper-button>Call number</paper-button>
       </div>
     </paper-dialog>
@@ -117,6 +123,19 @@
         this.$.dialog.close();
       },
 
+      onDeleteConfirmed: function() {
+        this.fire('delete-item', this.index);
+      },
+      
+      onMessageComposeConfirmed: function() {
+        var dialog = this.$['message-compose-dialog'];
+        this.fire('sms-out', {
+          endpoint: dialog.number,
+          content: dialog.message,
+          channel_id: ('__auto__' === dialog.channel ? null : dialog.channel),
+        });
+      },
+
       _handleKeyEvent: function(e) {
         if (e.keyCode === 37) {
           this._showPrevious();
@@ -139,8 +158,11 @@
         dialog.open();
       },
 
-      _deleteItem: function() {
-        this.fire('delete-item', this.index);
+      _replyMessage: function() {
+        var dialog = this.$['message-compose-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
+        dialog.number = this.sender;
       },
 
       _formatDate: function(stamp) {
