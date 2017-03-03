@@ -170,7 +170,7 @@
         },
         unread: {
           type: Number,
-          computed: '_unreadCount(filtered, freshold, messages.*)',
+          computed: '_unreadCount(filtered, freshold, messages, messages.*)',
           notify: true,
         },
       },
@@ -302,7 +302,7 @@
       },
 
       _unreadCount: function(filtered, freshold, messages) {
-        return this.messages.length - freshold;
+        return messages.length - this.freshold;
       },
 
       _getList: function() {
@@ -327,6 +327,12 @@
         var dialog = this.$['message-compose-dialog'];
         Polymer.dom(document.querySelector('body')).appendChild(dialog);
         dialog.open();
+      },
+
+      _afterMessageDelete: function(count) {
+        if (count) {
+          this.freshold = Math.max(0, this.freshold - count);
+        }
       },
 
     });

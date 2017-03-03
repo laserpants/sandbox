@@ -171,6 +171,9 @@
       e.srcElement.close();
       this.deleteMessage(e.detail);
       this._showToast('The message was deleted.');
+      if ('function' === typeof(this._afterMessageDelete)) {
+        this._afterMessageDelete(1);
+      }
     },
 
     _handleDeleteSelection: function() {
@@ -186,6 +189,9 @@
       }
       this.selection = [];
       this._showToast((1 == count ? 'One message' : count + ' messages') + ' deleted.');
+      if ('function' === typeof(this._afterMessageDelete)) {
+        this._afterMessageDelete(count);
+      }
     },
 
     _showToast: function(text) {
