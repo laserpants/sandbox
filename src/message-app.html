@@ -218,11 +218,24 @@
           case 'inboxUpdate':
             var only = null, count = 0;
             Object.keys(payload.data).forEach(function(key) {
-              var message = payload.data[key];
-              message.id = key;
-              this.push('sms_in' === message.type ? 'inbox' : 'outbox', message);
-              if ('sms_in' === message.type) {
-                only = 1 == ++count ? message : null;
+              if (payload.data[key]) {
+                var message = payload.data[key];
+                message.id = key;
+                this.push('sms_in' === message.type ? 'inbox' : 'outbox', message);
+                if ('sms_in' === message.type) {
+                  only = 1 == ++count ? message : null;
+                }
+              } else {
+                this.inbox.forEach(function(item) {
+                  if (item.id !== key) return;
+                  var index = this.inbox.indexOf(item);
+                  this.splice('inbox', index, 1);
+                }, this);
+                this.outbox.forEach(function(item) {
+                  if (item.id !== key) return;
+                  var index = this.outbox.indexOf(item);
+                  this.splice('outbox', index, 1);
+                }, this);
               }
             }, this);
             if (count) {
