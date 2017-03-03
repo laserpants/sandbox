@@ -41,14 +41,25 @@
       modal>
       <h2>Send message</h2>
       <div>
-        <label id            = "label1">Channel:</label>
+        <label id            = "label1">
+          Channel:
+        </label>
         <paper-radio-group
           id                 = "channel"
           selected           = "{{channel}}"
           aria-labelledby    = "label1">
-          <paper-radio-button name="a">Airtel 1</paper-radio-button>
-          <paper-radio-button name="b">Tigo</paper-radio-button>
-          <paper-radio-button name="c">Auto-select</paper-radio-button>
+          <template 
+            is               = "dom-repeat" 
+            items            = "[[channels]]">
+            <paper-radio-button 
+              name           = "[[item.id]]">
+              [[item.id]]
+            </paper-radio-button>
+          </template>
+          <paper-radio-button 
+            name             = "__auto__">
+            Auto-select
+          </paper-radio-button>
         </paper-radio-group>
       </div>
       <paper-input
@@ -85,7 +96,7 @@
         },
         channel: {
           type: String,
-          value: '',
+          value: '__auto__',
         },
       },
 
@@ -97,7 +108,7 @@
       reset: function() {
         this.message = '';
         this.number  = '';
-        this.channel = 'c';
+        this.channel = '__auto__';
       },
 
       onClosed: function(event) {
