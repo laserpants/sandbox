@@ -88,19 +88,21 @@
 
     </style>
     <message-handler 
-      id         = "message-handler"
-      on-open    = "handleConnectionOpened"
-      on-close   = "handleConnectionClosed"
-      on-message = "handleMessage"
-      on-error   = "handleError">
+      id                  = "message-handler"
+      on-open             = "handleConnectionOpened"
+      on-close            = "handleConnectionClosed"
+      on-message          = "handleMessage"
+      on-error            = "handleError">
     </message-handler>
     <connection-monitor
-      id         = "monitor"
-      connected  = "{{boxConnected}}"
-      on-message = "sendMessage">
+      id                  = "monitor"
+      connected           = "{{boxConnected}}"
+      on-connected        = "onConnected"
+      on-disconnected     = "onDisconnected"
+      on-message          = "sendMessage">
     </connection-monitor>
     <error-dialog
-      id         = "error-dialog">
+      id                  = "error-dialog">
     </error-dialog>
     <iron-iconset-svg name="custom" size="24">
       <svg>
@@ -111,19 +113,28 @@
         </defs>
       </svg>
     </iron-iconset-svg>
+    <error-dialog
+      opened              = "[[!online]]"
+      title               = "Network unavailable"
+      message             = "Please check your local area network connection.">
+    </error-dialog>
+    <error-dialog
+      opened              = "[[_boxUnavailable(hasInitialized, online, boxConnected)]]"
+      title               = "The VoxBox is not responding">
+      <p style="margin-bottom: 30px;">
+        If the problem persists, please get in touch with your FRI contact for assistance.
+      </p>
+    </error-dialog>
     <div class="spinner-container">
-      <paper-spinner active="[[!hasInitialized]]"></paper-spinner>
+      <paper-spinner active="[[_spinnerVisible(hasInitialized)]]"></paper-spinner>
     </div>
-    <app-header-layout hidden$="[[!hasInitialized]]" fullbleed>
+    <app-header-layout hidden$="[[_uiHidden(hasInitialized, online, boxConnected)]]" fullbleed>
       <app-header fixed>
         <paper-tabs selected="{{tab}}">
           <paper-tab>
             <div class="layout vertical center">
               <iron-icon icon="av:volume-up"></iron-icon>
-              <label>connected: [[boxConnected]] Online [[online]]</label>
-              <!--
               <label>Mixer</label>
-              -->
             </div>
           </paper-tab>
           <paper-tab>
@@ -214,7 +225,20 @@
         Polymer.AppNetworkStatusBehavior, 
       ],
 
+      onConnected: function() {
+        console.log('onConnected');
+      },
+
+      onDisconnected: function() {
+        console.log('onDisconnected');
+      },
+
       ready: function() {
+        window.setTimeout(function() {
+          if (!this.hasInitialized) {
+            this.hasInitialized = true;          // Connection timeout
+          }
+        }.bind(this), 10000);
       },
 
       send: function(event, data) {
@@ -306,6 +330,7 @@
           case 'event_error':
             var dialog = this.$['error-dialog'];
             dialog.message = payload.data.msg;
+            dialog.canDismiss = true;
             Polymer.dom(document.querySelector('body')).appendChild(dialog);
             dialog.open();
             break;
@@ -349,6 +374,18 @@
             }
           }.bind(this), 50);
         }
+      },
+
+      _spinnerVisible: function(hasInitialized) {
+        return !hasInitialized;
+      },
+
+      _uiHidden: function(hasInitialized, online, boxConnected) {
+        return !online || !hasInitialized || !boxConnected;
+      },
+
+      _boxUnavailable: function(hasInitialized, online, boxConnected) {
+        return online && hasInitialized && !boxConnected;
       },
 
       _truncated: function(str, lim) {

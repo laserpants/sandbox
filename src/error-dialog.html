@@ -6,6 +6,10 @@
   <template>
     <style>
 
+      paper-dialog {
+        min-height: 130px;
+      }
+
       paper-button {
         color: rgb(0, 188, 212);
       }
@@ -14,12 +18,16 @@
     <paper-dialog 
       id                     = "dialog"
       style                  = "width: 550px;"
+      opened                 = "{{opened}}"
       modal>
       <h2>[[title]]</h2>
       <p>[[message]]</p>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Ok</paper-button>
-      </div>
+      <content></content>
+      <template is="dom-if" if="[[canDismiss]]">
+        <div class="buttons">
+          <paper-button dialog-dismiss>Ok</paper-button>
+        </div>
+      </template>
     </paper-dialog>
   </template>
   <script>
@@ -36,6 +44,14 @@
         message: {
           type: String,
           value: '',
+        },
+        opened: {
+          type: Boolean,
+          value: false,
+        },
+        canDismiss: {
+          type: Boolean,
+          value: false,
         },
       },
 

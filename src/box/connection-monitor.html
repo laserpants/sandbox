@@ -19,6 +19,7 @@
       ready: function() {
         this._lastPong = Date.now();
         window.setInterval(function() {
+          console.log('ping!');
           this.fire('message', {
             event: 'ping',
             data: null,
@@ -26,14 +27,19 @@
         }.bind(this), 3000);
         window.setInterval(function() {
           var elapsed = Date.now() - this._lastPong;
-          if (elapsed > 7000) {
+          if (this.connected && elapsed > 7000) {
+            this.fire('disconnected');
             this.connected = false;
           }
         }.bind(this), 30);
       },
 
       pong: function() {
+        console.log('pong!');
         this._lastPong = Date.now();
+        if (!this.connected) {
+          this.fire('connected');
+        }
         this.connected = true;
       },
 
