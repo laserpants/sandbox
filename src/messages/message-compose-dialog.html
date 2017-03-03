@@ -63,6 +63,7 @@
         </paper-radio-group>
       </div>
       <paper-input
+        id                   = "number-input"
         label                = "Number"
         value                = "{{number}}"
         required 
@@ -112,6 +113,7 @@
         this.message = '';
         this.number  = '';
         this.channel = '__auto__';
+        this.$['number-input'].invalid = false;
       },
 
       onClosed: function(event) {
