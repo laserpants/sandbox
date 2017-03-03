@@ -261,11 +261,13 @@
         this.$.grid.clearSelection();
         this.selection = [];
 
+        var index = this.scrollIndex;
         if (!filterStarred) {
-          // There should be a cleaner way to do this!
+          // There must be a cleaner way to do this!
           window.setTimeout(function() {
-            this._getList().scrollToIndex(this.scrollIndex);
-          }.bind(this), 5);
+            this._getList().scrollToIndex(index);
+            this._updateScrollIndex();
+          }.bind(this), 2);
         }
       },
 
@@ -306,6 +308,8 @@
           this.isEmpty = nothing;
           if (this.isEmpty) 
             this.atEnd = true;
+          else
+            this._updateScrollIndex();
         }
       },
 
