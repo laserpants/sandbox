@@ -36,7 +36,9 @@
 
     </style>
     <message-compose-dialog
-      id                      = "message-compose-dialog">
+      id                      = "message-compose-dialog"
+      on-confirmed            = "_handleSendMessage"
+      channels                = "[[channels]]">
     </message-compose-dialog>
     <confirm-delete-dialog 
       id                      = "confirm-delete-dialog" 
@@ -117,7 +119,7 @@
     </paper-fab>
     <paper-fab
       icon                    = "communication:message"
-      on-tap                  = "_openComposeMsgDialog"
+      on-tap                  = "_openMessageDialog"
       style                   = "bottom: 74px;">
     </paper-fab>
     <message-controls
@@ -254,7 +256,7 @@
         this.selection = [];
 
         if (!filterStarred) {
-          // There should -- and could -- be a cleaner way to do this!
+          // There should be a cleaner way to do this!
           window.setTimeout(function() {
             this._getList().scrollToIndex(this.scrollIndex);
           }.bind(this), 5);
@@ -323,7 +325,7 @@
         }
       },
 
-      _openComposeMsgDialog: function() {
+      _openMessageDialog: function() {
         var dialog = this.$['message-compose-dialog'];
         Polymer.dom(document.querySelector('body')).appendChild(dialog);
         dialog.open();
@@ -333,6 +335,13 @@
         if (count) {
           this.freshold = Math.max(0, this.freshold - count);
         }
+      },
+
+      _handleSendMessage: function() {
+        var dialog = this.$['message-compose-dialog'];
+        console.log(dialog.message);
+        console.log(dialog.number);
+        console.log(dialog.channel);
       },
 
     });
