@@ -17,6 +17,7 @@
 <link rel="import" href="channels/channel-list.html">
 <link rel="import" href="messages/message-inbox.html">
 <link rel="import" href="messages/message-outbox.html">
+<link rel="import" href="error-dialog.html">
 
 <dom-module id="message-app">
   <template>
@@ -77,6 +78,9 @@
       on-message = "handleMessage"
       on-error   = "handleError">
     </message-handler>
+    <error-dialog
+      id         = "error-dialog">
+    </error-dialog>
     <iron-iconset-svg name="custom" size="24">
       <svg>
         <defs>
@@ -239,6 +243,12 @@
               count: 1000,
             });
             this.channels = payload.data.mixer.channels;
+            break;
+          case 'event_error':
+            var dialog = this.$['error-dialog'];
+            dialog.message = payload.data.msg;
+            Polymer.dom(document.querySelector('body')).appendChild(dialog);
+            dialog.open();
             break;
           case 'channelUpdate':
           default:
