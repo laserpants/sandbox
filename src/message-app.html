@@ -122,11 +122,13 @@
         </div>
         <message-inbox 
           id              = "inbox"
+          on-message      = "sendMessage"
           unread          = "{{unread}}"
           messages        = "[[inbox]]">
         </message-inbox>
         <message-outbox
           id              = "outbox"
+          on-message      = "sendMessage"
           messages        = "[[outbox]]">
         </message-outbox>
       </iron-pages>
@@ -226,6 +228,10 @@
 
       handleError: function() {
         console.log('handleError()');
+      },
+
+      sendMessage: function(e) {
+        this.$['message-handler'].send(e.detail);
       },
 
       _truncated: function(str, lim) {

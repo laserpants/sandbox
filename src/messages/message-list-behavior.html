@@ -60,16 +60,27 @@
     },
 
     deleteMessage: function(index) {
+      var message = this.messages[index];
+      var data = {};
+      data[message.id] = null;
       this.splice('messages', index, 1);
-      // ...
+      this.fire('message', {
+        event: 'messageDelete',
+        data: data,
+      });
     },
 
     deleteMessageCollection: function(items) {
+      var data = {};
       items.forEach(function(item) {
         var index = this.messages.indexOf(item);
+        data[item.id] = null;
         this.splice('messages', index, 1);
       }, this);
-      // ...
+      this.fire('message', {
+        event: 'messageDelete',
+        data: data,
+      });
     },
 
     showNextMessage: function() {
