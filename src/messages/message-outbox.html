@@ -9,7 +9,29 @@
 
 <dom-module id="message-outbox">
   <template>
-    <style></style>
+    <style>
+
+      :host {
+        height: 100%;
+        display: flex; 
+      }
+
+      .no-messages {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .no-messages > paper-material {
+        text-align: center;
+        margin-bottom: 100px;
+        padding: 60px;
+        width: 400px;
+        background: white;
+      }
+
+    </style>
     <confirm-delete-dialog 
       id                      = "confirm-delete-dialog" 
       on-delete-confirmed     = "_deleteSelection"
@@ -21,6 +43,13 @@
       on-next                 = "showNextMessage"
       on-prev                 = "showPreviousMessage">
     </message-details>
+    <div
+      class                   = "no-messages"
+      hidden$                 = "[[!isEmpty]]">
+      <paper-material>
+        There are no messages here.
+      </paper-material>
+    </div>
     <iron-list
       id                      = "list"
       as                      = "item"
