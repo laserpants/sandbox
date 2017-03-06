@@ -297,7 +297,7 @@
 
       _gridModeChanged: function(gridMode) {
         var list = this._getList();
-        this._updateGeometry();
+        this.updateGeometry();
         list.scrollToIndex(this.scrollIndex);
         this.$.list.clearSelection();
         this.$.grid.clearSelection();

@@ -56,7 +56,7 @@
     },
 
     onResize: function() {
-      this._updateGeometry();
+      this.updateGeometry();
     },
 
     deleteMessage: function(index) {
@@ -99,6 +99,12 @@
       this._getList().notifyResize();
     },
 
+    updateGeometry: function() {
+      var list = this._getList();
+      list.style.height = this._calculatedHeight();
+      list.notifyResize();
+    },
+
     _updateDialog: function(dialog, item, index) {
       dialog.index = index;
       dialog.content = item.content;
@@ -112,12 +118,6 @@
 
     _computedHasSelection: function() {
       return !!this.selection.length;
-    },
-
-    _updateGeometry: function() {
-      var list = this._getList();
-      list.style.height = this._calculatedHeight();
-      list.notifyResize();
     },
 
     _calculatedHeight: function() {
