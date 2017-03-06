@@ -25,7 +25,6 @@
     "spinner-backdrop": "^1.1.0",
     "moment": "^2.17.1",
     "array-filter": "43081j/array-filter#^1.0.2",
-    "app-storage": "PolymerElements/app-storage#^0.9.8",
-    "reconnectingWebsocket": "^1.0.0"
+    "app-storage": "PolymerElements/app-storage#^0.9.8"
   }
 }

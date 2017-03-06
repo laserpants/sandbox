@@ -9,9 +9,9 @@
       is: 'message-handler',
 
       ready: function() {
-        //var hostUrl = 'ws://' + (this._getURLParameter('host_url') || '192.168.1.7:19998');
-        var hostUrl = 'ws://' + (this._getURLParameter('host_url') || 'thehangar.farmradio.org:51234');
-        this.socket = new ReconnectingWebSocket(hostUrl); 
+        var hostUrl = 'ws://' + (this._getURLParameter('host_url') || '192.168.1.7:19998');
+        //var hostUrl = 'ws://' + (this._getURLParameter('host_url') || 'thehangar.farmradio.org:51234');
+        this.socket = new WebSocket(hostUrl); 
         this.socket.onerror   = this.onError.bind(this);
         this.socket.onopen    = this.onOpen.bind(this);
         this.socket.onclose   = this.onClose.bind(this);
