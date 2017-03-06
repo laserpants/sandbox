@@ -133,7 +133,7 @@
       opened              = "[[_boxUnavailable(hasInitialized, online, boxConnected)]]"
       title               = "The VoxBox is not responding">
       <p style="text-align: center; margin: 30px;">
-        <img src="/images/giphy/nope.gif" style="height: 240px;" /> 
+        <img src="[[_nope()]]" style="height: 240px;" /> 
       </p>
       <p style="margin-bottom: 30px;">
         Please follow the troubleshooting steps in the user manual. If the problem persists, get in touch with your FRI contact person for assistance.
@@ -409,6 +409,10 @@
 
       _boxUnavailable: function(hasInitialized, online, boxConnected) {
         return online && hasInitialized && !boxConnected;
+      },
+
+      _nope: function() {
+        return '/images/giphy/nope' + ((Math.random()*7|0)+1) + '.gif';
       },
 
       _truncated: function(str, lim) {
