@@ -14,11 +14,11 @@
         this.socket = new RobustWebSocket(hostUrl, null, { 
           timeout: 4000,
           shouldReconnect: function(event, ws) {
-            if (event.code === 1008) 
-              return;
+            //if (event.code === 1008) 
+            //  return;
             return [0, 3000, 10000][ws.attempts];
           },
-          automaticOpen: true
+          automaticOpen: true,
         }); 
         this.socket.onerror   = this.onError.bind(this);
         this.socket.onopen    = this.onOpen.bind(this);

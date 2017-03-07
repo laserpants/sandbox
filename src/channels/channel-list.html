@@ -1,12 +1,39 @@
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="channel-item.html">
 
 <dom-module id="channel-list">
   <template>
     <style>
+
+      :host {
+        display: flex;
+        padding: 40px;
+      }
+
+      paper-fab {
+        position: fixed;
+        right: 30px;
+        bottom: 30px;
+        --paper-fab-background: rgb(0, 188, 212); 
+        z-index: 2;
+      }
+
+      .channel-container {
+        width: 100%;
+        display: flex; 
+        flex-flow: wrap row; 
+        justify-content: space-around;
+        overflow: auto;
+      }
+
     </style>
-
-    Channels
-
+    <div class="channel-container">
+      <template is="dom-repeat" items="{{channels}}" as="channel">
+        <channel-item channel="[[channel]]"></channel-item>
+      </template>
+    </div>
+    <paper-fab icon="communication:dialpad"></paper-fab>
   </template>
   <script>
 
