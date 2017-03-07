@@ -11,7 +11,6 @@
 <link rel="import" href="../../bower_components/iron-iconset/iron-iconset.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
-<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
@@ -54,21 +53,6 @@
         position: absolute;
       }
 
-      paper-fab {
-        position: fixed;
-        right: 30px;
-        bottom: 30px;
-        --paper-fab-background: rgb(0, 188, 212); 
-      }
-
-      paper-fab.scroll-button {
-        right: 38px;
-        bottom: 155px;
-        color: rgba(0, 0, 0, .87);
-        --paper-fab-background: white;
-        --paper-fab-keyboard-focus-background: #f4f4f4;
-      }
-
       iron-pages {
         height: 100%;
       }
@@ -95,6 +79,11 @@
         overflow: hidden;
         justify-content: center; 
         align-items: center;
+      }
+
+      p.nope {
+        text-align: center; 
+        margin: 30px 0;
       }
 
     </style>
@@ -132,8 +121,8 @@
     <error-dialog
       opened              = "[[_boxUnavailable(hasInitialized, online, boxConnected)]]"
       title               = "The VoxBox is not responding">
-      <p style="text-align: center; margin: 30px;">
-        <img src="[[_nope(boxConnected)]]" style="height: 240px;" /> 
+      <p class="nope">
+        <img src="[[_nope(boxConnected)]]" style="max-height: 240px;" /> 
       </p>
       <p style="margin-bottom: 30px;">
         Please follow the troubleshooting steps in the user manual. If the problem persists, get in touch with your Farm Radio contact person for assistance.
@@ -177,11 +166,11 @@
           </paper-tab>
         </paper-tabs>
       </app-header>
-      <iron-pages selected="[[tab]]">
-        <div>
-          <channel-list></channel-list>
-          <paper-fab icon="communication:dialpad"></paper-fab>
-        </div>
+      <iron-pages 
+        selected          = "[[tab]]">
+        <channel-list
+          channels        = "[[visibleChannels]]">
+        </channel-list>
         <message-inbox 
           id              = "inbox"
           on-message      = "sendMessage"
