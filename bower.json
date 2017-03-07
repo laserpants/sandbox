@@ -26,6 +26,7 @@
     "moment": "^2.17.1",
     "array-filter": "43081j/array-filter#^1.0.2",
     "app-storage": "PolymerElements/app-storage#^0.9.8",
-    "robust-websocket": "^0.2.1"
+    "robust-websocket": "^0.2.1",
+    "font-awesome-animation": "^0.0.10"
   }
 }
