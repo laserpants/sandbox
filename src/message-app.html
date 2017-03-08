@@ -55,6 +55,7 @@
 
       iron-pages {
         height: 100%;
+        overflow-x: hidden;
       }
 
       iron-icon, label {
@@ -120,7 +121,7 @@
     </error-dialog>
     <error-dialog
       opened              = "[[_boxUnavailable(hasInitialized, online, boxConnected)]]"
-      title               = "The VoxBox is not responding">
+      title               = "The Voxbox is not responding">
       <p class="nope">
         <img src="[[_nope(boxConnected)]]" style="max-height: 240px;" /> 
       </p>
@@ -169,6 +170,7 @@
       <iron-pages 
         selected          = "[[tab]]">
         <channel-list
+          on-message      = "sendMessage"
           channels        = "[[visibleChannels]]">
         </channel-list>
         <message-inbox 
@@ -346,6 +348,11 @@
           case 'pong':
             break;
           case 'channelUpdate':
+            Object.keys(payload.data).forEach(function(key) {
+              var channel = payload.data[key];
+              this.set('channels.' + key, channel);
+            }, this);
+            break;
           default:
             console.warn('Unhandled message type: ' + payload.event);
         }
