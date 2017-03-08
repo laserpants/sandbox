@@ -19,15 +19,17 @@
       ready: function() {
         this._lastPong = Date.now();
         window.setInterval(function() {
-          console.log('ping!');
+          if (this.debug) {
+            console.log('ping!');
+          }
           this.fire('message', {
             event: 'ping',
             data: null,
           });
-        }.bind(this), 3000);
+        }.bind(this), 2500);
         window.setInterval(function() {
           var elapsed = Date.now() - this._lastPong;
-          if (this.connected && elapsed > 10000) {
+          if (this.connected && elapsed > 8000) {
             this.fire('disconnected');
             this.connected = false;
           }
@@ -35,12 +37,14 @@
       },
 
       pong: function() {
-        console.log('pong!');
+        if (this.debug) {
+          console.log('pong!');
+        }
         this._lastPong = Date.now();
         if (!this.connected) {
           this.fire('connected');
+          this.connected = true;
         }
-        this.connected = true;
       },
 
     });
