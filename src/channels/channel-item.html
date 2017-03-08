@@ -317,7 +317,8 @@
 
       _toggleMuted: function(e) {
         var data = {};
-        data[this.channel.id] = !!this.$['mute-button'].active;
+        var button = document.querySelector('paper-icon-button#mute-button');
+        data[this.channel.id] = !!button.active;
         this.fire('message', {
           event: 'channelMuted',
           data: data,
