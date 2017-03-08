@@ -1,7 +1,12 @@
 <link rel="import" href="../../bower_components/app-storage/app-network-status-behavior.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
@@ -11,15 +16,15 @@
     <style>
 
       .channel {
-        width: 250px; 
+        width: 260px; 
         margin: 10px;
       }
 
       paper-material {
         background: white;
         @apply(--layout-vertical);
-        min-height: 400px;
         justify-content: space-between;
+        border-radius: 3px;
       }
 
       paper-slider {
@@ -41,6 +46,20 @@
         bottom: 30px;
         --paper-fab-background: rgb(0, 188, 212); 
         z-index: 2;
+      }
+
+      paper-progress.blue {
+        --paper-progress-active-color: var(--paper-light-blue-500);
+        --paper-progress-secondary-color: var(--paper-light-blue-100);
+        width: 100%;
+      }
+
+      paper-icon-item {
+        --paper-item-icon-width: 36px;
+      }
+
+      paper-menu-button {
+        padding: 0;
       }
 
       .buttons {
@@ -65,48 +84,155 @@
         font-weight: bold;
       }
 
+      .indicator {
+        margin: 0 auto; 
+        background: #f50057; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        border-radius: 50%; 
+        width: 100px; 
+        height: 100px; 
+      }
+
+      .ring {
+        color: white;
+      }
+
+      .on-hold {
+        background-color: #ffeb3b;
+      }
+
+      .on-air {
+        background-color: #ff5722;
+        color: white;
+      }
+
+      .ring.indicator iron-icon {
+        zoom: 120%;
+      }
+
     </style>
     <div class="channel">
       <paper-material>
-        <div style="margin: 12px; min-height: 350px; display: flex; flex-direction: column; justify-content: space-around;">
+        <div style="margin: 12px; min-height: 250px; display: flex; flex-direction: column; justify-content: space-around;">
           <div style="display: flex; justify-content: flex-end; align-items: center;">
             <div class="provider">[[provider]]</div>
             <div hidden$="[[!networkMode]]" class="network-mode">[[networkMode]]</div>
             <iron-icon icon="[[_signalStrengthIcon(online, channel.*)]]"></iron-icon>
           </div>
-          <div style="display: flex;">
+          <div style="display: flex; margin-top: -38px;">
             <paper-item-body two-line>
               <div>[[channel.id]]</div>
-              <div secondary>[[channel.number]]</div>
+              <div style="color: #737373; font-size: 13px;">[[channel.number]]</div>
             </paper-item-body>
           </div>
-          <div style="background: #f50057; display: flex; justify-content: center; align-items: center; min-height: 100px; color: white;">
+
+          <div>
+            [[_vardump(channel)]]
+          </div>
+
+          <!--
+          <template is="dom-if" if="[[_isMode(mode, )]]">
+          </template>
+          -->
+
+          <div style="text-align: center; margin: 10px 0;">
+            <p style="font-size: 20px; margin: 0; color: #1a88ae;">
+              Calling
+            </p>
+            <p style="color: #737373; margin: 5px 0;">
+              Sun Ra
+            </p>
+            <div style="width: 100%; margin: 8px 0;">
+              <paper-progress indeterminate class="blue"></paper-progress>
+            </div>
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-dismiss>Edit</paper-button>
+          </div>
+          <div class="ring indicator" style="">
             <iron-icon icon="social:notifications-active" class="faa-ring animated"></iron-icon>
           </div>
+
+          <div style="text-align: center; margin: 10px 0;">
+            <p style="font-size: 20px; margin: 0;">
+              Incoming call
+            </p>
+            <p style="color: #737373; margin: 5px 0;">
+              Uri Geller
+            </p>
+            <div>
+              <paper-button dialog-dismiss>Answer</paper-button>
+              <paper-button dialog-dismiss>Reject</paper-button>
+              <paper-button dialog-dismiss>Edit</paper-button>
+            </div>
+          </div>
+
+          <div class="on-hold indicator" style="">
+            <iron-icon icon="av:pause"></iron-icon>
+          </div>
+          <div style="text-align: center; margin: 10px 0;">
+            <p style="font-size: 20px; margin: 0;">
+              On hold
+            </p>
+            <p style="color: #737373; margin: 5px 0;">
+              Uri Geller
+            </p>
+            <paper-button dialog-dismiss>Resume</paper-button>
+            <paper-button dialog-dismiss>Hang up</paper-button>
+            <paper-button dialog-dismiss>Edit</paper-button>
+          </div>
+          <div class="on-air indicator" style="">
+            <iron-icon icon="av:mic"></iron-icon>
+          </div>
+
+          <div style="text-align: center; margin: 10px 0;">
+            <p style="font-size: 20px; margin: 0;">
+              On air
+            </p>
+            <p style="color: #737373; margin: 5px 0;">
+              Uri Geller
+            </p>
+            <paper-button dialog-dismiss>Hold</paper-button>
+            <paper-button dialog-dismiss>Hang up</paper-button>
+            <paper-button dialog-dismiss>Edit</paper-button>
+          </div>
+
           <div style="flex: 1;"></div>
 
-  <paper-icon-item>
-    <iron-icon icon="communication:phone" item-icon>
-    </iron-icon>
-    <paper-item-body two-line>
-      <div>(650) 555-1234</div>
-      <div secondary>Mobile</div>
-    </paper-item-body>
-  </paper-icon-item>
-
-          <div style="display: flex;">
+          <div style="display: flex; margin-top: 8px;">
             <paper-icon-button 
-              id      = "mute-button"
-              active  = "true"
-              toggles = "true"
-              icon    = "av:volume-up">
+              id                 = "mute-button"
+              on-tap             = "_toggleMuted"
+              active             = "[[channel.muted]]"
+              toggles            = "true"
+              icon               = "[[_muteIcon(channel.muted)]]">
             </paper-icon-button>
-            <paper-slider pin></paper-slider>
+            <paper-slider
+              value              = "[[channel.level]]"
+              on-immediate-value-change          
+                                 = "_handleSliderChange"
+              pin>
+            </paper-slider>
           </div>
         </div>
+        <paper-icon-item>
+          <iron-icon icon="communication:call-made" item-icon></iron-icon>
+          <paper-item-body two-line>
+            <div>(650) 555-1234</div>
+            <div secondary>Mobile</div>
+          </paper-item-body>
+          <paper-menu-button>
+            <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+            <paper-menu class="dropdown-content">
+              <paper-item>Share</paper-item>
+              <paper-item>Settings</paper-item>
+              <paper-item>Help</paper-item>
+            </paper-menu>
+          </paper-menu-button>
+        </paper-icon-item>
         <div class="buttons">
-          <paper-button dialog-dismiss>Hang up</paper-button>
-          <paper-button dialog-dismiss>Hold</paper-button>
+          <paper-button dialog-dismiss>Make a call</paper-button>
         </div>
       </paper-material>
     </div>
@@ -157,6 +283,27 @@
         }
       },
 
+      _handleSliderChange: function(e) {
+        var data = {};
+        data[this.channel.id] = {
+          name: 'level',
+          value: e.target.immediateValue,
+        };
+        this.fire('message', {
+          event: 'channelProperty',
+          data: data,
+        });
+      },
+
+      _toggleMuted: function(e) {
+        var data = {};
+        data[this.channel.id] = !!this.$['mute-button'].active;
+        this.fire('message', {
+          event: 'channelMuted',
+          data: data,
+        });
+      },
+
       _signalStrengthIcon: function(online) {
         if (this.channel.connection) {
           var rssi = this.channel.connection.rssi;
@@ -168,6 +315,14 @@
           return 'device:signal-cellular-' + warn + quality + '-bar';
         }
         return 'device:signal-cellular-null';
+      },
+
+      _muteIcon: function(muted) {
+        return muted ? 'av:volume-off' : 'av:volume-up';
+      },
+
+      _vardump: function(channel) {
+        return JSON.stringify(channel, null, 2);
       },
 
     });
