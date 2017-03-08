@@ -11,7 +11,7 @@
       ready: function() {
         var hostUrl = 'ws://' + (this._getURLParameter('host_url') || '192.168.1.7:19998');
         //var hostUrl = 'ws://' + (this._getURLParameter('host_url') || 'thehangar.farmradio.org:51234');
-        this.socket = new RobustWebSocket(hostUrl, null, { 
+        window.__socket = new RobustWebSocket(hostUrl, null, { 
           timeout: 4000,
           shouldReconnect: function(event, ws) {
             //if (event.code === 1008) 
@@ -20,10 +20,10 @@
           },
           automaticOpen: true,
         }); 
-        this.socket.onerror   = this.onError.bind(this);
-        this.socket.onopen    = this.onOpen.bind(this);
-        this.socket.onclose   = this.onClose.bind(this);
-        this.socket.onmessage = this.onMessage.bind(this);
+        window.__socket.onerror   = this.onError.bind(this);
+        window.__socket.onopen    = this.onOpen.bind(this);
+        window.__socket.onclose   = this.onClose.bind(this);
+        window.__socket.onmessage = this.onMessage.bind(this);
       },
 
       onError: function(event) {
@@ -53,7 +53,7 @@
         if (data.event != 'ping') {
           console.log(data);
         }
-        this.socket.send(JSON.stringify(data));
+        window.__socket.send(JSON.stringify(data));
       },
 
       _getURLParameter: function(name) {

@@ -158,11 +158,11 @@
               <paper-button dialog-dismiss>Cancel</paper-button>
               <paper-button dialog-dismiss>Edit</paper-button>
             </div>
+          </template>
+          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'ring-incoming')]]">
             <div class="ring indicator" style="">
               <iron-icon icon="social:notifications-active" class="faa-ring animated"></iron-icon>
             </div>
-          </template>
-          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'ring-incoming')]]">
             <div style="text-align: center; margin: 10px 0;">
               <p style="font-size: 20px; margin: 0;">
                 Incoming call
@@ -209,9 +209,7 @@
               <paper-button dialog-dismiss>Edit</paper-button>
             </div>
           </template>
-
           <div style="flex: 1;"></div>
-
           <template is="dom-if" if="[[_isActive(channel.mode)]]">
             <div style="display: flex; margin-top: 8px;">
               <paper-icon-button 
@@ -236,7 +234,6 @@
             </div>
           </template>
         </div>
-
         <template is="dom-if" if="[[_isActive(channel.mode)]]">
           <div style="padding: 12px; border-top: 1px solid #ddd;">
             <p style="margin: 0; color: #737373;">Recent calls</p>
@@ -260,7 +257,6 @@
             <paper-button dialog-dismiss>Make a call</paper-button>
           </div>
         </template>
-
       </paper-material>
     </div>
   </template>
