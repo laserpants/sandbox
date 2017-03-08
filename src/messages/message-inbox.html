@@ -192,6 +192,10 @@
 
       ready: function() {
         this._messageCount = 0;
+        var freshold = localStorage.getItem('__voxbox__fresh');
+        if (freshold) {
+          this.freshold = Number(freshold);
+        }
       },
 
       onFavoriteToggled: function(e) {
@@ -236,6 +240,12 @@
         if (last > this.freshold) {
           this.freshold = last;
         }
+        if (this._scrollTimeout) {
+          window.clearTimeout(this._scrollTimeout);
+        }
+        this._scrollTimeout = window.setTimeout(function() {
+          this._updateLocalStorage();
+        }.bind(this), 100);
       },
 
       onTap: function(e) {
@@ -320,6 +330,7 @@
       _scrollToLast: function() {
         this._getList().scrollToIndex(this.filtered.length - 1);
         this.freshold = this.filtered.length;
+        this._updateLocalStorage();
       },
 
       _filter: function(item) {
@@ -367,6 +378,7 @@
       _afterMessageDelete: function(count) {
         if (count) {
           this.freshold = Math.max(0, this.freshold - count);
+          this._updateLocalStorage();
         }
       },
 
@@ -378,6 +390,10 @@
           content: dialog.message,
           channel_id: ('__auto__' === dialog.channel ? null : dialog.channel),
         });
+      },
+
+      _updateLocalStorage: function() {
+        localStorage.setItem('__voxbox__fresh', this.freshold);
       },
 
     });

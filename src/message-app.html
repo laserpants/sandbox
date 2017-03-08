@@ -398,6 +398,7 @@
             inbox._updateScrollIndex();
             if (last > inbox.freshold) {
               inbox.freshold = last;
+              inbox._updateLocalStorage();
             }
           }.bind(this), 50);
         }
