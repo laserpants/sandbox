@@ -132,13 +132,13 @@
             </paper-item-body>
           </div>
 
-          <!--
           <div>
             <p>
               [[_vardump(channel)]]
             </p>
           </div>
 
+          <!--
           <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'free')]]">
             Free
           </template>
@@ -168,8 +168,13 @@
                 Incoming call
               </p>
               <p style="color: #737373; margin: 5px 0;">
-                Uri Geller
+                [[_callPrimary(channel)]]
               </p>
+              <template is="dom-if" if="[[_hasContactName(channel)]]">
+                <p style="margin-top: -4px; font-size: 13px;">
+                  [[_callSecondary(channel)]]
+                </p>
+              </template>
               <div>
                 <paper-button dialog-dismiss>Answer</paper-button>
                 <paper-button dialog-dismiss>Reject</paper-button>
@@ -336,6 +341,29 @@
           return 'device:signal-cellular-' + warn + quality + '-bar';
         }
         return 'device:signal-cellular-null';
+      },
+
+      _callPrimary: function(channel) {
+        if (!channel.contact) {
+          return '';
+        }
+        if (this._hasContactName(channel)) {
+          return channel.contact.name;
+        }
+        return channel.contact.number;
+      },
+
+      _callSecondary: function(channel) {
+        if (!channel.contact) {
+          return '';
+        }
+        return channel.contact.number;
+      },
+
+      _hasContactName: function(channel) {
+        return channel.contact 
+          && channel.contact.name 
+          && channel.contact.name !== channel.id;
       },
 
       _isMode: function(mode, direction, match) {
