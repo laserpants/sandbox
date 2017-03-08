@@ -311,7 +311,9 @@
         } else {
           var list = this._getList();
           this.scrollIndex = list.firstVisibleIndex;
-          this.atEnd = list.lastVisibleIndex >= Math.max(0, this.filtered.length - 3);
+          this.atEnd = this.isEmpty 
+            ? true 
+            : list.lastVisibleIndex >= Math.max(0, this.filtered.length - 3);
         }
       },
 
@@ -331,10 +333,6 @@
         var nothing = !filtered.length;
         if (this.isEmpty != nothing) {
           this.isEmpty = nothing;
-          if (this.isEmpty) 
-            this.atEnd = true;
-          else
-            this._updateScrollIndex();
         }
       },
 

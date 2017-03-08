@@ -58,6 +58,10 @@
         --paper-item-icon-width: 36px;
       }
 
+      paper-menu {
+        cursor: pointer;
+      }
+
       paper-menu-button {
         padding: 0;
       }
@@ -115,7 +119,7 @@
     </style>
     <div class="channel">
       <paper-material>
-        <div style="margin: 12px; min-height: 250px; display: flex; flex-direction: column; justify-content: space-around;">
+        <div style="margin: 12px; min-height: 100px; display: flex; flex-direction: column; justify-content: space-around;">
           <div style="display: flex; justify-content: flex-end; align-items: center;">
             <div class="provider">[[provider]]</div>
             <div hidden$="[[!networkMode]]" class="network-mode">[[networkMode]]</div>
@@ -128,112 +132,135 @@
             </paper-item-body>
           </div>
 
+          <!--
           <div>
-            [[_vardump(channel)]]
+            <p>
+              [[_vardump(channel)]]
+            </p>
           </div>
 
-          <!--
-          <template is="dom-if" if="[[_isMode(mode, )]]">
+          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'free')]]">
+            Free
           </template>
           -->
 
-          <div style="text-align: center; margin: 10px 0;">
-            <p style="font-size: 20px; margin: 0; color: #1a88ae;">
-              Calling
-            </p>
-            <p style="color: #737373; margin: 5px 0;">
-              Sun Ra
-            </p>
-            <div style="width: 100%; margin: 8px 0;">
-              <paper-progress indeterminate class="blue"></paper-progress>
-            </div>
-            <paper-button dialog-dismiss>Cancel</paper-button>
-            <paper-button dialog-dismiss>Edit</paper-button>
-          </div>
-          <div class="ring indicator" style="">
-            <iron-icon icon="social:notifications-active" class="faa-ring animated"></iron-icon>
-          </div>
-
-          <div style="text-align: center; margin: 10px 0;">
-            <p style="font-size: 20px; margin: 0;">
-              Incoming call
-            </p>
-            <p style="color: #737373; margin: 5px 0;">
-              Uri Geller
-            </p>
-            <div>
-              <paper-button dialog-dismiss>Answer</paper-button>
-              <paper-button dialog-dismiss>Reject</paper-button>
+          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'ring-outgoing')]]">
+            <div style="text-align: center; margin: 10px 0;">
+              <p style="font-size: 20px; margin: 0; color: #1a88ae;">
+                Calling
+              </p>
+              <p style="color: #737373; margin: 5px 0;">
+                Sun Ra
+              </p>
+              <div style="width: 100%; margin: 8px 0;">
+                <paper-progress indeterminate class="blue"></paper-progress>
+              </div>
+              <paper-button dialog-dismiss>Cancel</paper-button>
               <paper-button dialog-dismiss>Edit</paper-button>
             </div>
-          </div>
-
-          <div class="on-hold indicator" style="">
-            <iron-icon icon="av:pause"></iron-icon>
-          </div>
-          <div style="text-align: center; margin: 10px 0;">
-            <p style="font-size: 20px; margin: 0;">
-              On hold
-            </p>
-            <p style="color: #737373; margin: 5px 0;">
-              Uri Geller
-            </p>
-            <paper-button dialog-dismiss>Resume</paper-button>
-            <paper-button dialog-dismiss>Hang up</paper-button>
-            <paper-button dialog-dismiss>Edit</paper-button>
-          </div>
-          <div class="on-air indicator" style="">
-            <iron-icon icon="av:mic"></iron-icon>
-          </div>
-
-          <div style="text-align: center; margin: 10px 0;">
-            <p style="font-size: 20px; margin: 0;">
-              On air
-            </p>
-            <p style="color: #737373; margin: 5px 0;">
-              Uri Geller
-            </p>
-            <paper-button dialog-dismiss>Hold</paper-button>
-            <paper-button dialog-dismiss>Hang up</paper-button>
-            <paper-button dialog-dismiss>Edit</paper-button>
-          </div>
+            <div class="ring indicator" style="">
+              <iron-icon icon="social:notifications-active" class="faa-ring animated"></iron-icon>
+            </div>
+          </template>
+          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'ring-incoming')]]">
+            <div style="text-align: center; margin: 10px 0;">
+              <p style="font-size: 20px; margin: 0;">
+                Incoming call
+              </p>
+              <p style="color: #737373; margin: 5px 0;">
+                Uri Geller
+              </p>
+              <div>
+                <paper-button dialog-dismiss>Answer</paper-button>
+                <paper-button dialog-dismiss>Reject</paper-button>
+                <paper-button dialog-dismiss>Edit</paper-button>
+              </div>
+            </div>
+          </template>
+          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'on-hold')]]">
+            <div class="on-hold indicator" style="">
+              <iron-icon icon="av:pause"></iron-icon>
+            </div>
+            <div style="text-align: center; margin: 10px 0;">
+              <p style="font-size: 20px; margin: 0;">
+                On hold
+              </p>
+              <p style="color: #737373; margin: 5px 0;">
+                Uri Geller
+              </p>
+              <paper-button dialog-dismiss>Resume</paper-button>
+              <paper-button dialog-dismiss>Hang up</paper-button>
+              <paper-button dialog-dismiss>Edit</paper-button>
+            </div>
+          </template>
+          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'on-air')]]">
+            <div class="on-air indicator" style="">
+              <iron-icon icon="av:mic"></iron-icon>
+            </div>
+            <div style="text-align: center; margin: 10px 0;">
+              <p style="font-size: 20px; margin: 0;">
+                On air
+              </p>
+              <p style="color: #737373; margin: 5px 0;">
+                Uri Geller
+              </p>
+              <paper-button dialog-dismiss>Hold</paper-button>
+              <paper-button dialog-dismiss>Hang up</paper-button>
+              <paper-button dialog-dismiss>Edit</paper-button>
+            </div>
+          </template>
 
           <div style="flex: 1;"></div>
 
-          <div style="display: flex; margin-top: 8px;">
-            <paper-icon-button 
-              id                 = "mute-button"
-              on-tap             = "_toggleMuted"
-              active             = "[[channel.muted]]"
-              toggles            = "true"
-              icon               = "[[_muteIcon(channel.muted)]]">
-            </paper-icon-button>
-            <paper-slider
-              value              = "[[channel.level]]"
-              on-immediate-value-change          
-                                 = "_handleSliderChange"
-              pin>
-            </paper-slider>
+          <template is="dom-if" if="[[_isActive(channel.mode)]]">
+            <div style="display: flex; margin-top: 8px;">
+              <paper-icon-button 
+                id                 = "mute-button"
+                on-tap             = "_toggleMuted"
+                active             = "[[channel.muted]]"
+                toggles            = "true"
+                icon               = "[[_muteIcon(channel.muted)]]">
+              </paper-icon-button>
+              <paper-slider
+                value              = "[[channel.level]]"
+                on-immediate-value-change          
+                                   = "_handleSliderChange"
+                pin>
+              </paper-slider>
+            </div>
+          </template>
+          <template is="dom-if" if="[[_isDefunct(channel.mode)]]">
+            <div style="display: flex; align-items: center; font-size: 14px; color: #adadad; text-align: center;"> 
+              <iron-icon icon="communication:no-sim" style="margin-right: 4px;"></iron-icon>
+              Defunct channel
+            </div>
+          </template>
+        </div>
+
+        <template is="dom-if" if="[[_isActive(channel.mode)]]">
+          <div style="padding: 12px; border-top: 1px solid #ddd;">
+            <p style="margin: 0; color: #737373;">Recent calls</p>
           </div>
-        </div>
-        <paper-icon-item>
-          <iron-icon icon="communication:call-made" item-icon></iron-icon>
-          <paper-item-body two-line>
-            <div>(650) 555-1234</div>
-            <div secondary>Mobile</div>
-          </paper-item-body>
-          <paper-menu-button>
-            <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
-            <paper-menu class="dropdown-content">
-              <paper-item>Share</paper-item>
-              <paper-item>Settings</paper-item>
-              <paper-item>Help</paper-item>
-            </paper-menu>
-          </paper-menu-button>
-        </paper-icon-item>
-        <div class="buttons">
-          <paper-button dialog-dismiss>Make a call</paper-button>
-        </div>
+          <paper-icon-item>
+            <iron-icon icon="communication:call-made" item-icon></iron-icon>
+            <paper-item-body two-line>
+              <div>(650) 555-1234</div>
+              <div secondary>Mobile</div>
+            </paper-item-body>
+            <paper-menu-button>
+              <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+              <paper-menu class="dropdown-content">
+                <paper-item>Call</paper-item>
+                <paper-item>Edit</paper-item>
+                <paper-item>Send message</paper-item>
+              </paper-menu>
+            </paper-menu-button>
+          </paper-icon-item>
+          <div class="buttons">
+            <paper-button dialog-dismiss>Make a call</paper-button>
+          </div>
+        </template>
+
       </paper-material>
     </div>
   </template>
@@ -285,12 +312,9 @@
 
       _handleSliderChange: function(e) {
         var data = {};
-        data[this.channel.id] = {
-          name: 'level',
-          value: e.target.immediateValue,
-        };
+        data[this.channel.id] = e.target.immediateValue;
         this.fire('message', {
-          event: 'channelProperty',
+          event: 'channelVolume',
           data: data,
         });
       },
@@ -315,6 +339,30 @@
           return 'device:signal-cellular-' + warn + quality + '-bar';
         }
         return 'device:signal-cellular-null';
+      },
+
+      _isMode: function(mode, direction, match) {
+        switch (match) {
+          case 'ring-incoming':
+            return 'ring' === mode && 'incoming' === direction;
+          case 'ring-outgoing':
+            return 'ring' === mode && 'outgoing' === direction;
+          case 'on-hold':
+            return 'on_hold' === mode;
+          case 'on-air':
+            return 'master' === mode;
+          case 'free':
+            return 'free' === mode;
+        }
+        return false;
+      },
+
+      _isActive: function(mode) {
+        return 'defunct' !== mode;
+      },
+
+      _isDefunct: function(mode) {
+        return 'defunct' === mode;
       },
 
       _muteIcon: function(muted) {
