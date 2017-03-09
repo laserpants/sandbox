@@ -335,11 +335,13 @@
         console.log(e.target.indexOf(detail.item));
         switch (e.target.indexOf(detail.item)) {
           case 0:
+            this.fire('call-number', this.channel);
             break;
           case 1:
             this._handleEditContact();
             break;
           case 2:
+            this.fire('send-sms', this.channel);
             break;
         }
         e.target.select(null);

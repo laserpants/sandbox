@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../messages/message-compose-dialog.html">
 <link rel="import" href="call-dialog.html">
 <link rel="import" href="channel-item.html">
 
@@ -30,26 +31,61 @@
       }
 
     </style>
+    <message-compose-dialog
+      id                      = "message-compose-dialog"
+      on-confirmed            = "_handleSendMessage"
+      channels                = "[[channels]]">
+    </message-compose-dialog>
     <call-dialog
       id                      = "call-dialog"
       on-confirmed            = "_handleCall"
       channels                = "[[channels]]">
     </call-dialog>
-    <div class="channel-container">
-      <template is="dom-repeat" items="{{channels}}" as="channel">
+    <div class                = "channel-container">
+      <template 
+        is                    = "dom-repeat" 
+        items                 = "{{channels}}" 
+        as                    = "channel">
         <channel-item 
           on-show-call-dialog = "_openCallDialog"
+          on-call-number      = "onCallNumber"
+          on-send-sms         = "onSendMessage"
           channel             = "[[channel]]">
         </channel-item>
       </template>
     </div>
-    <paper-fab on-tap="_openCallDialog" icon="communication:dialpad"></paper-fab>
+    <paper-fab 
+      on-tap                  = "_openCallDialog" 
+      icon                    = "communication:dialpad">
+    </paper-fab>
   </template>
   <script>
 
     Polymer({
 
       is: 'channel-list',
+
+      onCallNumber: function(e) {
+        var dialog = this.$['call-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
+        var channel = e.detail;
+        if (channel) {
+          dialog.number = channel.contact.number;
+          dialog.channel = channel.id;
+        }
+      },
+
+      onSendMessage: function(e) {
+        var dialog = this.$['message-compose-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
+        var channel = e.detail;
+        if (channel) {
+          dialog.number = channel.contact.number;
+          dialog.channel = channel.id;
+        }
+      },
 
       _openCallDialog: function(e) {
         var dialog = this.$['call-dialog'];
@@ -58,6 +94,23 @@
         if (e && e.detail && 'object' !== typeof(e.detail)) {
           dialog.channel = e.detail;
         }
+      },
+
+      _handleSendMessage: function() {
+        var dialog = this.$['message-compose-dialog'];
+        var message = {
+          type: 'sms_out',
+          endpoint: dialog.number,
+          content: dialog.message,
+          channel_id: ('__auto__' === dialog.channel ? null : dialog.channel),
+        };
+        var id = (Date.now()+'').substr(-8) + (++this._messageCount);
+        var payload = {};
+        payload[id] = message;
+        this.fire('message', {
+          event: 'messageSend',
+          data: payload,
+        });
       },
 
       _handleCall: function() {
