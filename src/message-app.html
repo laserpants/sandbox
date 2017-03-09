@@ -361,6 +361,9 @@
             Object.keys(payload.data).forEach(function(key) {
               var channel = payload.data[key];
               this.set('channels.' + key, channel);
+              if ('ring' == channel.mode && 'incoming' == channel.direction && channel.contact) {
+                this._showDesktopNotification('Incoming call from ' + channel.contact.number);
+              }
             }, this);
             break;
           default:
@@ -428,6 +431,20 @@
 
       _getURLParameter: function(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+      },
+
+      _showDesktopNotification: function(message) {
+        if (!('Notification' in window)) {
+          return;
+        } else if (Notification.permission === 'granted') {
+          new Notification(message);
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission(function(permission) {
+            if (permission === 'granted') {
+              new Notification(message);
+            }
+          }.bind(this));
+        }
       },
 
     });
