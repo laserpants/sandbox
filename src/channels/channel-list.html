@@ -1,7 +1,8 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="channel-item.html">
 <link rel="import" href="call-dialog.html">
+<link rel="import" href="channel-item.html">
 
 <dom-module id="channel-list">
   <template>
@@ -60,7 +61,19 @@
       },
 
       _handleCall: function() {
-        console.log('make call!');
+        var dialog = this.$['call-dialog'];
+        this.fire('message', {
+          event: 'callNumber',
+          data: {
+            number: dialog.number,
+            mode: 'master',
+            channel_id: ('__auto__' === dialog.channel ? null : dialog.channel),
+          },
+        });
+        var toast = document.createElement('paper-toast');
+        toast.text = 'Calling ' + dialog.number;             
+        document.body.appendChild(toast); 
+        toast.show();
       },
 
     });

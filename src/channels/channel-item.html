@@ -3,12 +3,15 @@
 <link rel="import" href="../../bower_components/iron-icons/device-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="edit-contact-dialog.html">
 
 <dom-module id="channel-item">
   <template>
@@ -117,6 +120,10 @@
       }
 
     </style>
+    <edit-contact-dialog
+      id                  = "edit-contact-dialog"
+      on-confirmed        = "_updateContact">
+    </edit-contact-dialog>
     <div class="channel">
       <paper-material>
         <div style="margin: 12px; min-height: 100px; display: flex; flex-direction: column; justify-content: space-around;">
@@ -160,8 +167,8 @@
               <div style="width: 100%; margin: 8px 0;">
                 <paper-progress indeterminate class="blue"></paper-progress>
               </div>
-              <paper-button dialog-dismiss>Cancel</paper-button>
-              <paper-button dialog-dismiss>Edit</paper-button>
+              <paper-button>Cancel</paper-button>
+              <paper-button on-tap="_handleEditContact">Edit</paper-button>
             </div>
           </template>
           <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'ring-incoming')]]">
@@ -181,9 +188,9 @@
                 </p>
               </template>
               <div>
-                <paper-button dialog-dismiss>Answer</paper-button>
-                <paper-button dialog-dismiss>Reject</paper-button>
-                <paper-button dialog-dismiss>Edit</paper-button>
+                <paper-button>Answer</paper-button>
+                <paper-button>Reject</paper-button>
+                <paper-button on-tap="_handleEditContact">Edit</paper-button>
               </div>
             </div>
           </template>
@@ -198,9 +205,9 @@
               <p style="color: #737373; margin: 5px 0;">
                 Uri Geller
               </p>
-              <paper-button dialog-dismiss>Resume</paper-button>
-              <paper-button dialog-dismiss>Hang up</paper-button>
-              <paper-button dialog-dismiss>Edit</paper-button>
+              <paper-button>Resume</paper-button>
+              <paper-button>Hang up</paper-button>
+              <paper-button on-tap="_handleEditContact">Edit</paper-button>
             </div>
           </template>
           <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'on-air')]]">
@@ -214,9 +221,9 @@
               <p style="color: #737373; margin: 5px 0;">
                 Uri Geller
               </p>
-              <paper-button dialog-dismiss>Hold</paper-button>
-              <paper-button dialog-dismiss>Hang up</paper-button>
-              <paper-button dialog-dismiss>Edit</paper-button>
+              <paper-button>Hold</paper-button>
+              <paper-button>Hang up</paper-button>
+              <paper-button on-tap="_handleEditContact">Edit</paper-button>
             </div>
           </template>
           <div style="flex: 1;"></div>
@@ -254,12 +261,12 @@
               <div>[[_contactPrimary(channel)]]</div>
               <div secondary>[[_contactSecondary(channel)]]</div>
             </paper-item-body>
-            <paper-menu-button>
+            <paper-menu-button allow-outside-scroll no-animations>
               <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
-              <paper-menu class="dropdown-content">
+              <paper-menu id="action-menu" on-iron-select="_handleMenuSelected" class="dropdown-content">
                 <paper-item>Call</paper-item>
                 <paper-item>Edit</paper-item>
-                <paper-item>Send message</paper-item>
+                <paper-item>Send SMS</paper-item>
               </paper-menu>
             </paper-menu-button>
           </paper-icon-item>
@@ -322,6 +329,20 @@
         }
       },
 
+      _handleMenuSelected: function(e, detail) {
+        console.log(e.target.indexOf(detail.item));
+        switch (e.target.indexOf(detail.item)) {
+          case 0:
+            break;
+          case 1:
+            this._handleEditContact();
+            break;
+          case 2:
+            break;
+        }
+        e.target.select(null);
+      },
+
       _handleSliderChange: function(e) {
         var data = {};
         data[this.channel.id] = e.target.immediateValue;
@@ -329,6 +350,15 @@
           event: 'channelVolume',
           data: data,
         });
+      },
+
+      _handleEditContact: function() {
+        var dialog = this.$['edit-contact-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
+      },
+
+      _updateContact: function() {
       },
 
       _toggleMuted: function(e) {
