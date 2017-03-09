@@ -150,8 +150,13 @@
                 Calling
               </p>
               <p style="color: #737373; margin: 5px 0;">
-                Sun Ra
+                [[_contactPrimary(channel)]]
               </p>
+              <template is="dom-if" if="[[_hasContactName(channel)]]">
+                <p style="margin-top: -4px; font-size: 13px;">
+                  [[_contactSecondary(channel)]]
+                </p>
+              </template>
               <div style="width: 100%; margin: 8px 0;">
                 <paper-progress indeterminate class="blue"></paper-progress>
               </div>
