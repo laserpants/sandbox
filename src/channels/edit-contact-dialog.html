@@ -45,17 +45,20 @@
       on-iron-overlay-closed = "onClosed"
       modal>
       <h2>Edit contact</h2>
+      <p>
+        Number: [[number]]
+      </p>
       <paper-input
-        id                   = "number-input"
+        id                   = "name-input"
         label                = "Number"
-        value                = "{{number}}"
+        value                = "{{name}}"
         required 
         auto-validate 
         error-message        = "This field is required.">
       </paper-input>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button disabled="[[_formValid(number)]]" dialog-confirm autofocus>Save</paper-button>
+        <paper-button disabled="[[_formValid(name)]]" dialog-confirm autofocus>Save</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -70,6 +73,10 @@
           type: String,
           value: '',
         },
+        name: {
+          type: String,
+          value: '',
+        },
       },
 
       open: function() {
@@ -78,8 +85,8 @@
       },
 
       reset: function() {
-        this.number  = '';
-        this.$['number-input'].invalid = false;
+        this.name = '';
+        this.$['name-input'].invalid = false;
       },
 
       onClosed: function(event) {
@@ -88,8 +95,8 @@
         }
       },
 
-      _formValid: function(number) {
-        return !number;
+      _formValid: function(name) {
+        return !name;
       }
 
     });
