@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="channel-item.html">
+<link rel="import" href="call-dialog.html">
 
 <dom-module id="channel-list">
   <template>
@@ -28,18 +29,39 @@
       }
 
     </style>
+    <call-dialog
+      id                      = "call-dialog"
+      on-confirmed            = "_handleCall"
+      channels                = "[[channels]]">
+    </call-dialog>
     <div class="channel-container">
       <template is="dom-repeat" items="{{channels}}" as="channel">
-        <channel-item channel="[[channel]]"></channel-item>
+        <channel-item 
+          on-show-call-dialog = "_openCallDialog"
+          channel             = "[[channel]]">
+        </channel-item>
       </template>
     </div>
-    <paper-fab icon="communication:dialpad"></paper-fab>
+    <paper-fab on-tap="_openCallDialog" icon="communication:dialpad"></paper-fab>
   </template>
   <script>
 
     Polymer({
 
       is: 'channel-list',
+
+      _openCallDialog: function(e) {
+        var dialog = this.$['call-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
+        if (e && e.detail && 'object' !== typeof(e.detail)) {
+          dialog.channel = e.detail;
+        }
+      },
+
+      _handleCall: function() {
+        console.log('make call!');
+      },
 
     });
 

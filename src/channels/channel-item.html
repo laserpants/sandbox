@@ -132,13 +132,13 @@
             </paper-item-body>
           </div>
 
+          <!--
           <div>
             <p>
               [[_vardump(channel)]]
             </p>
           </div>
 
-          <!--
           <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'free')]]">
             Free
           </template>
@@ -168,11 +168,11 @@
                 Incoming call
               </p>
               <p style="color: #737373; margin: 5px 0;">
-                [[_callPrimary(channel)]]
+                [[_contactPrimary(channel)]]
               </p>
               <template is="dom-if" if="[[_hasContactName(channel)]]">
                 <p style="margin-top: -4px; font-size: 13px;">
-                  [[_callSecondary(channel)]]
+                  [[_contactSecondary(channel)]]
                 </p>
               </template>
               <div>
@@ -239,15 +239,15 @@
             </div>
           </template>
         </div>
-        <template is="dom-if" if="[[_isActive(channel.mode)]]">
+        <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'free')]]">
           <div style="padding: 12px; border-top: 1px solid #ddd;">
-            <p style="margin: 0; color: #737373;">Recent calls</p>
+            <p style="margin: 0; color: #737373;">Last call</p>
           </div>
           <paper-icon-item>
             <iron-icon icon="communication:call-made" item-icon></iron-icon>
             <paper-item-body two-line>
-              <div>(650) 555-1234</div>
-              <div secondary>Mobile</div>
+              <div>[[_contactPrimary(channel)]]</div>
+              <div secondary>[[_contactSecondary(channel)]]</div>
             </paper-item-body>
             <paper-menu-button>
               <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
@@ -259,7 +259,9 @@
             </paper-menu-button>
           </paper-icon-item>
           <div class="buttons">
-            <paper-button dialog-dismiss>Make a call</paper-button>
+            <paper-button on-tap="_initCall">
+              Make a call
+            </paper-button>
           </div>
         </template>
       </paper-material>
@@ -289,6 +291,10 @@
       behaviors: [
         Polymer.AppNetworkStatusBehavior, 
       ],
+
+      _initCall: function() {
+        this.fire('show-call-dialog', this.channel.id);
+      },
 
       _computedNetworkMode: function() {
         if (this.channel.connection) {
@@ -343,7 +349,7 @@
         return 'device:signal-cellular-null';
       },
 
-      _callPrimary: function(channel) {
+      _contactPrimary: function(channel) {
         if (!channel.contact) {
           return '';
         }
@@ -353,8 +359,8 @@
         return channel.contact.number;
       },
 
-      _callSecondary: function(channel) {
-        if (!channel.contact) {
+      _contactSecondary: function(channel) {
+        if (!channel.contact || !this._hasContactName(channel)) {
           return '';
         }
         return channel.contact.number;
