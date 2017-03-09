@@ -145,6 +145,7 @@
           content: dialog.message,
           channel_id: ('__auto__' === dialog.channel ? null : dialog.channel),
         });
+        this.close();
       },
 
       _handleKeyEvent: function(e) {

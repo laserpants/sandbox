@@ -251,9 +251,8 @@
                 icon               = "[[_muteIcon(channel.muted)]]">
               </paper-icon-button>
               <paper-slider
-                value              = "[[channel.level]]"
-                on-immediate-value-change          
-                                   = "_handleSliderChange"
+                value                     = "[[channel.level]]"
+                on-immediate-value-change = "_handleSliderChange"
                 pin>
               </paper-slider>
             </div>
@@ -374,12 +373,22 @@
         var dialog = this.$['edit-contact-dialog'];
         Polymer.dom(document.querySelector('body')).appendChild(dialog);
         dialog.open();
-        if ('object' === typeof(this.channel.connection)) {
-          dialog.number = this.channel.connection.number;
+        if ('object' === typeof(this.channel.contact)) {
+          dialog.number = this.channel.contact.number;
+          dialog.name = this.channel.contact.name;
         }
       },
 
       _updateContact: function() {
+        var dialog = this.$['edit-contact-dialog'];
+        var data = {};
+        data[this.channel.id] = {
+          name: dialog.name,
+        };
+        this.fire('message', {
+          event: 'channelContactInfo',
+          data: data,
+        });
       },
 
       _toggleMuted: function(e) {
