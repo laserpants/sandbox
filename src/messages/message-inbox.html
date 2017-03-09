@@ -49,6 +49,7 @@
     <message-details 
       id                      = "details"
       channels                = "[[channels]]"
+      on-message              = "_forwardMessage"
       on-delete-item          = "_handleDeleteConfirmed"
       on-next                 = "showNextMessage"
       on-prev                 = "showPreviousMessage"
@@ -283,7 +284,7 @@
             });
           }
         } else {
-          // ...
+          // In the future, implement other properties here
         }
       },
 
@@ -390,6 +391,10 @@
           content: dialog.message,
           channel_id: ('__auto__' === dialog.channel ? null : dialog.channel),
         });
+      },
+
+      _forwardMessage: function(e) {
+        this.fire('message', e.detail);
       },
 
       _updateLocalStorage: function() {

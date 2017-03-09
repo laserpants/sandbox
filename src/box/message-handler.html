@@ -61,6 +61,7 @@
 
       send: function(data) {
         if (data.event != 'ping') {
+          console.log('>>>>>>>>>>>>>>> (send)');
           console.log(data);
         }
         window.__socket.send(JSON.stringify(data));

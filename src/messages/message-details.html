@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="confirm-delete-dialog.html">
 <link rel="import" href="message-compose-dialog.html">
@@ -179,7 +180,11 @@
             channel_id: ('__auto__' === dialog.channel ? null : dialog.channel),
           },
         });
-
+        this.close();
+        var toast = document.createElement('paper-toast');
+        toast.text = 'Calling ' + dialog.number + '.';             
+        document.body.appendChild(toast); 
+        toast.show();
       },
 
       _confirmDeleteMessage: function() {
