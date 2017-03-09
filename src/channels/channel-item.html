@@ -252,24 +252,26 @@
           </template>
         </div>
         <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'free')]]">
-          <div style="padding: 12px; border-top: 1px solid #ddd;">
-            <p style="margin: 0; color: #737373;">Last call</p>
-          </div>
-          <paper-icon-item>
-            <iron-icon icon="communication:call-made" item-icon></iron-icon>
-            <paper-item-body two-line>
-              <div>[[_contactPrimary(channel)]]</div>
-              <div secondary>[[_contactSecondary(channel)]]</div>
-            </paper-item-body>
-            <paper-menu-button allow-outside-scroll no-animations>
-              <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
-              <paper-menu id="action-menu" on-iron-select="_handleMenuSelected" class="dropdown-content">
-                <paper-item>Call</paper-item>
-                <paper-item>Edit</paper-item>
-                <paper-item>Send SMS</paper-item>
-              </paper-menu>
-            </paper-menu-button>
-          </paper-icon-item>
+          <template is="dom-if" if="[[_contactPrimary(channel)]]">
+            <div style="padding: 12px; border-top: 1px solid #ddd;">
+              <p style="margin: 0; color: #737373;">Last call</p>
+            </div>
+            <paper-icon-item>
+              <iron-icon icon="communication:phone" item-icon></iron-icon>
+              <paper-item-body two-line>
+                <div>[[_contactPrimary(channel)]]</div>
+                <div secondary>[[_contactSecondary(channel)]]</div>
+              </paper-item-body>
+              <paper-menu-button allow-outside-scroll no-animations>
+                <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+                <paper-menu id="action-menu" on-iron-select="_handleMenuSelected" class="dropdown-content">
+                  <paper-item>Call</paper-item>
+                  <paper-item>Edit</paper-item>
+                  <paper-item>Send SMS</paper-item>
+                </paper-menu>
+              </paper-menu-button>
+            </paper-icon-item>
+          </template>
           <div class="buttons">
             <paper-button on-tap="_initCall">
               Make a call
