@@ -50,6 +50,11 @@
       }
 
     </style>
+    <call-dialog
+      id                  = "call-dialog"
+      on-confirmed        = "_handleCall"
+      channels            = "[[channels]]">
+    </call-dialog>
     <message-compose-dialog
       id                  = "message-compose-dialog"
       on-confirmed        = "onMessageComposeConfirmed"
@@ -61,15 +66,15 @@
       selection-size      = "1">
     </confirm-delete-dialog>
     <paper-dialog 
-      on-keydown     = "_handleKeyEvent"
-      id             = "dialog"
+      on-keydown          = "_handleKeyEvent"
+      id                  = "dialog"
       with-backdrop>
       <div>
         <div class="message-container">
           <div class = "nav">
             <paper-icon-button
-              on-tap = "_showPrevious"
-              icon   = "icons:chevron-left">
+              on-tap      = "_showPrevious"
+              icon        = "icons:chevron-left">
             </paper-icon-button>
           </div>
           <div class="message-content">
@@ -83,8 +88,8 @@
           </div>
           <div class="nav">
             <paper-icon-button 
-              on-tap = "_showNext"
-              icon   = "icons:chevron-right">
+              on-tap      = "_showNext"
+              icon        = "icons:chevron-right">
             </paper-icon-button>
           </div>
         </div>
@@ -92,9 +97,7 @@
       <div class="buttons">
         <paper-button on-tap="_confirmDeleteMessage">Delete</paper-button>
         <paper-button on-tap="_replyMessage">Reply</paper-button>
-        <!--
-        <paper-button>Call number</paper-button>
-        -->
+        <paper-button on-tap="_openCallDialog">Call number</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -157,6 +160,17 @@
 
       _showPrevious: function() {
         this.fire('prev');
+      },
+
+      _openCallDialog: function() {
+        var dialog = this.$['call-dialog'];
+        Polymer.dom(document.querySelector('body')).appendChild(dialog);
+        dialog.open();
+        dialog.number = this.sender;
+      },
+
+      _handleCall: function() {
+        console.log('make call!');
       },
 
       _confirmDeleteMessage: function() {
