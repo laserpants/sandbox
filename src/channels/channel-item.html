@@ -167,7 +167,7 @@
               <div style="width: 100%; margin: 8px 0;">
                 <paper-progress indeterminate class="blue"></paper-progress>
               </div>
-              <paper-button>Cancel</paper-button>
+              <paper-button on-tap="_setChannelFree">Cancel</paper-button>
               <paper-button on-tap="_handleEditContact">Edit</paper-button>
             </div>
           </template>
@@ -188,8 +188,8 @@
                 </p>
               </template>
               <div>
-                <paper-button>Answer</paper-button>
-                <paper-button>Reject</paper-button>
+                <paper-button on-tap="_setChannelMaster">Answer</paper-button>
+                <paper-button on-tap="_setChannelFree">Reject</paper-button>
                 <paper-button on-tap="_handleEditContact">Edit</paper-button>
               </div>
             </div>
@@ -203,11 +203,18 @@
                 On hold
               </p>
               <p style="color: #737373; margin: 5px 0;">
-                Uri Geller
+                [[_contactPrimary(channel)]]
               </p>
-              <paper-button>Resume</paper-button>
-              <paper-button>Hang up</paper-button>
-              <paper-button on-tap="_handleEditContact">Edit</paper-button>
+              <template is="dom-if" if="[[_hasContactName(channel)]]">
+                <p style="margin-top: -4px; font-size: 13px;">
+                  [[_contactSecondary(channel)]]
+                </p>
+              </template>
+              <div>
+                <paper-button on-tap="_setChannelMaster">Resume</paper-button>
+                <paper-button on-tap="_setChannelFree">Hang up</paper-button>
+                <paper-button on-tap="_handleEditContact">Edit</paper-button>
+              </div>
             </div>
           </template>
           <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'on-air')]]">
@@ -219,11 +226,18 @@
                 On air
               </p>
               <p style="color: #737373; margin: 5px 0;">
-                Uri Geller
+                [[_contactPrimary(channel)]]
               </p>
-              <paper-button>Hold</paper-button>
-              <paper-button>Hang up</paper-button>
-              <paper-button on-tap="_handleEditContact">Edit</paper-button>
+              <template is="dom-if" if="[[_hasContactName(channel)]]">
+                <p style="margin-top: -4px; font-size: 13px;">
+                  [[_contactSecondary(channel)]]
+                </p>
+              </template>
+              <div>
+                <paper-button on-tap="_setChannelOnHold">Hold</paper-button>
+                <paper-button on-tap="_setChannelFree">Hang up</paper-button>
+                <paper-button on-tap="_handleEditContact">Edit</paper-button>
+              </div>
             </div>
           </template>
           <div style="flex: 1;"></div>
@@ -435,6 +449,27 @@
         return 'defunct' === mode;
       },
 
+      _setChannelOnHold: function() {
+        this._setChannelMode('on_hold');
+      },
+
+      _setChannelMaster: function() {
+        this._setChannelMode('master');
+      },
+
+      _setChannelFree: function() {
+        this._setChannelMode('free');
+      },
+
+      _setChannelMode: function(mode) {
+        var data = {};
+        data[this.channel.id] = mode;
+        this.fire('message', {
+          event: 'channelMode',
+          data: data,
+        });
+      },
+
       _muteIcon: function(muted) {
         return muted ? 'av:volume-off' : 'av:volume-up';
       },
@@ -447,5 +482,3 @@
 
   </script>
 </dom-module>
-
-
