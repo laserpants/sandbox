@@ -25,7 +25,6 @@
         width: 100%;
         display: flex; 
         flex-flow: wrap row; 
-        /* justify-content: space-around; */
         overflow: auto;
         margin: 50px;
       }
@@ -34,12 +33,12 @@
     <message-compose-dialog
       id                      = "message-compose-dialog"
       on-confirmed            = "_handleSendMessage"
-      channels                = "[[channels]]">
+      channels                = "[[activeChannels]]">
     </message-compose-dialog>
     <call-dialog
       id                      = "call-dialog"
       on-confirmed            = "_handleCall"
-      channels                = "[[channels]]">
+      channels                = "[[activeChannels]]">
     </call-dialog>
     <div class                = "channel-container">
       <template 
@@ -64,6 +63,13 @@
     Polymer({
 
       is: 'channel-list',
+
+      properties: {
+        activeChannels: {
+          type: Array,
+          computed: '_activeChannels(channels, channels.*)',
+        },
+      },
 
       ready: function() {
         this._messageCount = 0;
@@ -131,6 +137,12 @@
         toast.text = 'Calling ' + dialog.number;             
         document.body.appendChild(toast); 
         toast.show();
+      },
+
+      _activeChannels: function(channels) {
+        return channels.filter(function(channel) {
+          return 'free' === channel.mode;
+        });
       },
 
     });

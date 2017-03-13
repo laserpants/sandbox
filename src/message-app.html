@@ -180,13 +180,13 @@
           on-message      = "sendMessage"
           unread          = "{{unread}}"
           messages        = "[[inbox]]"
-          channels        = "[[visibleChannels]]">
+          channels        = "[[activeChannels]]">
         </message-inbox>
         <message-outbox
           id              = "outbox"
           on-message      = "sendMessage"
           messages        = "[[outbox]]"
-          channels        = "[[visibleChannels]]">
+          channels        = "[[activeChannels]]">
         </message-outbox>
       </iron-pages>
     </app-header-layout>
@@ -219,6 +219,10 @@
         visibleChannels: {
           type: Array,
           computed: '_computedChannels(channels, channels.*)',
+        },
+        activeChannels: {
+          type: Array,
+          computed: '_activeChannels(visibleChannels, visibleChannels.*)',
         },
         unread: {
           type: Number,
@@ -385,6 +389,12 @@
           var channel = channels[id];
           channel.id = id;
           return channel;
+        });
+      },
+
+      _activeChannels: function(channels) {
+        return channels.filter(function(channel) {
+          return 'free' === channel.mode;
         });
       },
 
