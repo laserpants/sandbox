@@ -138,19 +138,6 @@
               <div style="color: #737373; font-size: 13px;">[[channel.number]]</div>
             </paper-item-body>
           </div>
-
-          <!--
-          <div>
-            <p>
-              [[_vardump(channel)]]
-            </p>
-          </div>
-
-          <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'free')]]">
-            Free
-          </template>
-          -->
-
           <template is="dom-if" if="[[_isMode(channel.mode, channel.direction, 'ring-outgoing')]]">
             <div style="text-align: center; margin: 10px 0;">
               <p style="font-size: 20px; margin: 0; color: #1a88ae;">
@@ -375,7 +362,9 @@
         dialog.open();
         if ('object' === typeof(this.channel.contact)) {
           dialog.number = this.channel.contact.number;
-          dialog.name = this.channel.contact.name;
+          if (this.channel.contact.name) {
+            dialog.name = this.channel.contact.name;
+          }
         }
       },
 

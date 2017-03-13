@@ -37,6 +37,10 @@
         background: none;
       }
 
+      p.number {
+        font-size: 16px;
+      }
+
     </style>
     <paper-dialog
       id                     = "dialog"
@@ -45,7 +49,7 @@
       on-iron-overlay-closed = "onClosed"
       modal>
       <h2>Edit contact</h2>
-      <p style="font-size: 16px;">
+      <p class="number">
         [[number]]
       </p>
       <paper-input
@@ -57,8 +61,16 @@
         error-message        = "This field is required.">
       </paper-input>
       <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button disabled="[[_formValid(name)]]" dialog-confirm autofocus>Save</paper-button>
+        <paper-button 
+          dialog-dismiss>
+          Cancel
+        </paper-button>
+        <paper-button 
+          disabled           = "[[_formValid(name)]]" 
+          dialog-confirm 
+          autofocus>
+          Save
+        </paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -97,7 +109,7 @@
 
       _formValid: function(name) {
         return !name;
-      }
+      },
 
     });
 

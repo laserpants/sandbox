@@ -65,6 +65,10 @@
 
       is: 'channel-list',
 
+      ready: function() {
+        this._messageCount = 0;
+      },
+
       onCallNumber: function(e) {
         var dialog = this.$['call-dialog'];
         Polymer.dom(document.querySelector('body')).appendChild(dialog);
