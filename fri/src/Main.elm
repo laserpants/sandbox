@@ -694,16 +694,14 @@ projectHomePageView { project } msg =
         [
           div [ class "d-flex justify-content-center" ]
             [
-
               div [ style "border-width" "6px", style "width" "4rem", style "height" "4rem", class "spinner-border text-success", attribute "role" "status" ] [ span [ class "sr-only" ] [ text "Loading" ] ]
-
             ]
         ]
         --[ div [ class "loader" ] [] ]
     Error httpError ->
       text (Debug.toString httpError)
     Available project_ ->
-      div []
+      div [ style "max-width" "640px" ]
         [ text "info" ]
 
 --
@@ -1409,6 +1407,7 @@ type Route
  | Projects
  | NewProject
  | Settings
+ | Notifications
 
 parser : Parser (Route -> a) a
 parser =
@@ -1421,7 +1420,8 @@ parser =
     , Parser.map Profile       (Parser.s "profile")
     , Parser.map Settings      (Parser.s "settings")
     , Parser.map Projects      (Parser.s "projects")
-    , Parser.map NewProject    (Parser.s "projects" </> Parser.s "new") ]
+    , Parser.map NewProject    (Parser.s "projects" </> Parser.s "new")
+    , Parser.map Notifications (Parser.s "notifications") ]
 
 fromUrl : Url -> Maybe Route
 fromUrl = parse parser
@@ -1821,7 +1821,13 @@ uiSubscriptions state msg =
 uiSidebarView : UiState -> (UiMsg -> msg) -> Html msg
 uiSidebarView state msg =
   let toggled = if state.sidebarVisible then "" else "toggled "
-   in ul [ class (toggled ++ "navbar-nav bg-secondary sidebar sidebar-dark accordion") ] []
+   in ul [ class (toggled ++ "navbar-nav bg-secondary sidebar sidebar-dark accordion") ] 
+        [
+          li [ class "nav-item" ] 
+          [ a [ href "#", class "nav-link" ] [ span [] [ text "Dashboard" ] ] ]
+        , li [ class "nav-item" ] 
+          [ a [ href "#", class "nav-link" ] [ span [] [ text "Results" ] ] ]
+        ]
 
 uiNotificationsDropdown : UiState -> (UiMsg -> msg) -> Html msg
 uiNotificationsDropdown state msg =
@@ -1943,7 +1949,7 @@ uiNavbarView state user msg =
         [ 
           Button.button
             [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1em", class "nav-link dropdown-toggle" ] ]
-            [ b [] [ text "English" ] ] -- i [ class "fas fa-bell fa-fw" ] []
+            [ b [ class "d-none d-sm-block" ] [ text "English" ] ] -- i [ class "fas fa-bell fa-fw" ] []
         
         ]
 
@@ -1969,7 +1975,7 @@ uiNavbarView state user msg =
           --  , onClick ToggleUserDropdown
           --  , href "#"
           --  ]
-            [ span [ style "font-size" ".9em"
+            [ span [ style "font-size" "1em"
                    , class "mr-3 d-none d-lg-inline text-white small"
                    ]
               [ text user.name ]
@@ -2894,7 +2900,7 @@ pageView ui session page =
         Just project_ ->
           projectLayout session_.user ui <| case page of
             ProjectHomePage projectHomePageState ->
-              div [ style "max-width" "640px" ]
+              div []
                 [ h2 [ class "text-gray-900", class "mb-4" ] [ text project_.name ]
                 , projectHomePageView projectHomePageState (PageMsg << ProjectHomePageMsg) ]
             ProjectSettingsPage projectSettingsPageState ->
