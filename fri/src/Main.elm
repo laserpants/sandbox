@@ -55,6 +55,8 @@ errorMessage error =
       "Application error (500 Internal Server Error)"
     Http.BadStatus 501 ->
       "This feature is not implemented"
+--    err ->
+--      Debug.toString err
     _ ->
       "Something went wrong!"
 
@@ -291,25 +293,49 @@ newProjectFormView form sent msg =
 ----
 
 type alias ProfileForm =
-  { name : String }
+  { name         : String 
+  , phoneNumber  : Maybe String
+  , organization : Maybe String
+  , country      : String }
 
 profileFormValidate : Validation () ProfileForm
 profileFormValidate =
   succeed ProfileForm
-    |> Validate.andMap (field "name" Validate.string)
+    |> Validate.andMap (field "name" Validate.string |> Validate.andThen Validate.nonEmpty)
+    |> Validate.andMap (Validate.maybe (field "phoneNumber" Validate.string |> Validate.andThen Validate.nonEmpty))
+    |> Validate.andMap (Validate.maybe (field "organization" Validate.string |> Validate.andThen Validate.nonEmpty))
+    |> Validate.andMap (field "country" Validate.string)
 
 profileFormToJson : ProfileForm -> Value
-profileFormToJson { name } =
-  object [ ( "name" , Json.Encode.string name ) ]
+profileFormToJson { name, phoneNumber, organization, country } =
+  object [ ( "name"         , Json.Encode.string name )
+         , ( "phoneNumber"  , Encode.maybe Json.Encode.string phoneNumber )
+         , ( "organization" , Encode.maybe Json.Encode.string organization )
+         , ( "country"      , Json.Encode.string country ) ]
 
 profileFormView : Form () ProfileForm -> Bool -> (Form.Msg -> msg) -> Html msg
 profileFormView form sent msg =
     let
-        name = form |> Form.getFieldAsString "name"
+        name = form         |> Form.getFieldAsString "name"
+        phoneNumber = form  |> Form.getFieldAsString "phoneNumber"
+        organization = form |> Form.getFieldAsString "organization"
+        country = form      |> Form.getFieldAsString "country"
 
         nameOptions =
           let opts = []
            in if Nothing == name.liveError then opts else (Bootstrap.Form.Input.danger :: opts)
+
+        phoneNumberOptions =
+          let opts = []
+           in if Nothing == phoneNumber.liveError then opts else (Bootstrap.Form.Input.danger :: opts)
+
+        organizationOptions =
+          let opts = []
+           in if Nothing == organization.liveError then opts else (Bootstrap.Form.Input.danger :: opts)
+
+        countryOptions =
+          let opts = []
+           in if Nothing == country.liveError then opts else (Bootstrap.Form.Select.danger :: opts)
 
     in
         Bootstrap.Form.form []
@@ -319,7 +345,19 @@ profileFormView form sent msg =
                [ Bootstrap.Form.group []
                  [ Bootstrap.Form.label [] [ text "Name" ]
                  , bootstrapInputText name nameOptions []
-                 , bootstrapInvalidFeedback errorToString name [] ] ]
+                 , bootstrapInvalidFeedback errorToString name [] ] 
+               , Bootstrap.Form.group []
+                 [ Bootstrap.Form.label [] [ text "Organization" ]
+                 , bootstrapInputText organization organizationOptions []
+                 , bootstrapInvalidFeedback errorToString organization [] ] 
+               , Bootstrap.Form.group []
+                 [ Bootstrap.Form.label [] [ text "Phone number" ]
+                 , bootstrapInputText phoneNumber phoneNumberOptions []
+                 , bootstrapInvalidFeedback errorToString phoneNumber [] ] 
+               , Bootstrap.Form.group []
+                 [ Bootstrap.Form.label [] [ text "Country" ]
+                 , bootstrapSelect [ ( "", "" ), ( "FI", "Finland" ), ( "MW", "Malawi" ), ( "GH", "Ghana" ), ( "UG", "Uganda" ) ] country countryOptions []
+                 , bootstrapInvalidFeedback errorToString country [] ] ]
             |> Fieldset.view ]
             |> Html.map msg
 
@@ -432,6 +470,7 @@ type alias RegisterForm =
   { name            : String
   , email           : String
   , useEmailAsLogin : Bool
+  , country         : String
   , login           : String
   , organization    : Maybe String
   , phoneNumber     : Maybe String
@@ -445,19 +484,26 @@ type RegisterFormCustomError
 
 registerFormValidate : Validation RegisterFormCustomError RegisterForm
 registerFormValidate =
-  succeed RegisterForm
-    |> Validate.andMap (field "name" (Validate.string |> Validate.andThen Validate.nonEmpty))
-    |> Validate.andMap (field "email" Validate.email)
-    |> Validate.andMap (field "useEmailAsLogin" Validate.bool)
-    |> Validate.andMap validateLogin -- field "login" (Validate.string |> Validate.andThen Validate.nonEmpty))
-    |> Validate.andMap (Validate.maybe (field "organization" Validate.string |> Validate.andThen Validate.nonEmpty))
-    |> Validate.andMap (Validate.maybe (field "phoneNumber" Validate.string |> Validate.andThen Validate.nonEmpty))
-    |> Validate.andMap (field "password" (Validate.string |> Validate.andThen (Validate.minLength 8)))
-    |> Validate.andMap (
-                    Validate.oneOf
-                      [ (field "password" Validate.string) |> Validate.andThen validateConfirmation
-                      , Validate.emptyString |> Validate.andThen validateConfirmation ] )
-    |> Validate.andMap (field "agreeWithTerms" (Validate.bool |> Validate.andThen mustBeChecked)) --mustBeChecked
+
+  let 
+    validateName = 
+      Validate.string |> Validate.andThen Validate.nonEmpty
+
+   in
+    succeed RegisterForm
+      |> Validate.andMap (field "name" validateName)
+      |> Validate.andMap (field "email" Validate.email)
+      |> Validate.andMap (field "useEmailAsLogin" Validate.bool)
+      |> Validate.andMap (field "country" Validate.string)
+      |> Validate.andMap validateLogin -- field "login" (Validate.string |> Validate.andThen Validate.nonEmpty))
+      |> Validate.andMap (Validate.maybe (field "organization" Validate.string |> Validate.andThen Validate.nonEmpty))
+      |> Validate.andMap (Validate.maybe (field "phoneNumber" Validate.string |> Validate.andThen Validate.nonEmpty))
+      |> Validate.andMap (field "password" (Validate.string |> Validate.andThen (Validate.minLength 8)))
+      |> Validate.andMap (
+                      Validate.oneOf
+                        [ (field "password" Validate.string) |> Validate.andThen validateConfirmation
+                        , Validate.emptyString |> Validate.andThen validateConfirmation ] )
+      |> Validate.andMap (field "agreeWithTerms" (Validate.bool |> Validate.andThen mustBeChecked)) --mustBeChecked
 
 mustBeChecked checked =
   if checked
@@ -480,13 +526,15 @@ validateConfirmation password =
               then Validate.succeed confirmation
               else Validate.fail (Validate.customError DoesNotMatchPassword)))
 
--- TODO
 registerFormToJson : RegisterForm -> Value
-registerFormToJson { name, email, useEmailAsLogin, login, password } =
-  object [ ( "name"     , Json.Encode.string name )
-         , ( "email"    , Json.Encode.string email )
-         , ( "login"    , Json.Encode.string (if useEmailAsLogin then email else login) )
-         , ( "password" , Json.Encode.string password ) ]
+registerFormToJson { name, email, useEmailAsLogin, login, country, organization, phoneNumber, password } =
+  object [ ( "name"         , Json.Encode.string name )
+         , ( "email"        , Json.Encode.string email )
+         , ( "login"        , Json.Encode.string (if useEmailAsLogin then email else login) )
+         , ( "country"      , Json.Encode.string country) 
+         , ( "organization" , Encode.maybe Json.Encode.string organization) 
+         , ( "phoneNumber " , Encode.maybe Json.Encode.string phoneNumber) 
+         , ( "password"     , Json.Encode.string password ) ]
 
 registerFormView : Form RegisterFormCustomError RegisterForm -> Bool -> (Form.Msg -> msg) -> Html msg
 registerFormView form sent msg =
@@ -496,6 +544,7 @@ registerFormView form sent msg =
         email           = form |> Form.getFieldAsString "email"
         useEmailAsLogin = form |> Form.getFieldAsBool   "useEmailAsLogin"
         login           = form |> Form.getFieldAsString "login"
+        country         = form |> Form.getFieldAsString "country"
         organization    = form |> Form.getFieldAsString "organization"
         phoneNumber     = form |> Form.getFieldAsString "phoneNumber"
         password        = form |> Form.getFieldAsString "password"
@@ -517,6 +566,10 @@ registerFormView form sent msg =
         loginOptions =
           let opts = [ Bootstrap.Form.Input.placeholder "Login" ]
            in if Nothing == login.liveError then opts else (Bootstrap.Form.Input.danger :: opts)
+
+        countryOptions =
+          let opts = []
+           in if Nothing == country.liveError then opts else (Bootstrap.Form.Select.danger :: opts)
 
         organizationOptions =
           let opts = [ Bootstrap.Form.Input.placeholder "Organization" ]
@@ -568,6 +621,12 @@ registerFormView form sent msg =
                 , if not email.isChanged && Maybe.isNothing email.liveError then Bootstrap.Form.help [] [ text "This field is required" ] else text ""
                 ]
               , loginField 
+
+              , Bootstrap.Form.group []
+                [ bootstrapSelect [ ( "", "Country" ), ( "", "---" ), ( "FI", "Finland" ), ( "MW", "Malawi" ), ( "GH", "Ghana" ), ( "UG", "Uganda" ) ] country countryOptions []
+                , bootstrapInvalidFeedback errorToString country []
+                , if not country.isChanged && Maybe.isNothing country.liveError then Bootstrap.Form.help [] [ text "This field is required" ] else text ""
+                ] 
 
               , Bootstrap.Form.group []
                 [ bootstrapCheckbox "register-form-use-email-login" "Use email as login?" useEmailAsLogin useEmailAsLoginOptions []
@@ -623,6 +682,27 @@ registerFormView form sent msg =
 
             |> Fieldset.view ]
           |> Html.map msg
+
+--
+
+type NotificationsPageMsg
+  = NoNotificationsPageMsg
+
+type alias NotificationsPageState =
+  {}
+
+notificationsPageInit : Update NotificationsPageState NotificationsPageMsg a
+notificationsPageInit =
+  save {}
+
+notificationsPageUpdate : NotificationsPageMsg -> NotificationsPageState -> Update NotificationsPageState NotificationsPageMsg a
+notificationsPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+notificationsPageSubscriptions : NotificationsPageState -> (NotificationsPageMsg -> msg) -> Sub msg
+notificationsPageSubscriptions state msg = Sub.none
 
 --
 
@@ -690,13 +770,14 @@ projectHomePageView { project } msg =
     NotRequested ->
       text "not requested"
     Requested ->
-      div [ style "margin" "8em" ]
-        [
-          div [ class "d-flex justify-content-center" ]
-            [
-              div [ style "border-width" "6px", style "width" "4rem", style "height" "4rem", class "spinner-border text-success", attribute "role" "status" ] [ span [ class "sr-only" ] [ text "Loading" ] ]
-            ]
-        ]
+      text ""
+      --div [ style "margin" "8em" ]
+      --  [
+      --    div [ class "d-flex justify-content-center" ]
+      --      [
+      --        div [ style "border-width" "6px", style "width" "4rem", style "height" "4rem", class "spinner-border text-success", attribute "role" "status" ] [ span [ class "sr-only" ] [ text "Loading" ] ]
+      --      ]
+      --  ]
         --[ div [ class "loader" ] [] ]
     Error httpError ->
       text (Debug.toString httpError)
@@ -868,13 +949,16 @@ profilePageInit key user =
                         , decoder  = Json.field "user" Data.User.decoder }
       form = Form.initial
         [ ( "name", Field.value (String (user.name)) )
-     -- ,
+        , ( "organization", Field.value (String (Maybe.withDefault "" (user.organization))) )
+        , ( "phoneNumber", Field.value (String (Maybe.withDefault "" (user.phoneNumber))) )
+        , ( "country", Field.value (String (user.country)) )
         ] profileFormValidate
-   in Update.Deep.save ProfilePageState
+   in Debug.log (Debug.toString user) ( Update.Deep.save ProfilePageState
         |> Update.Deep.andMap (apiUser |> mapCmd ProfileApiMsg)
         |> Update.Deep.andMap (save form)
         |> Update.Deep.andMap (save key)
         |> Update.Deep.andMap (save False)
+        )
 
 profilePageHandleSubmit : { onProfileUpdated : User -> a } -> Value -> ProfilePageState -> Update ProfilePageState ProfilePageMsg a
 profilePageHandleSubmit { onProfileUpdated } json state =
@@ -1539,7 +1623,8 @@ notificationsModalView (state) msg =
     --    |> Modal.h6 [] [ text "User profile" ]
         |> Modal.body []
            [ div [ Spacing.m2 ]
-             [ text notification.message
+             [ i [ style "font-size" "64px", class "fas fa-comment mb-3" ] [] 
+             , p [] [ text notification.message ]
 
 --          if sent
 --              then
@@ -1599,9 +1684,11 @@ notificationsModalView (state) msg =
 type UiMsg
   = ToggleSidebar
   | ToggleUserDropdown
-  | ToggleEventsDropdown
+  | ToggleNotificationsDropdown
+  | ToggleLanguageDropdown
   | UserDropdownStatus DropdownStatus
-  | EventsDropdownStatus DropdownStatus
+  | NotificationsDropdownStatus DropdownStatus
+  | LanguageDropdownStatus DropdownStatus
   | NotificationsModalMsg NotificationsModalMsg
   | FetchNotifications
   | NotificationsApiMsg (ApiMsg (List Notification))
@@ -1626,11 +1713,12 @@ toggleDropdownStatus status =
       Open
 
 type alias UiState =
-  { sidebarVisible       : Bool
-  , userDropdownStatus   : DropdownStatus
-  , notifsDropdownStatus : DropdownStatus
-  , notificationsModal   : NotificationsModalState
-  , notifications        : ApiModel (List Notification)
+  { sidebarVisible              : Bool
+  , userDropdownStatus          : DropdownStatus
+  , notificationsDropdownStatus : DropdownStatus
+  , languageDropdownStatus      : DropdownStatus
+  , notificationsModal          : NotificationsModalState
+  , notifications               : ApiModel (List Notification)
   }
 --  , notificationsModal         : Modal.Visibility
 --  , profileForm          : Form () ProfileForm
@@ -1642,8 +1730,11 @@ toggleSidebar state = save { state | sidebarVisible = not state.sidebarVisible }
 setUserDropdownStatus : DropdownStatus -> UiState -> Update UiState UiMsg a
 setUserDropdownStatus status state = save { state | userDropdownStatus = status }
 
-setEventsDropdownStatus : DropdownStatus -> UiState -> Update UiState UiMsg a
-setEventsDropdownStatus status state = save { state | notifsDropdownStatus = status }
+setNotificationsDropdownStatus : DropdownStatus -> UiState -> Update UiState UiMsg a
+setNotificationsDropdownStatus status state = save { state | notificationsDropdownStatus = status }
+
+setLanguageDropdownStatus : DropdownStatus -> UiState -> Update UiState UiMsg a
+setLanguageDropdownStatus status state = save { state | languageDropdownStatus = status }
 
 insertAsNotificationsModalIn : UiState -> NotificationsModalState -> Update UiState UiMsg a
 insertAsNotificationsModalIn state notificationsModal = save { state | notificationsModal = notificationsModal }
@@ -1672,12 +1763,13 @@ uiInit =
     |> Update.Deep.andMap (save True)
     |> Update.Deep.andMap (save Closed)
     |> Update.Deep.andMap (save Closed)
+    |> Update.Deep.andMap (save Closed)
     |> Update.Deep.andMap (notificationsModalInit |> mapCmd NotificationsModalMsg)
     |> Update.Deep.andMap (notifications          |> mapCmd NotificationsApiMsg)
 --  save
 --    { sidebarVisible       = True
 --    , userDropdownStatus   = Closed
---    , notifsDropdownStatus = Closed
+--    , notificationsDropdownStatus = Closed
 --    , notificationsModal         = notificationsModalInit
 --    }
 --    , notificationsModal         = Modal.hidden
@@ -1722,15 +1814,21 @@ uiUpdate { onNotificationsFetched } msg state =
     ToggleUserDropdown ->
       state
         |> setUserDropdownStatus (toggleDropdownStatus state.userDropdownStatus)
-    ToggleEventsDropdown ->
+    ToggleNotificationsDropdown ->
       state
-        |> setEventsDropdownStatus (toggleDropdownStatus state.notifsDropdownStatus)
+        |> setNotificationsDropdownStatus (toggleDropdownStatus state.notificationsDropdownStatus)
+    ToggleLanguageDropdown ->
+      state
+        |> setLanguageDropdownStatus (toggleDropdownStatus state.languageDropdownStatus)
     UserDropdownStatus dropdownStatus ->
       state
         |> setUserDropdownStatus dropdownStatus
-    EventsDropdownStatus dropdownStatus ->
+    NotificationsDropdownStatus dropdownStatus ->
       state
-        |> setEventsDropdownStatus dropdownStatus
+        |> setNotificationsDropdownStatus dropdownStatus
+    LanguageDropdownStatus dropdownStatus ->
+      state
+        |> setLanguageDropdownStatus dropdownStatus
     NotificationsModalMsg notificationsModalMsg ->
       state.notificationsModal
         |> notificationsModalUpdate { onDismiss = dismissNotification } notificationsModalMsg
@@ -1744,7 +1842,6 @@ uiUpdate { onNotificationsFetched } msg state =
     FetchNotifications ->
       state
         |> uiUpdate { onNotificationsFetched = onNotificationsFetched } (NotificationsApiMsg (Request "" Nothing))
-
 
            --, Button.attrs [ onClick <| AnimateNotificationsModal Modal.hiddenAnimated ] ]
 
@@ -1762,7 +1859,8 @@ uiSubscriptions : UiState -> (UiMsg -> msg) -> Sub msg
 uiSubscriptions state msg =
   Sub.batch
     [ dropdownSubscriptions state.userDropdownStatus (msg << UserDropdownStatus)
-    , dropdownSubscriptions state.notifsDropdownStatus (msg << EventsDropdownStatus)
+    , dropdownSubscriptions state.notificationsDropdownStatus (msg << NotificationsDropdownStatus)
+    , dropdownSubscriptions state.languageDropdownStatus (msg << LanguageDropdownStatus)
     , notificationsModalSubscriptions state.notificationsModal (msg << NotificationsModalMsg) ]
 
 --uiNotificationsModalView : UiState -> Html UiMsg
@@ -1823,15 +1921,97 @@ uiSidebarView state msg =
   let toggled = if state.sidebarVisible then "" else "toggled "
    in ul [ class (toggled ++ "navbar-nav bg-secondary sidebar sidebar-dark accordion") ] 
         [
-          li [ class "nav-item" ] 
-          [ a [ href "#", class "nav-link" ] [ span [] [ text "Dashboard" ] ] ]
-        , li [ class "nav-item" ] 
-          [ a [ href "#", class "nav-link" ] [ span [] [ text "Results" ] ] ]
-        ]
+          li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Dashboard" ] ] ]
+        , hr [ class "sidebar-divider" ] []
+        , li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Campaigns" ] ] ]
+        , hr [ class "sidebar-divider" ] []
+        , li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Results" ] ] ]
+        , hr [ class "sidebar-divider" ] []
+        , li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Location" ] ] ]
+        , hr [ class "sidebar-divider" ] []
+        , div [ class "text-center d-none d-md-inline" ] [
+            button [ onClick (msg ToggleSidebar), id "sidebarToggle", class "rounded-circle border-0" ] [] ] ]
+
+uiLanguageDropdown : UiState -> (UiMsg -> msg) -> Html msg
+uiLanguageDropdown state msg =
+
+  let
+      menu = 
+          div
+            [ class ((if Closed /= state.languageDropdownStatus then "show " else "") ++ "dropdown-menu dropdown-menu-right shadow-sm animated--grow-in") ]
+            [
+              div [ class "dropdown-header" ] [ text "Language" ]
+            , a [ href "#", class "dropdown-item" ] [ text "English" ]
+            , a [ href "#", class "dropdown-item" ] [ text "French" ]
+            , a [ href "#", class "dropdown-item" ] [ text "Esperanto" ]
+            --, div [ class "dropdown-divider" ] []
+            --, div [ class "dropdown-header" ] [ text "Project" ]
+            --, a
+            --  [ class "dropdown-item"
+            --  , href "/settings"
+            --  ]
+            --  [ text "Settings" ]
+            --, a
+            --  [ class "dropdown-item"
+            --  , href "/projects"
+            --  ]
+            --  [ text "Change project" ]
+            --, a
+            --  [ class "dropdown-item"
+            --  , href "/projects/new"
+            --  --, onClick ShowNewProjectModal
+            --  ]
+            --  [ text "New project" ]
+            --, div [ class "dropdown-divider" ] []
+            --, a
+            --  [ class "dropdown-item"
+            --  , href "/logout"
+            --  ]
+            --  [ text "Log out" ]
+            ]
+
+
+
+
+--        div [ class ((if Closed /= state.languageDropdownStatus then "show " else "") ++ "dropdown-list dropdown-menu dropdown-menu-right shadow-sm animated--grow-in") ]
+--          [ span [ style "cursor" "pointer", class "dropdown-item d-flex align-items-center" ]
+--            [
+--              div [ class "dropdown-header" ] [ text "Account" ]
+--
+--
+--            , a [ href "/profile", class "dropdown-item" ] [ text "Profile" ]
+--
+----            , span [ style "cursor" "pointer", class "dropdown-item", onClick (msg (NotificationsModalMsg (NotificationsModalOpen user))) ]
+----                [ text "Profile" ]
+--
+----            , Button.button [ Button.roleLink, Button.attrs [ class "dropdown-item", onClick (msg (NotificationsModalMsg (NotificationsModalOpen user))) ] ]
+----                [ text "Profile" ]
+--
+--            , div [ class "dropdown-divider" ] []
+--
+--            ] ]
+
+
+--            [ div [ class "mr-3" ] [
+--                
+--                    --div [ class "small text-gray-500" ] [ text "December 12, 2019" ] ,
+--                    span [ ] [ text "English" ]
+--                  ] ] ]
+
+   in
+        li [ class "nav-item dropdown" ]
+          [ 
+            Button.button
+              [ Button.small, Button.onClick (msg ToggleLanguageDropdown), Button.roleLink, Button.attrs [ style "font-size" "1em", class "nav-link dropdown-toggle" ] ]
+              [ b [ class "d-none d-sm-block" ] [ text "English" ] ] -- i [ class "fas fa-bell fa-fw" ] []
+          
+          , menu
+          ]
+
 
 uiNotificationsDropdown : UiState -> (UiMsg -> msg) -> Html msg
 uiNotificationsDropdown state msg =
-  
+
   let icon =
 
         case state.notifications.resource of
@@ -1841,7 +2021,7 @@ uiNotificationsDropdown state msg =
             text ""
           Requested ->
             div [ style "min-width" "59px" ]
-              [ Button.button [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1.4em", class "nav-link dropdown-toggle", onClick (msg ToggleEventsDropdown) ] ]
+              [ Button.button [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1.4em", class "nav-link dropdown-toggle", onClick (msg ToggleNotificationsDropdown) ] ]
                 [ div [ class "d-flex justify-content-center", style "height" "100%", style "align-items" "center" ]
                   [ div [ style "opacity" "0.65", style "border-width" "5px", style "width" "2rem", style "height" "2rem", class "spinner-border text-white", attribute "role" "status" ] [ span [ class "sr-only" ] [ text "Loading" ] ] ] ] ]
           Available notifications ->
@@ -1851,7 +2031,7 @@ uiNotificationsDropdown state msg =
                     else 
                       div [ style "min-width" "59px" ]
                         [ Button.button
-                          [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1.4em", class "nav-link dropdown-toggle", onClick (msg ToggleEventsDropdown) ] ]
+                          [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1.4em", class "nav-link dropdown-toggle", onClick (msg ToggleNotificationsDropdown) ] ]
                           [ i [ class "fas fa-bell fa-fw" ] []
                           , span [ style "margin-top" "1.1rem"
                                  , style "margin-right" "0.1rem"
@@ -1872,7 +2052,7 @@ uiNotificationsDropdown state msg =
       menu = 
         case state.notifications.resource of
           Available notifications ->
-              div [ class ((if Closed /= state.notifsDropdownStatus then "show " else "") ++ "dropdown-list dropdown-menu dropdown-menu-right shadow-sm animated--grow-in") ]
+              div [ class ((if Closed /= state.notificationsDropdownStatus then "show " else "") ++ "dropdown-list dropdown-menu dropdown-menu-right shadow-sm animated--grow-in") ]
                 ( [ h6 [ class "bg-success border-success dropdown-header" ] [ text "Notifications" ] ] 
                ++ List.map menuItem notifications 
                ++ [ a [ href "/notifications", class "dropdown-item text-center text-gray-500" ] [ text "Show all notifications" ] ] )
@@ -1885,7 +2065,7 @@ uiNotificationsDropdown state msg =
        [ icon
        , menu
 
---        Button.button [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1.4em", class "nav-link dropdown-toggle", onClick (msg ToggleEventsDropdown) ] ]
+--        Button.button [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1.4em", class "nav-link dropdown-toggle", onClick (msg ToggleNotificationsDropdown) ] ]
 
 --        [ i [ class "fas fa-bell fa-fw" ] []
 --        , span [ style "margin-top" "1.1rem", style "margin-right" "0.1rem", class "badge badge-danger badge-counter" ] [ text "3" ]
@@ -1945,19 +2125,12 @@ uiNavbarView state user msg =
     , ul [ class "navbar-nav ml-auto" ]
       [
 
-        li [ class "nav-item dropdown" ]
-        [ 
-          Button.button
-            [ Button.small, Button.roleLink, Button.attrs [ style "font-size" "1em", class "nav-link dropdown-toggle" ] ]
-            [ b [ class "d-none d-sm-block" ] [ text "English" ] ] -- i [ class "fas fa-bell fa-fw" ] []
-        
-        ]
-
+        uiLanguageDropdown state msg
       , uiNotificationsDropdown state msg
 
 --        li [ class "mr-2 nav-item dropdown no-arrow mx-1" ]
 --        [
---            a [ style "font-size" "1.4em", href "#", onClick ToggleEventsDropdown, class "nav-link dropdown-toggle" ]
+--            a [ style "font-size" "1.4em", href "#", onClick ToggleNotificationsDropdown, class "nav-link dropdown-toggle" ]
 --
 --            [ i [ class "fas fa-bell fa-fw" ] []
 --            , span [ style "border-radius" "50%", class "badge badge-danger badge-counter" ] [ text "3" ]
@@ -2305,6 +2478,7 @@ type PageMsg
   | NewProjectPageMsg NewProjectPageMsg
   | ProjectHomePageMsg ProjectHomePageMsg
   | ProjectSettingsPageMsg ProjectSettingsPageMsg
+  | NotificationsPageMsg NotificationsPageMsg
 
 type Page
   = NoPage
@@ -2316,6 +2490,7 @@ type Page
   | NewProjectPage NewProjectPageState
   | ProjectHomePage ProjectHomePageState
   | ProjectSettingsPage ProjectSettingsPageState
+  | NotificationsPage NotificationsPageState
 
 --
 
@@ -2380,64 +2555,6 @@ init flags url key =
     |> Update.Deep.andThen (updateRouterWith (UrlChange url))
     |> Update.Deep.andThen (updateUiWith FetchNotifications)
 
---authenticatedRoute : Route -> State -> Update State Msg a
---authenticatedRoute route state =
---  case route of
---    Projects ->
---      save state
---    NewProject ->
---      save state
---    Profile ->
---      save state
---    Settings ->
---      save state
---    -------------------------------------------------
---    -- Other routes need an active working project --
---    -------------------------------------------------
---    _ ->
---      state
---        |> if Nothing == state.session.project
---               then redirect "/projects"
---               else save
-
--- loadProjectPage : Maybe Route -> State -> Update State Msg a
--- loadProjectPage maybeRoute ({ page } as state) =
---   case ( maybeRoute, page ) of
---     ( Just Home, ProjectHomePage _ ) ->
---       save state
---     ( Just Settings, ProjectSettingsPage _ ) ->
---       save state
---     ( Just Home, _ ) ->
---       save state
---     ( Just Settings, _ ) ->
---       save state
---
--- loadAuthenticatedPage : Maybe Route -> State -> Update State Msg a
--- loadAuthenticatedPage maybeRoute ({ page } as state) =
---   case state.session of
---     Nothing ->
---       save state
---     Just session ->
---       case ( maybeRoute, page ) of
---         ( Just Projects, SelectProjectPage _ ) ->
---           save state
---         ( Just Profile, ProfilePage _ ) ->
---           save state
---         ( Just NewProject, NewProjectPage _ ) ->
---           save state
---         --
---         ( Just Projects, _ ) ->
---           selectProjectPageInit
---             |> mapCmd (PageMsg << SelectProjectPageMsg)
---             |> andFinally (insertAsPageIn state << SelectProjectPage)
---             |> andThen (update (PageMsg <| SelectProjectPageMsg selectProjectFetchProjects))
---         ( Just Profile, _ ) ->
---           save state
---         ( Just NewProject, _ ) ->
---           save state
---     _ ->
---       loadProjectPage maybeRoute state
---
 -- loadPage : Maybe Route -> State -> Update State Msg a
 -- loadPage maybeRoute ({ page } as state) =
 --   case ( maybeRoute, page ) of
@@ -2507,6 +2624,12 @@ loadSettingsPage state =
     |> mapCmd (PageMsg << ProjectSettingsPageMsg)
     |> andFinally (insertAsPageIn state << ProjectSettingsPage)
 
+loadNotificationsPage : State -> Update State Msg a
+loadNotificationsPage state =
+  notificationsPageInit
+    |> mapCmd (PageMsg << NotificationsPageMsg)
+    |> andFinally (insertAsPageIn state << NotificationsPage)
+
 projectRoute : User -> Project -> Route -> State -> Update State Msg a
 projectRoute user project route state =
   state |> case route of
@@ -2514,6 +2637,8 @@ projectRoute user project route state =
       loadHomePage project.id
     Settings ->
       loadSettingsPage
+    Notifications ->
+      loadNotificationsPage
     _ ->
       save
 
@@ -2727,6 +2852,15 @@ pageUpdate msg ({ page } as state) =
             |> andFinally (insertAsPageIn state << ProjectSettingsPage)
         _ ->
           save state
+    NotificationsPage notificationsPageState ->
+      case msg of
+        NotificationsPageMsg notificationsPageMsg ->
+          notificationsPageState
+            |> notificationsPageUpdate notificationsPageMsg
+            |> mapCmd (PageMsg << NotificationsPageMsg)
+            |> andFinally (insertAsPageIn state << NotificationsPage)
+        _ ->
+          save state
     NoPage ->
       save state
 
@@ -2761,6 +2895,8 @@ pageSubscriptions page msg =
       projectHomePageSubscriptions projectHomePageState (msg << ProjectHomePageMsg)
     ProjectSettingsPage projectSettingsPageState ->
       projectSettingsPageSubscriptions projectSettingsPageState (msg << ProjectSettingsPageMsg)
+    NotificationsPage notificationsPageState ->
+      notificationsPageSubscriptions notificationsPageState (msg << NotificationsPageMsg)
 
 subscriptions : State -> Sub Msg
 subscriptions { ui, router, page } =
@@ -2908,40 +3044,50 @@ pageView ui session page =
                 [ h2 [ class "text-gray-900", class "mb-4" ] [ text "Settings" ] ]
             NewProjectPage { project, form, sent } ->
               div [ style "max-width" "640px" ]
-                [ h2 [ class "text-gray-900", class "mb-4" ] [ text "New project" ]
-                , newProjectPageError project.resource
-                , newProjectFormView form sent (PageMsg << NewProjectPageMsg << NewProjectFormMsg)
-                , ButtonGroup.toolbar []
-                    [ ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [] ]
-                      [ ButtonGroup.button [ Button.primary
-                                           , Button.onClick (PageMsg (NewProjectPageMsg (NewProjectFormMsg Form.Submit)))
-                                           , Button.disabled sent ]
-                        [ text (if sent then "Please wait" else "Save") ] ]
-                    , ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [ Spacing.ml1 ] ]
-                      [ ButtonGroup.button [ Button.secondary
-                                           , Button.onClick (PageMsg (NewProjectPageMsg NewProjectPageFormCancel))
-                                           , Button.disabled sent ]
-                        [ text "Cancel" ] ] ] ]
+                [ div [ class "card border-left-warning py-2" ] [
+                  div [ class "card-body" ] 
+                  [ h2 [ class "text-gray-900", class "mb-4" ] [ text "New project" ]
+                  , newProjectPageError project.resource
+                  , newProjectFormView form sent (PageMsg << NewProjectPageMsg << NewProjectFormMsg)
+                  , ButtonGroup.toolbar []
+                      [ ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [] ]
+                        [ ButtonGroup.button [ Button.primary
+                                             , Button.onClick (PageMsg (NewProjectPageMsg (NewProjectFormMsg Form.Submit)))
+                                             , Button.disabled sent ]
+                          [ text (if sent then "Please wait" else "Save") ] ]
+                      , ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [ Spacing.ml1 ] ]
+                        [ ButtonGroup.button [ Button.secondary
+                                             , Button.onClick (PageMsg (NewProjectPageMsg NewProjectPageFormCancel))
+                                             , Button.disabled sent ]
+                        [ text "Cancel" ] ] ] ] ] ]
             SelectProjectPage selectProjectPageState ->
               div [ style "max-width" "800px" ]
+                [ div [ class "card border-left-warning py-2" ] [
+                  div [ class "card-body" ] 
                 [ h2 [ class "text-gray-900", class "mb-4" ] [ text "Select a project" ]
-                , selectProjectPageView selectProjectPageState (PageMsg << SelectProjectPageMsg) ]
+                , selectProjectPageView selectProjectPageState (PageMsg << SelectProjectPageMsg) ] ] ]
             ProfilePage { user, form, sent } ->
               div [ style "max-width" "640px" ]
-                [ h2 [ class "text-gray-900", class "mb-4" ] [ text "User profile" ]
-                , profilePageError user.resource
-                , profileFormView form sent (PageMsg << ProfilePageMsg << ProfileFormMsg)
-                , ButtonGroup.toolbar []
-                    [ ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [] ]
-                      [ ButtonGroup.button [ Button.primary
-                                           , Button.onClick (PageMsg (ProfilePageMsg (ProfileFormMsg Form.Submit)))
-                                           , Button.disabled sent ]
-                        [ text (if sent then "Please wait" else "Save") ] ]
-                    , ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [ Spacing.ml1 ] ]
-                      [ ButtonGroup.button [ Button.secondary
-                                           , Button.onClick (PageMsg (ProfilePageMsg ProfilePageFormCancel))
-                                           , Button.disabled sent ]
-                        [ text "Cancel" ] ] ] ]
+                [ div [ class "card border-left-primary py-2" ] [
+                  div [ class "card-body" ] 
+                  [ h2 [ class "text-gray-900", class "mb-4" ] [ text "User profile" ]
+                  , profilePageError user.resource
+                  , profileFormView form sent (PageMsg << ProfilePageMsg << ProfileFormMsg)
+                  , ButtonGroup.toolbar []
+                      [ ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [] ]
+                        [ ButtonGroup.button [ Button.primary
+                                             , Button.onClick (PageMsg (ProfilePageMsg (ProfileFormMsg Form.Submit)))
+                                             , Button.disabled sent ]
+                          [ text (if sent then "Please wait" else "Save") ] ]
+                      , ButtonGroup.buttonGroupItem [ ButtonGroup.attrs [ Spacing.ml1 ] ]
+                        [ ButtonGroup.button [ Button.secondary
+                                             , Button.onClick (PageMsg (ProfilePageMsg ProfilePageFormCancel))
+                                             , Button.disabled sent ]
+                          [ text "Cancel" ] ] ] ]
+                    ] ]
+            NotificationsPage notificationsPageState ->
+              div [ style "max-width" "640px" ]
+                [ h2 [ class "text-gray-900", class "mb-4" ] [ text "Notifications" ] ]
             _ ->
               text ""
 

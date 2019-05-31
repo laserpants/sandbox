@@ -10,6 +10,9 @@ var users =
     password: 'test',
     email: 'uliza@uliza.fm',
     login: 'test',
+    phoneNumber: null,
+    organization: null,
+    country: 'UG',
     rememberMe: false
   }
 ];
@@ -109,6 +112,9 @@ xhook.before(function(request, callback) {
       if (filtered.length > 0) {
         var user = filtered[0];
         user.name = body.name;
+        user.organization = body.organization;
+        user.phoneNumber = body.phoneNumber;
+        user.country = body.country;
         console.log(users);
         callback({
           status: 200,
