@@ -1,4 +1,4 @@
-module Update.Deep exposing (Update, andFinally, andInvokeHandler, andMap, andRunCmd, andThen, andThenIf, ap, applicationInit, documentInit, foldEvents, invokeHandler, join, kleisli, map, map2, map3, map4, map5, map6, map7, mapCmd, runCmd, runUpdate, save)
+module Update.Deep exposing (Update, foldEventsAndThen, andInvokeHandler, andMap, andAddCmd, andThen, andThenIf, ap, applicationInit, documentInit, foldEvents, invokeHandler, join, kleisli, map, map2, map3, map4, map5, map6, map7, mapCmd, addCmd, runUpdate, save)
 
 
 type alias Update m c e =
@@ -10,8 +10,8 @@ save model =
     ( model, Cmd.none, [] )
 
 
-runCmd : Cmd c -> m -> Update m c e
-runCmd cmd state =
+addCmd : Cmd c -> m -> Update m c e
+addCmd cmd state =
     ( state, cmd, [] )
 
 
@@ -94,9 +94,9 @@ kleisli f g =
     andThen f << g
 
 
-andRunCmd : Cmd c -> Update a c e -> Update a c e
-andRunCmd =
-    andThen << runCmd
+andAddCmd : Cmd c -> Update a c e -> Update a c e
+andAddCmd =
+    andThen << addCmd
 
 
 andInvokeHandler : e -> Update a c e -> Update a c e
@@ -109,8 +109,8 @@ foldEvents ( m, cmd, events ) =
     List.foldr andThen ( m, cmd, [] ) events
 
 
-andFinally : (m -> Update a c (a -> Update a c e)) -> Update m c (a -> Update a c e) -> Update a c e
-andFinally do =
+foldEventsAndThen : (m -> Update a c (a -> Update a c e)) -> Update m c (a -> Update a c e) -> Update a c e
+foldEventsAndThen do =
     foldEvents << andThen do
 
 

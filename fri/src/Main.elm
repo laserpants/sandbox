@@ -10,6 +10,7 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Form.Input
+import Bootstrap.Badge
 import Bootstrap.Form.Checkbox
 import Bootstrap.Form.Textarea
 import Bootstrap.Form.Select
@@ -182,7 +183,7 @@ apiUpdate { onSuccess, onError } msg model =
     Request url maybeBody ->
       model
         |> setResource Requested
-        |> andRunCmd (model.request url maybeBody)
+        |> andAddCmd (model.request url maybeBody)
     Response (Ok resource) ->
       model
         |> setResource (Available resource)
@@ -685,6 +686,363 @@ registerFormView form sent msg =
 
 --
 
+type AppsPageMsg
+  = NoAppsPageMsg
+
+type alias AppsPageState =
+  {}
+
+appsPageInit : Update AppsPageState AppsPageMsg a
+appsPageInit =
+  save {}
+
+appsPageUpdate : AppsPageMsg -> AppsPageState -> Update AppsPageState AppsPageMsg a
+appsPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+appsPageSubscriptions : AppsPageState -> (AppsPageMsg -> msg) -> Sub msg
+appsPageSubscriptions state msg = Sub.none
+
+--
+
+type AudioPageMsg
+  = NoAudioPageMsg
+
+type alias AudioPageState =
+  {}
+
+audioPageInit : Update AudioPageState AudioPageMsg a
+audioPageInit =
+  save {}
+
+audioPageUpdate : AudioPageMsg -> AudioPageState -> Update AudioPageState AudioPageMsg a
+audioPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+audioPageSubscriptions : AudioPageState -> (AudioPageMsg -> msg) -> Sub msg
+audioPageSubscriptions state msg = Sub.none
+
+--
+
+type AnalyticsPageMsg
+  = NoAnalyticsPageMsg
+
+type alias AnalyticsPageState =
+  {}
+
+analyticsPageInit : Update AnalyticsPageState AnalyticsPageMsg a
+analyticsPageInit =
+  save {}
+
+analyticsPageUpdate : AnalyticsPageMsg -> AnalyticsPageState -> Update AnalyticsPageState AnalyticsPageMsg a
+analyticsPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+analyticsPageSubscriptions : AnalyticsPageState -> (AnalyticsPageMsg -> msg) -> Sub msg
+analyticsPageSubscriptions state msg = Sub.none
+
+--
+
+type CostPageMsg
+  = NoCostPageMsg
+
+type alias CostPageState =
+  {}
+
+costPageInit : Update CostPageState CostPageMsg a
+costPageInit =
+  save {}
+
+costPageUpdate : CostPageMsg -> CostPageState -> Update CostPageState CostPageMsg a
+costPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+costPageSubscriptions : CostPageState -> (CostPageMsg -> msg) -> Sub msg
+costPageSubscriptions state msg = Sub.none
+
+--
+
+type ResultsAnswersPageMsg
+  = NoResultsAnswersPageMsg
+
+type alias ResultsAnswersPageState =
+  {}
+
+resultsAnswersPageInit : Update ResultsAnswersPageState ResultsAnswersPageMsg a
+resultsAnswersPageInit =
+  save {}
+
+resultsAnswersPageUpdate : ResultsAnswersPageMsg -> ResultsAnswersPageState -> Update ResultsAnswersPageState ResultsAnswersPageMsg a
+resultsAnswersPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+resultsAnswersPageSubscriptions : ResultsAnswersPageState -> (ResultsAnswersPageMsg -> msg) -> Sub msg
+resultsAnswersPageSubscriptions state msg = Sub.none
+
+--
+
+type PollResultsPageMsg
+  = NoPollResultsPageMsg
+
+type alias PollResultsPageState =
+  {}
+
+pollResultsPageInit : Update PollResultsPageState PollResultsPageMsg a
+pollResultsPageInit =
+  save {}
+
+pollResultsPageUpdate : PollResultsPageMsg -> PollResultsPageState -> Update PollResultsPageState PollResultsPageMsg a
+pollResultsPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+pollResultsPageSubscriptions : PollResultsPageState -> (PollResultsPageMsg -> msg) -> Sub msg
+pollResultsPageSubscriptions state msg = Sub.none
+
+--
+
+type CreateMessagePageMsg
+  = NoCreateMessagePageMsg
+
+type alias CreateMessagePageState =
+  {}
+
+createMessagePageInit : Update CreateMessagePageState CreateMessagePageMsg a
+createMessagePageInit =
+  save {}
+
+createMessagePageUpdate : CreateMessagePageMsg -> CreateMessagePageState -> Update CreateMessagePageState CreateMessagePageMsg a
+createMessagePageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+createMessagePageSubscriptions : CreateMessagePageState -> (CreateMessagePageMsg -> msg) -> Sub msg
+createMessagePageSubscriptions state msg = Sub.none
+
+--
+
+type MessageArchivePageMsg
+  = NoMessageArchivePageMsg
+
+type alias MessageArchivePageState =
+  {}
+
+messageArchivePageInit : Update MessageArchivePageState MessageArchivePageMsg a
+messageArchivePageInit =
+  save {}
+
+messageArchivePageUpdate : MessageArchivePageMsg -> MessageArchivePageState -> Update MessageArchivePageState MessageArchivePageMsg a
+messageArchivePageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+messageArchivePageSubscriptions : MessageArchivePageState -> (MessageArchivePageMsg -> msg) -> Sub msg
+messageArchivePageSubscriptions state msg = Sub.none
+
+--
+
+type UploadAudioPageMsg
+  = NoUploadAudioPageMsg
+
+type alias UploadAudioPageState =
+  {}
+
+uploadAudioPageInit : Update UploadAudioPageState UploadAudioPageMsg a
+uploadAudioPageInit =
+  save {}
+
+uploadAudioPageUpdate : UploadAudioPageMsg -> UploadAudioPageState -> Update UploadAudioPageState UploadAudioPageMsg a
+uploadAudioPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+uploadAudioPageSubscriptions : UploadAudioPageState -> (UploadAudioPageMsg -> msg) -> Sub msg
+uploadAudioPageSubscriptions state msg = Sub.none
+
+--
+
+type AudioArchivePageMsg
+  = NoAudioArchivePageMsg
+
+type alias AudioArchivePageState =
+  {}
+
+audioArchivePageInit : Update AudioArchivePageState AudioArchivePageMsg a
+audioArchivePageInit =
+  save {}
+
+audioArchivePageUpdate : AudioArchivePageMsg -> AudioArchivePageState -> Update AudioArchivePageState AudioArchivePageMsg a
+audioArchivePageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+audioArchivePageSubscriptions : AudioArchivePageState -> (AudioArchivePageMsg -> msg) -> Sub msg
+audioArchivePageSubscriptions state msg = Sub.none
+
+--
+
+type AudiencePageMsg
+  = NoAudiencePageMsg
+
+type alias AudiencePageState =
+  {}
+
+audiencePageInit : Update AudiencePageState AudiencePageMsg a
+audiencePageInit =
+  save {}
+
+audiencePageUpdate : AudiencePageMsg -> AudiencePageState -> Update AudiencePageState AudiencePageMsg a
+audiencePageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+audiencePageSubscriptions : AudiencePageState -> (AudiencePageMsg -> msg) -> Sub msg
+audiencePageSubscriptions state msg = Sub.none
+
+--
+
+type RoutingPageMsg
+  = NoRoutingPageMsg
+
+type alias RoutingPageState =
+  {}
+
+routingPageInit : Update RoutingPageState RoutingPageMsg a
+routingPageInit =
+  save {}
+
+routingPageUpdate : RoutingPageMsg -> RoutingPageState -> Update RoutingPageState RoutingPageMsg a
+routingPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+routingPageSubscriptions : RoutingPageState -> (RoutingPageMsg -> msg) -> Sub msg
+routingPageSubscriptions state msg = Sub.none
+
+--
+
+type ManageNumbersPageMsg
+  = NoManageNumbersPageMsg
+
+type alias ManageNumbersPageState =
+  {}
+
+manageNumbersPageInit : Update ManageNumbersPageState ManageNumbersPageMsg a
+manageNumbersPageInit =
+  save {}
+
+manageNumbersPageUpdate : ManageNumbersPageMsg -> ManageNumbersPageState -> Update ManageNumbersPageState ManageNumbersPageMsg a
+manageNumbersPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+manageNumbersPageSubscriptions : ManageNumbersPageState -> (ManageNumbersPageMsg -> msg) -> Sub msg
+manageNumbersPageSubscriptions state msg = Sub.none
+
+--
+
+type NewCampaignPageMsg
+  = NoNewCampaignPageMsg
+
+type alias NewCampaignPageState =
+  {}
+
+newCampaignPageInit : Update NewCampaignPageState NewCampaignPageMsg a
+newCampaignPageInit =
+  save {}
+
+newCampaignPageUpdate : NewCampaignPageMsg -> NewCampaignPageState -> Update NewCampaignPageState NewCampaignPageMsg a
+newCampaignPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+newCampaignPageSubscriptions : NewCampaignPageState -> (NewCampaignPageMsg -> msg) -> Sub msg
+newCampaignPageSubscriptions state msg = Sub.none
+
+--
+
+type AllCampaignsPageMsg
+  = NoAllCampaignsPageMsg
+
+type alias AllCampaignsPageState =
+  {}
+
+allCampaignsPageInit : Update AllCampaignsPageState AllCampaignsPageMsg a
+allCampaignsPageInit =
+  save {}
+
+allCampaignsPageUpdate : AllCampaignsPageMsg -> AllCampaignsPageState -> Update AllCampaignsPageState AllCampaignsPageMsg a
+allCampaignsPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+allCampaignsPageSubscriptions : AllCampaignsPageState -> (AllCampaignsPageMsg -> msg) -> Sub msg
+allCampaignsPageSubscriptions state msg = Sub.none
+
+--
+
+type InactiveCampaignsPageMsg
+  = NoInactiveCampaignsPageMsg
+
+type alias InactiveCampaignsPageState =
+  {}
+
+inactiveCampaignsPageInit : Update InactiveCampaignsPageState InactiveCampaignsPageMsg a
+inactiveCampaignsPageInit =
+  save {}
+
+inactiveCampaignsPageUpdate : InactiveCampaignsPageMsg -> InactiveCampaignsPageState -> Update InactiveCampaignsPageState InactiveCampaignsPageMsg a
+inactiveCampaignsPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+inactiveCampaignsPageSubscriptions : InactiveCampaignsPageState -> (InactiveCampaignsPageMsg -> msg) -> Sub msg
+inactiveCampaignsPageSubscriptions state msg = Sub.none
+
+--
+
+type ActiveCampaignsPageMsg
+  = NoActiveCampaignsPageMsg
+
+type alias ActiveCampaignsPageState =
+  {}
+
+activeCampaignsPageInit : Update ActiveCampaignsPageState ActiveCampaignsPageMsg a
+activeCampaignsPageInit =
+  save {}
+
+activeCampaignsPageUpdate : ActiveCampaignsPageMsg -> ActiveCampaignsPageState -> Update ActiveCampaignsPageState ActiveCampaignsPageMsg a
+activeCampaignsPageUpdate msg state =
+  case msg of
+    _ ->
+      save state
+
+activeCampaignsPageSubscriptions : ActiveCampaignsPageState -> (ActiveCampaignsPageMsg -> msg) -> Sub msg
+activeCampaignsPageSubscriptions state msg = Sub.none
+
+--
+
 type NotificationsPageMsg
   = NoNotificationsPageMsg
 
@@ -758,7 +1116,7 @@ projectHomePageUpdate msg state =
       state.project
         |> apiUpdate { onSuccess = always save, onError = always save } apiMsg
         |> mapCmd ProjectHomePageApiMsg
-        |> andFinally (projectHomePageInsertAsProjectIn state)
+        |> foldEventsAndThen (projectHomePageInsertAsProjectIn state)
 
 projectHomePageSubscriptions : ProjectHomePageState -> (ProjectHomePageMsg -> msg) -> Sub msg
 projectHomePageSubscriptions state msg = Sub.none
@@ -783,7 +1141,7 @@ projectHomePageView { project } msg =
       text (Debug.toString httpError)
     Available project_ ->
       div [ style "max-width" "640px" ]
-        [ text "info" ]
+        [ text "dashboard" ]
 
 --
 
@@ -841,10 +1199,10 @@ newProjectPageUpdate { onNewProject } msg state =
       state.project
         |> apiUpdate { onSuccess = responseHandler, onError = always (newProjectPageSetSent False) } apiMsg
         |> mapCmd NewProjectApiMsg
-        |> andFinally (newProjectPageInsertAsProjectIn state)
+        |> foldEventsAndThen (newProjectPageInsertAsProjectIn state)
     NewProjectPageFormCancel ->
       state
-        |> runCmd (Navigation.replaceUrl state.key "/")
+        |> addCmd (Navigation.replaceUrl state.key "/")
     NewProjectFormMsg formMsg ->
       case ( formMsg, Form.getOutput state.form ) of
         ( Form.Submit, Just form ) ->
@@ -976,10 +1334,10 @@ profilePageUpdate { onProfileUpdated } msg state =
       state.user
         |> apiUpdate { onSuccess = responseHandler, onError = always (profilePageSetSent False) } apiMsg
         |> mapCmd ProfileApiMsg
-        |> andFinally (profilePageInsertAsUserIn state)
+        |> foldEventsAndThen (profilePageInsertAsUserIn state)
     ProfilePageFormCancel ->
       state
-        |> runCmd (Navigation.replaceUrl state.key "/")
+        |> addCmd (Navigation.replaceUrl state.key "/")
     ProfileFormMsg formMsg ->
       case ( formMsg, Form.getOutput state.form ) of
         ( Form.Submit, Just form ) ->
@@ -1080,7 +1438,7 @@ resetPasswordPageUpdate msg state =
       state.response
         |> apiUpdate { onSuccess = always save, onError = always (resetPasswordPageSetSent False) } apiMsg
         |> mapCmd ResetPasswordApiMsg
-        |> andFinally (resetPasswordPageInsertAsResponseIn state)
+        |> foldEventsAndThen (resetPasswordPageInsertAsResponseIn state)
     ResetPasswordFormMsg formMsg ->
       case ( formMsg, Form.getOutput state.form ) of
         ( Form.Submit, Just form ) ->
@@ -1182,12 +1540,12 @@ selectProjectPageUpdate { onProjectSelected } msg state =
   case msg of
     SelectProjectQuery query ->
       save { state | query = query }
-        |> andRunCmd (Ports.websocketOut (Json.Encode.encode 0 (websocketProjectEncodeSearchQuery query)))
+        |> andAddCmd (Ports.websocketOut (Json.Encode.encode 0 (websocketProjectEncodeSearchQuery query)))
     ProjectsListApiMsg apiMsg ->
       state.projects
         |> apiUpdate { onSuccess = always save, onError = always save } apiMsg
         |> mapCmd ProjectsListApiMsg
-        |> andFinally (selectProjectPageInsertAsProjectsIn state)
+        |> foldEventsAndThen (selectProjectPageInsertAsProjectsIn state)
     SelectProject project ->
       state
         |> invokeHandler (onProjectSelected project)
@@ -1351,7 +1709,7 @@ loginPageUpdate { onAuthResponse } msg state =
       state.session
         |> apiUpdate { onSuccess = responseHandler << Just, onError = always (responseHandler Nothing) } apiMsg
         |> mapCmd LoginApiMsg
-        |> andFinally (loginPageInsertAsSessionIn state)
+        |> foldEventsAndThen (loginPageInsertAsSessionIn state)
     LoginFormMsg formMsg ->
       case ( formMsg, Form.getOutput state.form ) of
         ( Form.Submit, Just form ) ->
@@ -1440,7 +1798,7 @@ registerPageUpdate msg state =
       state.user
         |> apiUpdate { onSuccess = always save, onError = always (registerPageSetSent False) } apiMsg
         |> mapCmd RegisterApiMsg
-        |> andFinally (registerPageInsertAsUserIn state)
+        |> foldEventsAndThen (registerPageInsertAsUserIn state)
     RegisterFormMsg formMsg ->
       case ( formMsg, Form.getOutput state.form ) of
         ( Form.Submit, Just form ) ->
@@ -1492,20 +1850,59 @@ type Route
  | NewProject
  | Settings
  | Notifications
+ --
+ | ActiveCampaigns
+ | InactiveCampaigns
+ | AllCampaigns
+ | NewCampaign
+ --
+ | ManageNumbers
+ | Routing
+ --
+ | Audience
+ --
+ | AudioArchive
+ | UploadAudio
+ | MessageArchive
+ | CreateMessage
+ --
+ | PollResults
+ | ResultsAnswers
+ | Cost
+ | Analytics
+ -- 
+ | Audio
+ --
+ | Apps
 
 parser : Parser (Route -> a) a
 parser =
   oneOf
-    [ Parser.map Home          (Parser.top)
-    , Parser.map Login         (Parser.s "login")
-    , Parser.map Logout        (Parser.s "logout")
-    , Parser.map ResetPassword (Parser.s "reset-password")
-    , Parser.map Register      (Parser.s "register")
-    , Parser.map Profile       (Parser.s "profile")
-    , Parser.map Settings      (Parser.s "settings")
-    , Parser.map Projects      (Parser.s "projects")
-    , Parser.map NewProject    (Parser.s "projects" </> Parser.s "new")
-    , Parser.map Notifications (Parser.s "notifications") ]
+    [ Parser.map Home              (Parser.top)
+    , Parser.map Login             (Parser.s "login")
+    , Parser.map Logout            (Parser.s "logout")
+    , Parser.map ResetPassword     (Parser.s "reset-password")
+    , Parser.map Register          (Parser.s "register")
+    , Parser.map Profile           (Parser.s "profile")
+    , Parser.map Settings          (Parser.s "settings")
+    , Parser.map Projects          (Parser.s "projects")
+    , Parser.map NewProject        (Parser.s "projects" </> Parser.s "new")
+    , Parser.map Notifications     (Parser.s "notifications") 
+    , Parser.map ActiveCampaigns   (Parser.s "campaigns" </> Parser.s "active") 
+    , Parser.map InactiveCampaigns (Parser.s "campaigns" </> Parser.s "inactive") 
+    , Parser.map AllCampaigns      (Parser.s "campaigns" </> Parser.s "all") 
+    , Parser.map NewCampaign       (Parser.s "campaigns" </> Parser.s "new") 
+    , Parser.map Audience          (Parser.s "audience") 
+    , Parser.map AudioArchive      (Parser.s "content" </> Parser.s "audio" </> Parser.s "archive") 
+    , Parser.map UploadAudio       (Parser.s "content" </> Parser.s "audio" </> Parser.s "upload") 
+    , Parser.map MessageArchive    (Parser.s "content" </> Parser.s "text" </> Parser.s "archive") 
+    , Parser.map CreateMessage     (Parser.s "content" </> Parser.s "text" </> Parser.s "create") 
+    , Parser.map PollResults       (Parser.s "results" </> Parser.s "polls") 
+    , Parser.map ResultsAnswers    (Parser.s "results" </> Parser.s "answers") 
+    , Parser.map Cost              (Parser.s "results" </> Parser.s "cost") 
+    , Parser.map Analytics         (Parser.s "results" </> Parser.s "analytics") 
+    , Parser.map Audio             (Parser.s "audio") 
+    , Parser.map Apps              (Parser.s "apps") ]
 
 fromUrl : Url -> Maybe Route
 fromUrl = parse parser
@@ -1623,7 +2020,7 @@ notificationsModalView (state) msg =
     --    |> Modal.h6 [] [ text "User profile" ]
         |> Modal.body []
            [ div [ Spacing.m2 ]
-             [ i [ style "font-size" "64px", class "fas fa-comment mb-3" ] [] 
+             [ i [ style "font-size" "64px", class "fas fa-comment-dots mb-3" ] [] 
              , p [] [ text notification.message ]
 
 --          if sent
@@ -1692,10 +2089,34 @@ type UiMsg
   | NotificationsModalMsg NotificationsModalMsg
   | FetchNotifications
   | NotificationsApiMsg (ApiMsg (List Notification))
+  | SidebarToggleCampaignsMenu
+  | SidebarToggleContentMenu
+  | SidebarToggleResultsMenu
+  | SidebarMenuStatus SidebarMenuStatus
 --  | CloseNotificationsModal
 --  | ShowNotificationsModal
 --  | AnimateNotificationsModal Modal.Visibility
 --  | UiProfileFormMsg Form.Msg
+
+type SidebarMenu
+  = CampaignsExpanded
+  | ContentExpanded
+  | ResultsExpanded
+
+type SidebarMenuStatus
+  = SidebarMenuOpen SidebarMenu
+  | SidebarMenuListen SidebarMenu
+  | SidebarMenuClosed
+
+toggleSidebarMenuStatus : SidebarMenu -> SidebarMenuStatus -> SidebarMenuStatus
+toggleSidebarMenuStatus menu status =
+  case status of
+    SidebarMenuOpen openMenu ->
+      if openMenu == menu then SidebarMenuClosed else SidebarMenuListen menu
+    SidebarMenuListen listenMenu ->
+      if listenMenu == menu then SidebarMenuClosed else SidebarMenuOpen menu
+    SidebarMenuClosed ->
+      SidebarMenuOpen menu
 
 type DropdownStatus
   = Open
@@ -1717,12 +2138,26 @@ type alias UiState =
   , userDropdownStatus          : DropdownStatus
   , notificationsDropdownStatus : DropdownStatus
   , languageDropdownStatus      : DropdownStatus
+  , sidebarMenuStatus           : SidebarMenuStatus
+--  , sidebarCampaignsMenuOpen    : Bool
+--  , sidebarContentMenuOpen      : Bool
+--  , sidebarResultsMenuOpen      : Bool
   , notificationsModal          : NotificationsModalState
   , notifications               : ApiModel (List Notification)
   }
 --  , notificationsModal         : Modal.Visibility
 --  , profileForm          : Form () ProfileForm
 --  , profileFormSent      : Maybe ProfileForm }
+
+isExpanded : SidebarMenu -> UiState -> Bool
+isExpanded menu { sidebarMenuStatus } =
+  case sidebarMenuStatus of
+    SidebarMenuClosed -> 
+      False
+    SidebarMenuOpen openMenu ->
+      openMenu == menu
+    SidebarMenuListen listenMenu ->
+      listenMenu == menu
 
 toggleSidebar : UiState -> Update UiState UiMsg a
 toggleSidebar state = save { state | sidebarVisible = not state.sidebarVisible }
@@ -1736,6 +2171,9 @@ setNotificationsDropdownStatus status state = save { state | notificationsDropdo
 setLanguageDropdownStatus : DropdownStatus -> UiState -> Update UiState UiMsg a
 setLanguageDropdownStatus status state = save { state | languageDropdownStatus = status }
 
+setSidebarMenuStatus : SidebarMenuStatus -> UiState -> Update UiState UiMsg a
+setSidebarMenuStatus status state = save { state | sidebarMenuStatus = status }
+
 insertAsNotificationsModalIn : UiState -> NotificationsModalState -> Update UiState UiMsg a
 insertAsNotificationsModalIn state notificationsModal = save { state | notificationsModal = notificationsModal }
 
@@ -1744,6 +2182,18 @@ uiStateSetNotifications notifications state = save { state | notifications = not
 
 insertAsNotificationsIn : UiState -> ApiModel (List Notification) -> Update UiState UiMsg a
 insertAsNotificationsIn state notifications = save { state | notifications = notifications }
+
+--sidebarToggleCampaignsMenu : UiState -> Update UiState UiMsg a
+--sidebarToggleCampaignsMenu state = 
+--  save { state | sidebarCampaignsMenuOpen = not state.sidebarCampaignsMenuOpen, sidebarContentMenuOpen = False, sidebarResultsMenuOpen = False }
+--
+--sidebarToggleContentMenu : UiState -> Update UiState UiMsg a
+--sidebarToggleContentMenu state = 
+--  save { state | sidebarContentMenuOpen = not state.sidebarContentMenuOpen, sidebarCampaignsMenuOpen = False, sidebarResultsMenuOpen = False }
+--
+--sidebarToggleResultsMenu : UiState -> Update UiState UiMsg a
+--sidebarToggleResultsMenu state = 
+--  save { state | sidebarResultsMenuOpen = not state.sidebarResultsMenuOpen, sidebarCampaignsMenuOpen = False, sidebarContentMenuOpen = False }
 
 --setNotificationsModalVisibility : Modal.Visibility -> UiState -> Update UiState UiMsg a
 --setNotificationsModalVisibility visibility state = save { state | notificationsModal = visibility }
@@ -1764,6 +2214,10 @@ uiInit =
     |> Update.Deep.andMap (save Closed)
     |> Update.Deep.andMap (save Closed)
     |> Update.Deep.andMap (save Closed)
+    |> Update.Deep.andMap (save SidebarMenuClosed)
+    --|> Update.Deep.andMap (save False)
+    --|> Update.Deep.andMap (save False)
+    --|> Update.Deep.andMap (save False)
     |> Update.Deep.andMap (notificationsModalInit |> mapCmd NotificationsModalMsg)
     |> Update.Deep.andMap (notifications          |> mapCmd NotificationsApiMsg)
 --  save
@@ -1833,17 +2287,41 @@ uiUpdate { onNotificationsFetched } msg state =
       state.notificationsModal
         |> notificationsModalUpdate { onDismiss = dismissNotification } notificationsModalMsg
         |> mapCmd NotificationsModalMsg
-        |> andFinally (insertAsNotificationsModalIn state)
+        |> foldEventsAndThen (insertAsNotificationsModalIn state)
     NotificationsApiMsg apiMsg ->
       state.notifications
         |> apiUpdate { onSuccess = invokeHandler << onNotificationsFetched, onError = always (invokeHandler <| onNotificationsFetched []) } apiMsg
         |> mapCmd NotificationsApiMsg
-        |> andFinally (insertAsNotificationsIn state)
+        |> foldEventsAndThen (insertAsNotificationsIn state)
     FetchNotifications ->
       state
         |> uiUpdate { onNotificationsFetched = onNotificationsFetched } (NotificationsApiMsg (Request "" Nothing))
 
            --, Button.attrs [ onClick <| AnimateNotificationsModal Modal.hiddenAnimated ] ]
+    SidebarToggleCampaignsMenu ->
+      Debug.log "SidebarToggleCampaignsMenu" (
+      state
+        |> setSidebarMenuStatus (toggleSidebarMenuStatus CampaignsExpanded state.sidebarMenuStatus) 
+        )
+--      state 
+--        |> sidebarToggleCampaignsMenu
+    SidebarToggleContentMenu ->
+      Debug.log "SidebarToggleContentMenu" (
+      state
+        |> setSidebarMenuStatus (toggleSidebarMenuStatus ContentExpanded state.sidebarMenuStatus)
+      )
+--      state 
+--        |> sidebarToggleContentMenu
+    SidebarToggleResultsMenu ->
+      Debug.log "SidebarToggleResultsMenu" (
+      state
+        |> setSidebarMenuStatus (toggleSidebarMenuStatus ResultsExpanded state.sidebarMenuStatus)
+        )
+--      state 
+--        |> sidebarToggleResultsMenu
+    SidebarMenuStatus menuStatus ->
+      state
+        |> setSidebarMenuStatus menuStatus
 
 dropdownSubscriptions : DropdownStatus -> (DropdownStatus -> msg) -> Sub msg
 dropdownSubscriptions status msg =
@@ -1855,12 +2333,23 @@ dropdownSubscriptions status msg =
     Closed ->
       Sub.none
 
+sidebarMenuSubscriptions : SidebarMenuStatus -> (SidebarMenuStatus -> msg) -> Sub msg
+sidebarMenuSubscriptions status msg =
+  case status of
+    SidebarMenuOpen menu ->
+      Browser.Events.onAnimationFrame (always (msg (SidebarMenuListen menu)))
+    SidebarMenuListen _ ->
+      Browser.Events.onClick (Json.succeed (msg SidebarMenuClosed))
+    SidebarMenuClosed ->
+      Sub.none
+
 uiSubscriptions : UiState -> (UiMsg -> msg) -> Sub msg
 uiSubscriptions state msg =
   Sub.batch
     [ dropdownSubscriptions state.userDropdownStatus (msg << UserDropdownStatus)
     , dropdownSubscriptions state.notificationsDropdownStatus (msg << NotificationsDropdownStatus)
     , dropdownSubscriptions state.languageDropdownStatus (msg << LanguageDropdownStatus)
+    , sidebarMenuSubscriptions state.sidebarMenuStatus (msg << SidebarMenuStatus)
     , notificationsModalSubscriptions state.notificationsModal (msg << NotificationsModalMsg) ]
 
 --uiNotificationsModalView : UiState -> Html UiMsg
@@ -1919,15 +2408,66 @@ uiSubscriptions state msg =
 uiSidebarView : UiState -> (UiMsg -> msg) -> Html msg
 uiSidebarView state msg =
   let toggled = if state.sidebarVisible then "" else "toggled "
+      campaignsExpanded = isExpanded CampaignsExpanded state
+      contentExpanded = isExpanded ContentExpanded state
+      resultsExpanded = isExpanded ResultsExpanded state
    in ul [ class (toggled ++ "navbar-nav bg-secondary sidebar sidebar-dark accordion") ] 
         [
-          li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Dashboard" ] ] ]
+          li [ class "nav-item" ] 
+          [ a [ href "/", class "nav-link" ] [ i [ class "fas fa-fw fa-chart-bar" ] [], span [] [ text "Dashboard" ] ] ]
         , hr [ class "sidebar-divider" ] []
-        , li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Campaigns" ] ] ]
+        , div [ class "sidebar-heading" ] [ text "Interactivity" ]
+        , li [ class "nav-item" ] 
+          [ span [ class "noselect", style "cursor" "pointer", onClick (msg SidebarToggleCampaignsMenu), attribute "data-toggle" "collapse", class ("nav-link " ++ if not campaignsExpanded then " collapsed" else "") ] [ i [ class "fas fa-fw fa-comments" ] [], span [] [ text "Campaigns" ] ] 
+          , div [ class ("collapse " ++ if campaignsExpanded then "show" else "" ) ] 
+            [ div [ class "border-left-success animated--fade-in bg-white py-2 collapse-inner rounded shadow-sm" ] [
+                h6 [ class "text-success collapse-header" ] [ text "Campaigns" ]
+              , a [ href "/campaigns/active", class "collapse-item" ] [ text "Active" ]
+              , a [ href "/campaigns/inactive", class "collapse-item" ] [ text "Inactive" ]
+              , a [ href "/campaigns/all", class "collapse-item" ] [ text "All" ]
+              , a [ href "/campaigns/new", class "collapse-item" ] [ text "Create new" ]
+              -- , hr [ style "margin" "0.5em 0" ] []
+              , div [ class "dropdown-divider" ] []
+              , h6 [ class "text-success collapse-header" ] [ text "Phone numbers" ]
+              , a [ href "/numbers/manage", class "collapse-item" ] [ text "Manage numbers" ]
+              , a [ href "/numbers/routing", class "collapse-item" ] [ text "Routing" ]
+              ] ] ]
+        , li [ class "nav-item" ] 
+          [ a [ href "/audience", class "nav-link" ] [ i [ class "fas fa-fw fa-users" ] [], span [] [ text "Audience" ] ] ]
+        , li [ class "nav-item" ] 
+          [ span [ class "noselect", style "cursor" "pointer", onClick (msg SidebarToggleContentMenu), attribute "data-toggle" "collapse", href "#", class ("nav-link " ++ if not contentExpanded then " collapsed" else "") ] [ i [ class "fas fa-fw fa-database" ] [], span [] [ text "Content" ] ] 
+          , div [ class ("collapse " ++ if contentExpanded then "show" else "" ) ] 
+            [ div [ class "border-left-success animated--fade-in bg-white py-2 collapse-inner rounded shadow-sm" ] [
+                h6 [ class "text-success collapse-header" ] [ text "Audio" ]
+              , a [ href "/content/audio/archive", class "collapse-item" ] [ text "Archive" ]
+              , a [ href "/content/audio/upload", class "collapse-item" ] [ text "Upload audio" ]
+              , div [ class "dropdown-divider" ] []
+              , h6 [ class "text-success collapse-header" ] [ text "Text" ]
+              , a [ href "/content/text/archive", class "collapse-item" ] [ text "Message content" ]
+              , a [ href "/content/text/create", class "collapse-item" ] [ text "Create text message" ]
+              ] ] ]
         , hr [ class "sidebar-divider" ] []
-        , li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Results" ] ] ]
+        , div [ class "sidebar-heading" ] [ text "Insights" ]
+        , li [ class "nav-item" ] 
+          [ span [ class "noselect", style "cursor" "pointer", onClick (msg SidebarToggleResultsMenu), attribute "data-toggle" "collapse", href "#", class ("nav-link " ++ if not resultsExpanded then " collapsed" else "") ] [ i [ class "fas fa-fw fa-chart-pie" ] [], span [] [ text "Results" ] ] 
+          , div [ class ("collapse " ++ if resultsExpanded then "show" else "" ) ] 
+            [ div [ class "border-left-success animated--fade-in bg-white py-2 collapse-inner rounded shadow-sm" ] [
+                h6 [ class "text-success collapse-header" ] [ text "Results" ]
+              , a [ href "/results/polls", class "collapse-item" ] [ text "Polls" ]
+              , a [ href "/results/answers", class "collapse-item" ] [ text "Answers" ]
+              , a [ href "/cost", class "collapse-item" ] [ text "Cost management" ]
+              , div [ class "dropdown-divider" ] []
+              , h6 [ class "text-success collapse-header" ] [ text "Data analytics" ]
+--              , a [ href "#", class "collapse-item" ] [ text "Audio transcription" ]
+              , a [ href "/analytics", class "collapse-item" ] [ text "Analytics tools" ]
+--              , a [ href "#", class "collapse-item" ] [ text "Audio transcription" ]
+              ] ] ]
+        , li [ class "nav-item" ] 
+          [ a [ href "/audio", class "nav-link" ] [ i [ class "fas fa-fw fa-file-audio" ] [], span [] [ text "Listener Audio" ] ] ]
         , hr [ class "sidebar-divider" ] []
-        , li [ class "nav-item" ] [ a [ href "#", class "nav-link" ] [ span [] [ text "Location" ] ] ]
+        , div [ class "sidebar-heading" ] [ text "Extensions" ]
+        , li [ class "nav-item" ] 
+          [ a [ href "/apps", class "nav-link" ] [ i [ class "fas fa-fw fa-mobile-alt" ] [], span [] [ text "Apps" ] ] ]
         , hr [ class "sidebar-divider" ] []
         , div [ class "text-center d-none d-md-inline" ] [
             button [ onClick (msg ToggleSidebar), id "sidebarToggle", class "rounded-circle border-0" ] [] ] ]
@@ -1942,7 +2482,8 @@ uiLanguageDropdown state msg =
             [
               div [ class "dropdown-header" ] [ text "Language" ]
             , a [ href "#", class "dropdown-item" ] [ text "English" ]
-            , a [ href "#", class "dropdown-item" ] [ text "French" ]
+            , a [ href "#", class "dropdown-item" ] [ text "Français" ]
+            , a [ href "#", class "dropdown-item" ] [ text "Kiswahili" ]
             , a [ href "#", class "dropdown-item" ] [ text "Esperanto" ]
             --, div [ class "dropdown-divider" ] []
             --, div [ class "dropdown-header" ] [ text "Project" ]
@@ -2125,7 +2666,16 @@ uiNavbarView state user msg =
     , ul [ class "navbar-nav ml-auto" ]
       [
 
-        uiLanguageDropdown state msg
+        li [ class "nav-item dropdown no-arrow" ] -- no-arrow" ]
+        [
+
+          Button.button
+            [ Button.roleLink, Button.attrs [ class "d-none d-md-flex nav-link dropdown-toggle" ] ]
+            [ i [ style "font-size" "1.4em", class "fas fa-credit-card fa-fw" ] []
+            , span [ style "margin-left" "0.35em" ] [ text "1,300" ] ] ]
+ 
+
+      , uiLanguageDropdown state msg
       , uiNotificationsDropdown state msg
 
 --        li [ class "mr-2 nav-item dropdown no-arrow mx-1" ]
@@ -2137,6 +2687,7 @@ uiNavbarView state user msg =
 --            ]
 --
 --          ]
+
 
 
       , li [ class "nav-item dropdown no-arrow" ]
@@ -2449,7 +3000,7 @@ routerInit : Navigation.Key -> Update RouterState RouterMsg a
 routerInit key = save { route = Nothing, key = key }
 
 routerRedirect : Navigation.Key -> String -> RouterState -> Update RouterState RouterMsg a
-routerRedirect key href = runCmd (Navigation.replaceUrl key href)
+routerRedirect key href = addCmd (Navigation.replaceUrl key href)
 
 routerUpdate : { onRouteChange : Maybe Route -> a } -> RouterMsg -> RouterState -> Update RouterState RouterMsg a
 routerUpdate { onRouteChange } msg state =
@@ -2458,9 +3009,9 @@ routerUpdate { onRouteChange } msg state =
       let route = fromUrl url
        in setRoute route >> andInvokeHandler (onRouteChange route)
     UrlRequest (Browser.Internal url) ->
-      runCmd (Navigation.pushUrl state.key (Url.toString url))
+      addCmd (Navigation.pushUrl state.key (Url.toString url))
     UrlRequest (Browser.External href) ->
-      runCmd (Navigation.load href)
+      addCmd (Navigation.load href)
     Redirect href ->
       routerRedirect state.key href
 
@@ -2479,6 +3030,30 @@ type PageMsg
   | ProjectHomePageMsg ProjectHomePageMsg
   | ProjectSettingsPageMsg ProjectSettingsPageMsg
   | NotificationsPageMsg NotificationsPageMsg
+  --
+  | ActiveCampaignsPageMsg ActiveCampaignsPageMsg
+  | InactiveCampaignsPageMsg InactiveCampaignsPageMsg
+  | AllCampaignsPageMsg AllCampaignsPageMsg
+  | NewCampaignPageMsg NewCampaignPageMsg
+  --
+  | ManageNumbersPageMsg ManageNumbersPageMsg
+  | RoutingPageMsg RoutingPageMsg
+  --
+  | AudiencePageMsg AudiencePageMsg
+  --
+  | AudioArchivePageMsg AudioArchivePageMsg
+  | UploadAudioPageMsg UploadAudioPageMsg
+  | MessageArchivePageMsg MessageArchivePageMsg
+  | CreateMessagePageMsg CreateMessagePageMsg
+  --
+  | PollResultsPageMsg PollResultsPageMsg
+  | ResultsAnswersPageMsg ResultsAnswersPageMsg
+  | CostPageMsg CostPageMsg
+  | AnalyticsPageMsg AnalyticsPageMsg
+  --
+  | AudioPageMsg AudioPageMsg
+  --
+  | AppsPageMsg AppsPageMsg
 
 type Page
   = NoPage
@@ -2491,6 +3066,30 @@ type Page
   | ProjectHomePage ProjectHomePageState
   | ProjectSettingsPage ProjectSettingsPageState
   | NotificationsPage NotificationsPageState
+  -- Campaigns
+  | ActiveCampaignsPage ActiveCampaignsPageState
+  | InactiveCampaignsPage InactiveCampaignsPageState
+  | AllCampaignsPage AllCampaignsPageState
+  | NewCampaignPage NewCampaignPageState
+  -- 
+  | ManageNumbersPage ManageNumbersPageState
+  | RoutingPage RoutingPageState
+  -- Audience
+  | AudiencePage AudiencePageState
+  -- Content
+  | AudioArchivePage AudioArchivePageState
+  | UploadAudioPage UploadAudioPageState
+  | MessageArchivePage MessageArchivePageState
+  | CreateMessagePage CreateMessagePageState
+  -- Results
+  | PollResultsPage PollResultsPageState
+  | ResultsAnswersPage ResultsAnswersPageState
+  | CostPage CostPageState
+  | AnalyticsPage AnalyticsPageState
+  -- Audio
+  | AudioPage AudioPageState
+  -- Extensions
+  | AppsPage AppsPageState
 
 --
 
@@ -2567,15 +3166,15 @@ init flags url key =
 --     ( Just Login, _ ) ->
 --       loginPageInit
 --         |> mapCmd (PageMsg << LoginPageMsg)
---         |> andFinally (insertAsPageIn state << LoginPage)
+--         |> foldEventsAndThen (insertAsPageIn state << LoginPage)
 --     ( Just Register, _ ) ->
 --       registerPageInit
 --         |> mapCmd (PageMsg << RegisterPageMsg)
---         |> andFinally (insertAsPageIn state << RegisterPage)
+--         |> foldEventsAndThen (insertAsPageIn state << RegisterPage)
 --     ( Just ResetPassword, _ ) ->
 --       resetPasswordPageInit
 --         |> mapCmd (PageMsg << ResetPasswordPageMsg)
---         |> andFinally (insertAsPageIn state << ResetPasswordPage)
+--         |> foldEventsAndThen (insertAsPageIn state << ResetPasswordPage)
 --     _ ->
 --       loadAuthenticatedPage maybeRoute state
 -- --    ( Just Profile, _ ) ->
@@ -2586,11 +3185,11 @@ init flags url key =
 -- --        Just user_ ->
 -- --          profilePageInit state.router.key user_
 -- --            |> mapCmd (PageMsg << ProfilePageMsg)
--- --            |> andFinally (insertAsPageIn state << ProfilePage)
+-- --            |> foldEventsAndThen (insertAsPageIn state << ProfilePage)
 -- --    ( Just NewProject, _ ) ->
 -- --      newProjectPageInit state.router.key
 -- --        |> mapCmd (PageMsg << NewProjectPageMsg)
--- --        |> andFinally (insertAsPageIn state << NewProjectPage)
+-- --        |> foldEventsAndThen (insertAsPageIn state << NewProjectPage)
 -- --    ( Just Home, _ ) ->
 -- --      case state.session.project of
 -- --        Nothing ->
@@ -2599,12 +3198,12 @@ init flags url key =
 -- --        Just project_ ->
 -- --          projectHomePageInit project_.id
 -- --            |> mapCmd (PageMsg << ProjectHomePageMsg)
--- --            |> andFinally (insertAsPageIn state << ProjectHomePage)
+-- --            |> foldEventsAndThen (insertAsPageIn state << ProjectHomePage)
 -- --            |> andThen (update (PageMsg <| ProjectHomePageMsg projectHomePageFetchProject))
 -- --    ( Just Settings, _ ) ->
 -- --      projectSettingsPageInit
 -- --        |> mapCmd (PageMsg << ProjectSettingsPageMsg)
--- --        |> andFinally (insertAsPageIn state << ProjectSettingsPage)
+-- --        |> foldEventsAndThen (insertAsPageIn state << ProjectSettingsPage)
 -- --    _ ->
 -- --      save state
 
@@ -2615,20 +3214,44 @@ loadHomePage : Int -> State -> Update State Msg a
 loadHomePage projectId state =
   projectHomePageInit projectId
     |> mapCmd (PageMsg << ProjectHomePageMsg)
-    |> andFinally (insertAsPageIn state << ProjectHomePage)
+    |> foldEventsAndThen (insertAsPageIn state << ProjectHomePage)
     |> andThen (update (PageMsg <| ProjectHomePageMsg projectHomePageFetchProject))
 
 loadSettingsPage : State -> Update State Msg a
 loadSettingsPage state =
   projectSettingsPageInit
     |> mapCmd (PageMsg << ProjectSettingsPageMsg)
-    |> andFinally (insertAsPageIn state << ProjectSettingsPage)
+    |> foldEventsAndThen (insertAsPageIn state << ProjectSettingsPage)
 
 loadNotificationsPage : State -> Update State Msg a
 loadNotificationsPage state =
   notificationsPageInit
     |> mapCmd (PageMsg << NotificationsPageMsg)
-    |> andFinally (insertAsPageIn state << NotificationsPage)
+    |> foldEventsAndThen (insertAsPageIn state << NotificationsPage)
+
+loadActiveCampaignsPage : State -> Update State Msg a
+loadActiveCampaignsPage state =
+  activeCampaignsPageInit
+    |> mapCmd (PageMsg << ActiveCampaignsPageMsg)
+    |> foldEventsAndThen (insertAsPageIn state << ActiveCampaignsPage)
+
+loadInactiveCampaignsPage : State -> Update State Msg a
+loadInactiveCampaignsPage state =
+  inactiveCampaignsPageInit
+    |> mapCmd (PageMsg << InactiveCampaignsPageMsg)
+    |> foldEventsAndThen (insertAsPageIn state << InactiveCampaignsPage)
+
+loadAllCampaignsPage : State -> Update State Msg a
+loadAllCampaignsPage state =
+  allCampaignsPageInit
+    |> mapCmd (PageMsg << AllCampaignsPageMsg)
+    |> foldEventsAndThen (insertAsPageIn state << AllCampaignsPage)
+
+loadNewCampaignPage : State -> Update State Msg a
+loadNewCampaignPage state =
+  newCampaignPageInit
+    |> mapCmd (PageMsg << NewCampaignPageMsg)
+    |> foldEventsAndThen (insertAsPageIn state << NewCampaignPage)
 
 projectRoute : User -> Project -> Route -> State -> Update State Msg a
 projectRoute user project route state =
@@ -2639,6 +3262,40 @@ projectRoute user project route state =
       loadSettingsPage
     Notifications ->
       loadNotificationsPage
+    ActiveCampaigns ->
+      loadActiveCampaignsPage
+    InactiveCampaigns ->
+      loadInactiveCampaignsPage
+    AllCampaigns ->
+      loadAllCampaignsPage
+    NewCampaign ->
+      loadNewCampaignPage
+    ManageNumbers ->
+      save -- TODO
+    Routing ->
+      save -- TODO
+    Audience ->
+      save -- TODO
+    AudioArchive ->
+      save -- TODO
+    UploadAudio ->
+      save -- TODO
+    MessageArchive ->
+      save -- TODO
+    CreateMessage ->
+      save -- TODO
+    PollResults ->
+      save -- TODO
+    ResultsAnswers ->
+      save -- TODO
+    Cost ->
+      save -- TODO
+    Analytics ->
+      save -- TODO
+    Audio ->
+      save -- TODO
+    Apps ->
+      save -- TODO
     _ ->
       save
 
@@ -2646,20 +3303,20 @@ loadSelectProjectPage : State -> Update State Msg a
 loadSelectProjectPage state =
   selectProjectPageInit
     |> mapCmd (PageMsg << SelectProjectPageMsg)
-    |> andFinally (insertAsPageIn state << SelectProjectPage)
+    |> foldEventsAndThen (insertAsPageIn state << SelectProjectPage)
     |> andThen (update (PageMsg <| SelectProjectPageMsg selectProjectFetchProjects))
 
 loadNewProjectPage : State -> Update State Msg a
 loadNewProjectPage state =
   newProjectPageInit state.router.key
     |> mapCmd (PageMsg << NewProjectPageMsg)
-    |> andFinally (insertAsPageIn state << NewProjectPage)
+    |> foldEventsAndThen (insertAsPageIn state << NewProjectPage)
 
 loadProfilePage : User -> State -> Update State Msg a
 loadProfilePage user state =
   profilePageInit state.router.key user
     |> mapCmd (PageMsg << ProfilePageMsg)
-    |> andFinally (insertAsPageIn state << ProfilePage)
+    |> foldEventsAndThen (insertAsPageIn state << ProfilePage)
 
 authenticatedRoute : Session -> Route -> State -> Update State Msg a
 authenticatedRoute { project, user } route state =
@@ -2684,19 +3341,19 @@ loadLoginPage : State -> Update State Msg a
 loadLoginPage state =
   loginPageInit
     |> mapCmd (PageMsg << LoginPageMsg)
-    |> andFinally (insertAsPageIn state << LoginPage)
+    |> foldEventsAndThen (insertAsPageIn state << LoginPage)
 
 loadRegisterPage : State -> Update State Msg a
 loadRegisterPage state =
   registerPageInit
     |> mapCmd (PageMsg << RegisterPageMsg)
-    |> andFinally (insertAsPageIn state << RegisterPage)
+    |> foldEventsAndThen (insertAsPageIn state << RegisterPage)
 
 loadResetPasswordPage : State -> Update State Msg a
 loadResetPasswordPage state =
   resetPasswordPageInit
     |> mapCmd (PageMsg << ResetPasswordPageMsg)
-    |> andFinally (insertAsPageIn state << ResetPasswordPage)
+    |> foldEventsAndThen (insertAsPageIn state << ResetPasswordPage)
 
 handleRouteChange : Maybe Route -> State -> Update State Msg a
 handleRouteChange maybeRoute state =
@@ -2729,7 +3386,7 @@ updateRouterWith msg state =
   state.router
     |> routerUpdate { onRouteChange = handleRouteChange } msg
     |> mapCmd RouterMsg
-    |> andFinally (insertAsRouterIn state)
+    |> foldEventsAndThen (insertAsRouterIn state)
 
 handleNotificationsFetched : List Notification -> State -> Update State Msg a
 handleNotificationsFetched notifications state =
@@ -2742,15 +3399,15 @@ updateUiWith msg state =
   state.ui
     |> uiUpdate { onNotificationsFetched = handleNotificationsFetched } msg
     |> mapCmd UiMsg
-    |> andFinally (insertAsUiIn state)
+    |> foldEventsAndThen (insertAsUiIn state)
 
 updateSessionStorage : State -> Update State Msg a
 updateSessionStorage ({ session } as state) =
   state |> case session of
     Nothing ->
-      runCmd (Ports.clearSession ())
+      addCmd (Ports.clearSession ())
     Just session_ ->
-      runCmd (Ports.setSession session_)
+      addCmd (Ports.setSession session_)
 
 handleAuthResponse : Maybe Session -> State -> Update State Msg a
 handleAuthResponse maybeSession state =
@@ -2786,7 +3443,7 @@ pageUpdate msg ({ page } as state) =
           loginPageState
             |> loginPageUpdate { onAuthResponse = handleAuthResponse } loginPageMsg
             |> mapCmd (PageMsg << LoginPageMsg)
-            |> andFinally (insertAsPageIn state << LoginPage)
+            |> foldEventsAndThen (insertAsPageIn state << LoginPage)
         _ ->
           save state
     RegisterPage registerPageState ->
@@ -2795,7 +3452,7 @@ pageUpdate msg ({ page } as state) =
           registerPageState
             |> registerPageUpdate registerPageMsg
             |> mapCmd (PageMsg << RegisterPageMsg)
-            |> andFinally (insertAsPageIn state << RegisterPage)
+            |> foldEventsAndThen (insertAsPageIn state << RegisterPage)
         _ ->
           save state
     SelectProjectPage selectProjectPageState ->
@@ -2804,7 +3461,7 @@ pageUpdate msg ({ page } as state) =
           selectProjectPageState
             |> selectProjectPageUpdate { onProjectSelected = handleProjectSelected } selectProjectPageMsg
             |> mapCmd (PageMsg << SelectProjectPageMsg)
-            |> andFinally (insertAsPageIn state << SelectProjectPage)
+            |> foldEventsAndThen (insertAsPageIn state << SelectProjectPage)
         _ ->
           save state
     ResetPasswordPage resetPasswordPageState ->
@@ -2813,7 +3470,7 @@ pageUpdate msg ({ page } as state) =
           resetPasswordPageState
             |> resetPasswordPageUpdate resetPasswordPageMsg
             |> mapCmd (PageMsg << ResetPasswordPageMsg)
-            |> andFinally (insertAsPageIn state << ResetPasswordPage)
+            |> foldEventsAndThen (insertAsPageIn state << ResetPasswordPage)
         _ ->
           save state
     ProfilePage profilePageState ->
@@ -2822,7 +3479,7 @@ pageUpdate msg ({ page } as state) =
           profilePageState
             |> profilePageUpdate { onProfileUpdated = handleProfileUpdated } profilePageMsg
             |> mapCmd (PageMsg << ProfilePageMsg)
-            |> andFinally (insertAsPageIn state << ProfilePage)
+            |> foldEventsAndThen (insertAsPageIn state << ProfilePage)
         _ ->
           save state
     NewProjectPage newProjectPageState ->
@@ -2831,7 +3488,7 @@ pageUpdate msg ({ page } as state) =
           newProjectPageState
             |> newProjectPageUpdate { onNewProject = handleProjectSelected } newProjectPageMsg
             |> mapCmd (PageMsg << NewProjectPageMsg)
-            |> andFinally (insertAsPageIn state << NewProjectPage)
+            |> foldEventsAndThen (insertAsPageIn state << NewProjectPage)
         _ ->
           save state
     ProjectHomePage projectHomePageState ->
@@ -2840,7 +3497,7 @@ pageUpdate msg ({ page } as state) =
           projectHomePageState
             |> projectHomePageUpdate projectHomePageMsg
             |> mapCmd (PageMsg << ProjectHomePageMsg)
-            |> andFinally (insertAsPageIn state << ProjectHomePage)
+            |> foldEventsAndThen (insertAsPageIn state << ProjectHomePage)
         _ ->
           save state
     ProjectSettingsPage projectSettingsPageState ->
@@ -2849,7 +3506,7 @@ pageUpdate msg ({ page } as state) =
           projectSettingsPageState
             |> projectSettingsPageUpdate projectSettingsPageMsg
             |> mapCmd (PageMsg << ProjectSettingsPageMsg)
-            |> andFinally (insertAsPageIn state << ProjectSettingsPage)
+            |> foldEventsAndThen (insertAsPageIn state << ProjectSettingsPage)
         _ ->
           save state
     NotificationsPage notificationsPageState ->
@@ -2858,7 +3515,160 @@ pageUpdate msg ({ page } as state) =
           notificationsPageState
             |> notificationsPageUpdate notificationsPageMsg
             |> mapCmd (PageMsg << NotificationsPageMsg)
-            |> andFinally (insertAsPageIn state << NotificationsPage)
+            |> foldEventsAndThen (insertAsPageIn state << NotificationsPage)
+        _ ->
+          save state
+    ActiveCampaignsPage activeCampaignsPageState ->
+      case msg of
+        ActiveCampaignsPageMsg activeCampaignsPageMsg ->
+          activeCampaignsPageState
+            |> activeCampaignsPageUpdate activeCampaignsPageMsg
+            |> mapCmd (PageMsg << ActiveCampaignsPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << ActiveCampaignsPage)
+        _ ->
+          save state
+    InactiveCampaignsPage inactiveCampaignsPageState ->
+      case msg of
+        InactiveCampaignsPageMsg inactiveCampaignsPageMsg ->
+          inactiveCampaignsPageState
+            |> inactiveCampaignsPageUpdate inactiveCampaignsPageMsg
+            |> mapCmd (PageMsg << InactiveCampaignsPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << InactiveCampaignsPage)
+        _ ->
+          save state
+    AllCampaignsPage allCampaignsPageState ->
+      case msg of
+        AllCampaignsPageMsg allCampaignsPageMsg ->
+          allCampaignsPageState
+            |> allCampaignsPageUpdate allCampaignsPageMsg
+            |> mapCmd (PageMsg << AllCampaignsPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << AllCampaignsPage)
+        _ ->
+          save state
+    NewCampaignPage newCampaignPageState ->
+      case msg of
+        NewCampaignPageMsg newCampaignPageMsg ->
+          newCampaignPageState
+            |> newCampaignPageUpdate newCampaignPageMsg
+            |> mapCmd (PageMsg << NewCampaignPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << NewCampaignPage)
+        _ ->
+          save state
+    ManageNumbersPage manageNumbersPageState ->
+      case msg of
+        ManageNumbersPageMsg manageNumbersPageMsg ->
+          manageNumbersPageState
+            |> manageNumbersPageUpdate manageNumbersPageMsg
+            |> mapCmd (PageMsg << ManageNumbersPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << ManageNumbersPage)
+        _ ->
+          save state
+    RoutingPage routingPageState ->
+      case msg of
+        RoutingPageMsg routingPageMsg ->
+          routingPageState
+            |> routingPageUpdate routingPageMsg
+            |> mapCmd (PageMsg << RoutingPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << RoutingPage)
+        _ ->
+          save state
+    AudiencePage audiencePageState ->
+      case msg of
+        AudiencePageMsg audiencePageMsg ->
+          audiencePageState
+            |> audiencePageUpdate audiencePageMsg
+            |> mapCmd (PageMsg << AudiencePageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << AudiencePage)
+        _ ->
+          save state
+    AudioArchivePage audioArchivePageState ->
+      case msg of
+        AudioArchivePageMsg audioArchivePageMsg ->
+          audioArchivePageState
+            |> audioArchivePageUpdate audioArchivePageMsg
+            |> mapCmd (PageMsg << AudioArchivePageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << AudioArchivePage)
+        _ ->
+          save state
+    UploadAudioPage uploadAudioPageState ->
+      case msg of
+        UploadAudioPageMsg uploadAudioPageMsg ->
+          uploadAudioPageState
+            |> uploadAudioPageUpdate uploadAudioPageMsg
+            |> mapCmd (PageMsg << UploadAudioPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << UploadAudioPage)
+        _ ->
+          save state
+    MessageArchivePage messageArchivePageState ->
+      case msg of
+        MessageArchivePageMsg messageArchivePageMsg ->
+          messageArchivePageState
+            |> messageArchivePageUpdate messageArchivePageMsg
+            |> mapCmd (PageMsg << MessageArchivePageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << MessageArchivePage)
+        _ ->
+          save state
+    CreateMessagePage createMessagePageState ->
+      case msg of
+        CreateMessagePageMsg createMessagePageMsg ->
+          createMessagePageState
+            |> createMessagePageUpdate createMessagePageMsg
+            |> mapCmd (PageMsg << CreateMessagePageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << CreateMessagePage)
+        _ ->
+          save state
+    PollResultsPage pollResultsPageState ->
+      case msg of
+        PollResultsPageMsg pollResultsPageMsg ->
+          pollResultsPageState
+            |> pollResultsPageUpdate pollResultsPageMsg
+            |> mapCmd (PageMsg << PollResultsPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << PollResultsPage)
+        _ ->
+          save state
+    ResultsAnswersPage resultsAnswersPageState ->
+      case msg of
+        ResultsAnswersPageMsg resultsAnswersPageMsg ->
+          resultsAnswersPageState
+            |> resultsAnswersPageUpdate resultsAnswersPageMsg
+            |> mapCmd (PageMsg << ResultsAnswersPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << ResultsAnswersPage)
+        _ ->
+          save state
+    CostPage costPageState ->
+      case msg of
+        CostPageMsg costPageMsg ->
+          costPageState
+            |> costPageUpdate costPageMsg
+            |> mapCmd (PageMsg << CostPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << CostPage)
+        _ ->
+          save state
+    AnalyticsPage analyticsPageState ->
+      case msg of
+        AnalyticsPageMsg analyticsPageMsg ->
+          analyticsPageState
+            |> analyticsPageUpdate analyticsPageMsg
+            |> mapCmd (PageMsg << AnalyticsPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << AnalyticsPage)
+        _ ->
+          save state
+    AudioPage audioPageState ->
+      case msg of
+        AudioPageMsg audioPageMsg ->
+          audioPageState
+            |> audioPageUpdate audioPageMsg
+            |> mapCmd (PageMsg << AudioPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << AudioPage)
+        _ ->
+          save state
+    AppsPage appsPageState ->
+      case msg of
+        AppsPageMsg appsPageMsg ->
+          appsPageState
+            |> appsPageUpdate appsPageMsg
+            |> mapCmd (PageMsg << AppsPageMsg)
+            |> foldEventsAndThen (insertAsPageIn state << AppsPage)
         _ ->
           save state
     NoPage ->
@@ -2897,6 +3707,40 @@ pageSubscriptions page msg =
       projectSettingsPageSubscriptions projectSettingsPageState (msg << ProjectSettingsPageMsg)
     NotificationsPage notificationsPageState ->
       notificationsPageSubscriptions notificationsPageState (msg << NotificationsPageMsg)
+    ActiveCampaignsPage activeCampaignsPageState ->
+      activeCampaignsPageSubscriptions activeCampaignsPageState (msg << ActiveCampaignsPageMsg)
+    InactiveCampaignsPage inactiveCampaignsPageState ->
+      inactiveCampaignsPageSubscriptions inactiveCampaignsPageState (msg << InactiveCampaignsPageMsg)
+    AllCampaignsPage allCampaignsPageState ->
+      allCampaignsPageSubscriptions allCampaignsPageState (msg << AllCampaignsPageMsg)
+    NewCampaignPage newCampaignPageState ->
+      newCampaignPageSubscriptions newCampaignPageState (msg << NewCampaignPageMsg)
+    ManageNumbersPage manageNumbersPageState ->
+      manageNumbersPageSubscriptions manageNumbersPageState (msg << ManageNumbersPageMsg)
+    RoutingPage routingPageState ->
+      routingPageSubscriptions routingPageState (msg << RoutingPageMsg)
+    AudiencePage audiencePageState ->
+      audiencePageSubscriptions audiencePageState (msg << AudiencePageMsg)
+    AudioArchivePage audioArchivePageState ->
+      audioArchivePageSubscriptions audioArchivePageState (msg << AudioArchivePageMsg)
+    UploadAudioPage uploadAudioPageState ->
+      uploadAudioPageSubscriptions uploadAudioPageState (msg << UploadAudioPageMsg)
+    MessageArchivePage messageArchivePageState ->
+      messageArchivePageSubscriptions messageArchivePageState (msg << MessageArchivePageMsg)
+    CreateMessagePage createMessagePageState ->
+      createMessagePageSubscriptions createMessagePageState (msg << CreateMessagePageMsg)
+    PollResultsPage pollResultsPageState ->
+      pollResultsPageSubscriptions pollResultsPageState (msg << PollResultsPageMsg)
+    ResultsAnswersPage resultsAnswersPageState ->
+      resultsAnswersPageSubscriptions resultsAnswersPageState (msg << ResultsAnswersPageMsg)
+    CostPage costPageState ->
+      costPageSubscriptions costPageState (msg << CostPageMsg)
+    AnalyticsPage analyticsPageState ->
+      analyticsPageSubscriptions analyticsPageState (msg << AnalyticsPageMsg)
+    AudioPage audioPageState ->
+      audioPageSubscriptions audioPageState (msg << AudioPageMsg)
+    AppsPage appsPageState ->
+      appsPageSubscriptions appsPageState (msg << AppsPageMsg)
 
 subscriptions : State -> Sub Msg
 subscriptions { ui, router, page } =
@@ -3044,7 +3888,7 @@ pageView ui session page =
                 [ h2 [ class "text-gray-900", class "mb-4" ] [ text "Settings" ] ]
             NewProjectPage { project, form, sent } ->
               div [ style "max-width" "640px" ]
-                [ div [ class "card border-left-warning py-2" ] [
+                [ div [ class "card py-2" ] [
                   div [ class "card-body" ] 
                   [ h2 [ class "text-gray-900", class "mb-4" ] [ text "New project" ]
                   , newProjectPageError project.resource
@@ -3062,13 +3906,13 @@ pageView ui session page =
                         [ text "Cancel" ] ] ] ] ] ]
             SelectProjectPage selectProjectPageState ->
               div [ style "max-width" "800px" ]
-                [ div [ class "card border-left-warning py-2" ] [
+                [ div [ class "card py-2" ] [
                   div [ class "card-body" ] 
                 [ h2 [ class "text-gray-900", class "mb-4" ] [ text "Select a project" ]
                 , selectProjectPageView selectProjectPageState (PageMsg << SelectProjectPageMsg) ] ] ]
             ProfilePage { user, form, sent } ->
               div [ style "max-width" "640px" ]
-                [ div [ class "card border-left-primary py-2" ] [
+                [ div [ class "card py-2" ] [
                   div [ class "card-body" ] 
                   [ h2 [ class "text-gray-900", class "mb-4" ] [ text "User profile" ]
                   , profilePageError user.resource
@@ -3088,6 +3932,164 @@ pageView ui session page =
             NotificationsPage notificationsPageState ->
               div [ style "max-width" "640px" ]
                 [ h2 [ class "text-gray-900", class "mb-4" ] [ text "Notifications" ] ]
+
+            ActiveCampaignsPage activeCampaignsPageState ->
+              div [ style "max-width" "800px" ] 
+              [
+                  div [ class "card" ] [
+                  div [ class "card-body" ] [
+
+                h3 [ class "text-gray-900", class "mb-4" ] [ text "Active campaigns" ] 
+
+              , div [ class "mb-4" ] [ text "here" ] ] ] ]
+            InactiveCampaignsPage inactiveCampaignsPageState ->
+              div [ style "max-width" "800px" ] 
+              [
+                  div [ class "card" ] [
+                  div [ class "card-body" ] [
+
+                h3 [ class "text-gray-900", class "mb-4" ] [ text "Inactive campaigns" ] 
+
+              , div [ class "mb-4" ] [ text "here" ] ] ] ]
+            AllCampaignsPage allCampaignsPageState ->
+              div [ style "max-width" "800px" ] 
+              [
+                  div [ class "card" ] [
+                  div [ class "card-body" ] [
+
+                h3 [ class "text-gray-900", class "mb-4" ] [ text "All campaigns" ] 
+
+              , div [ class "mb-4" ] 
+                [ Bootstrap.Form.Input.text
+                  [ Bootstrap.Form.Input.placeholder "Type the name of a campaign"
+                  ] ]
+
+                , Table.table 
+                    { options = [ Table.bordered ]
+                    , thead = Table.simpleThead
+                        [ Table.th [] [ text "Name" ]
+                        , Table.th [] [ text "Status" ]
+                        , Table.th [] [ text "Segments" ]
+                        ]
+                    , tbody = Table.tbody []
+                        [ Table.tr []
+                            [ Table.td [] [ a [ href "#" ] [ text "Hello" ] ]
+                            , Table.td [] [ text "Active" ]
+                            , Table.td [] [ text "Hello" ]
+                            ]
+                        , Table.tr []
+                            [ Table.td [] [ a [ href "#" ] [ text "Hello" ] ]
+                            , Table.td [] [ text "Active" ]
+                            , Table.td [] [ text "There" ]
+                            ]
+                        , Table.tr []
+                            [ Table.td [] [ a [ href "#" ] [ text "Hello" ] ]
+                            , Table.td [] [ text "Inactive" ]
+                            , Table.td [] [ text "Dude" ]
+                            ]
+                        ]
+                    }
+
+               , Grid.container [ Spacing.p0 ]
+                 [ Grid.row [ Row.attrs [ Spacing.m0 ] ] [ 
+                     Grid.col [ Col.md6, Col.attrs [ Spacing.p0 ] ] [ 
+
+                        nav []  [
+                           ul [ class "pagination" ] 
+                             [ li [ class "page-item" ] 
+                               [ a [ href "#", class "page-link" ] [ text "Previous" ] ] 
+                             , li [ class "page-item" ] 
+                               [ a [ href "#", class "page-link" ] [ text "1" ] ] 
+                             , li [ class "page-item" ] 
+                               [ a [ href "#", class "page-link" ] [ text "2" ] ] 
+                             , li [ class "page-item" ] 
+                               [ a [ href "#", class "page-link" ] [ text "3" ] ] 
+                             , li [ class "page-item" ] 
+                               [ a [ href "#", class "page-link" ] [ text "Next" ] ] 
+                             ]
+                            ]
+                     
+                     ]
+                   , Grid.col [ Col.md6, Col.attrs [ class "text-right" ] ] [ text "Showing 1 to 3 of 33 entries" ] 
+                   ]
+                   ]
+               
+
+--               , Button.button [ Button.small, Button.block, Button.primary ] [ text "New campaign" ]  
+
+              ]
+              ]
+              ]
+            NewCampaignPage newCampaignPageState ->
+              div [] 
+              [
+                text "New campaign"
+              ]
+            ManageNumbersPage manageNumbersPageState ->
+              div [] 
+              [
+                text "Manage numbers"
+              ]
+            RoutingPage routingPageState ->
+              div [] 
+              [
+                text "Routing"
+              ]
+            AudiencePage audiencePageState ->
+              div [] 
+              [
+                text "Audience"
+              ]
+            AudioArchivePage audioArchivePageState ->
+              div [] 
+              [
+                text "Audio archive"
+              ]
+            UploadAudioPage uploadAudioPageState ->
+              div [] 
+              [
+                text "Upload audio"
+              ]
+            MessageArchivePage messageArchivePageState ->
+              div [] 
+              [
+                text "Message archive"
+              ]
+            CreateMessagePage createMessagePageState ->
+              div [] 
+              [
+                text "Create message"
+              ]
+            PollResultsPage pollResultsPageState ->
+              div [] 
+              [
+                text "Poll results"
+              ]
+            ResultsAnswersPage resultsAnswersPageState ->
+              div [] 
+              [
+                text "results answers"
+              ]
+            CostPage costPageState ->
+              div [] 
+              [
+                text "Cost"
+              ]
+            AnalyticsPage analyticsPageState ->
+              div [] 
+              [
+                text "Analytics"
+              ]
+            AudioPage audioPageState ->
+              div [] 
+              [
+                text "Audio"
+              ]
+            AppsPage appsPageState ->
+              div [] 
+              [
+                text "Apps"
+              ]
             _ ->
               text ""
 
