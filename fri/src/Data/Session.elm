@@ -1,21 +1,23 @@
 module Data.Session exposing (Session, decoder)
 
-import Data.Notification exposing (Notification)
-import Data.Project exposing (Project)
-import Data.User exposing (User)
-import Json.Decode as Json
+import Data.Notification as Notification exposing (Notification)
+import Data.Project as Project exposing (Project)
+import Data.User as User exposing (User)
+import Json.Decode as Json exposing (field, int, list, maybe, string)
 
 
 type alias Session =
     { user : User
     , project : Maybe Project
     , notifications : List Notification
+    , locale : String
     }
 
 
 decoder : Json.Decoder Session
 decoder =
-    Json.map3 Session
-        (Json.field "user" Data.User.decoder)
-        (Json.maybe (Json.field "project" Data.Project.decoder))
-        (Json.field "notifications" (Json.list Data.Notification.decoder))
+    Json.map4 Session
+        (field "user" User.decoder)
+        (maybe (field "project" Project.decoder))
+        (field "notifications" (list Notification.decoder))
+        (field "locale" string)

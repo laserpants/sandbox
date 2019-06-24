@@ -1,6 +1,6 @@
 module Data.User exposing (User, decoder)
 
-import Json.Decode as Json
+import Json.Decode as Json exposing (bool, field, int, list, maybe, string)
 
 
 type alias User =
@@ -18,11 +18,11 @@ type alias User =
 decoder : Json.Decoder User
 decoder =
     Json.map8 User
-        (Json.field "id" Json.int)
-        (Json.field "email" Json.string)
-        (Json.field "login" Json.string)
-        (Json.field "name" Json.string)
-        (Json.field "organization" (Json.maybe Json.string))
-        (Json.field "phoneNumber" (Json.maybe Json.string))
-        (Json.field "country" Json.string)
-        (Json.field "rememberMe" Json.bool)
+        (field "id" int)
+        (field "email" string)
+        (field "login" string)
+        (field "name" string)
+        (field "organization" (maybe string))
+        (field "phoneNumber" (maybe string))
+        (field "country" string)
+        (field "rememberMe" bool)

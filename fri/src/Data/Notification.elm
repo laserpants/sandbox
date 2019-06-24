@@ -1,7 +1,10 @@
-module Data.Notification exposing (Notification, decoder, encoder)
+module Data.Notification exposing (Notification, decoder)
 
-import Json.Decode as Json
-import Json.Encode exposing (Value, object)
+import Json.Decode as Json exposing (field, int, list, string)
+
+
+
+--import Json.Encode exposing (Value, object)
 
 
 type alias Notification =
@@ -14,15 +17,16 @@ type alias Notification =
 decoder : Json.Decoder Notification
 decoder =
     Json.map3 Notification
-        (Json.field "id" Json.int)
-        (Json.field "message" Json.string)
-        (Json.field "time" Json.int)
+        (field "id" int)
+        (field "message" string)
+        (field "time" int)
 
 
-encoder : Notification -> Value
-encoder { id, message, time } =
-    object
-        [ ( "id", Json.Encode.int id )
-        , ( "message", Json.Encode.string message )
-        , ( "time", Json.Encode.int time )
-        ]
+
+--encoder : Notification -> Value
+--encoder { id, message, time } =
+--    object
+--        [ ( "id", Json.Encode.int id )
+--        , ( "message", Json.Encode.string message )
+--        , ( "time", Json.Encode.int time )
+--        ]

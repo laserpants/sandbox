@@ -1,6 +1,6 @@
 module Data.Project exposing (Project, decoder)
 
-import Json.Decode as Json
+import Json.Decode as Json exposing (field, int, list, string)
 
 
 type alias Project =
@@ -13,6 +13,6 @@ type alias Project =
 decoder : Json.Decoder Project
 decoder =
     Json.map3 Project
-        (Json.field "id" Json.int)
-        (Json.field "name" Json.string)
-        (Json.field "country" Json.string)
+        (field "id" int)
+        (field "name" string)
+        (field "country" string)

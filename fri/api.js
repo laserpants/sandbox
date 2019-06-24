@@ -21,7 +21,7 @@ var projects =
 [
   {
     id: 1,
-    name: 'Bee’s knees',
+    name: 'Fall Armyworm Awareness',
     country: 'UG'
   },
   {
@@ -60,7 +60,8 @@ xhook.before(function(request, callback) {
             session: {
               user: user,
               project: null,
-              notifications: []
+              notifications: [],
+              locale: 'en-us'
             }
           }),
           headers: { 'Content-Type': 'application/json' }
