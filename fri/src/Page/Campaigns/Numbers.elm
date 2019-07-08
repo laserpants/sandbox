@@ -15,13 +15,13 @@ type alias State =
     {}
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     save {}
 
 
-update : Msg -> (Msg -> msg) -> State -> Update State msg a
-update msg toMsg state =
+update : Msg -> State -> Update State msg a
+update msg state =
     save state
 
 

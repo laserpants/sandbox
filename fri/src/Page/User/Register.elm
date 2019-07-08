@@ -38,9 +38,9 @@ saveLoginAvailableStatus username available state =
     save { state | logins = Dict.insert username available state.logins }
 
 
-inForm : In State (Form.Model CustomError Form.User.Register.Fields) msg a
+inForm : Wrap State Msg (Form.Model CustomError Form.User.Register.Fields) Form.Msg a
 inForm =
-    inState { get = .formModel, set = \state form -> { state | formModel = form } }
+    Form.component FormMsg
 
 
 setLoginAvailableStatus : LoginAvailableStatus -> State -> Update State msg a
@@ -48,13 +48,12 @@ setLoginAvailableStatus status state =
     save { state | loginAvailableStatus = status }
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     save State
         |> andMap (Form.init [ ( "useEmailAsLogin", Field.value (Bool True) ) ] Form.User.Register.validate)
         |> andMap (save Blank)
         |> andMap (save Dict.empty)
-        |> mapCmd toMsg
 
 
 checkIfIsAvailable : String -> State -> Update State msg a
@@ -85,8 +84,8 @@ loginFieldSpy formMsg =
             save
 
 
-update : Msg -> (Msg -> msg) -> State -> Update State msg a
-update msg toMsg =
+update : Msg -> State -> Update State Msg a
+update msg =
     case msg of
         FormMsg formMsg ->
             inForm (Form.update { onSubmit = always save } formMsg)

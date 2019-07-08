@@ -1,4 +1,4 @@
-module Update.Deep.Router exposing (Msg(..), State, init, redirect, setRoute, update)
+module Update.Deep.Router exposing (Msg(..), State, component, init, redirect, setRoute, update)
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation as Navigation
@@ -19,13 +19,22 @@ type alias State route =
     }
 
 
+component : (Msg -> msg) -> Wrap { b | router : State route } msg (State route) Msg a
+component msg =
+    wrapState
+        { get = .router
+        , set = \state router -> { state | router = router }
+        , msg = msg
+        }
+
+
 setRoute : Maybe route -> State route -> Update (State route) msg a
 setRoute route state =
     save { state | route = route }
 
 
-init : (Url -> Maybe route) -> String -> Navigation.Key -> (Msg -> msg) -> Update (State route) msg a
-init fromUrl basePath key toMsg =
+init : (Url -> Maybe route) -> String -> Navigation.Key -> Update (State route) msg a
+init fromUrl basePath key =
     save State
         |> andMap (save Nothing)
         |> andMap (save key)
@@ -39,7 +48,7 @@ redirect href state =
         |> addCmd (Navigation.replaceUrl state.key (state.basePath ++ href))
 
 
-update : { onRouteChange : Url -> Maybe route -> a } -> Msg -> State route -> Update (State route) msg a
+update : { onRouteChange : Url -> Maybe route -> a } -> Msg -> State route -> Update (State route) Msg a
 update { onRouteChange } msg state =
     let
         stripPathPrefix url =

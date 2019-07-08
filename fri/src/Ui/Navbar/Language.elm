@@ -35,7 +35,7 @@ dropdown setLocale open =
                 ++ "dropdown-menu dropdown-menu-right shadow-sm animated--grow-in"
 
         menuItem item =
-            a
+            span
                 [ onClick (setLocale item.locale)
                 , style "cursor" "pointer"
                 , class "dropdown-item"

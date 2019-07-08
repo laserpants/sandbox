@@ -1,26 +1,23 @@
 module Page.Campaigns exposing (Msg(..), Page(..))
 
-import Page.Campaigns.Active as ActiveCampaigns
-import Page.Campaigns.All as AllCampaigns
-import Page.Campaigns.Create as CreateCampaign
-import Page.Campaigns.Inactive as InactiveCampaigns
-import Page.Campaigns.Numbers as ManageCampaignNumbers
-import Page.Campaigns.Routing as Routing
+import Page.Campaigns.Collection
+import Page.Campaigns.Create
+import Page.Campaigns.Numbers
+import Page.Campaigns.Routing
+import Page.Campaigns.Show
 
 
 type Msg
-    = ActiveCampaignsPageMsg ActiveCampaigns.Msg
-    | InactiveCampaignsPageMsg InactiveCampaigns.Msg
-    | AllCampaignsPageMsg AllCampaigns.Msg
-    | CreateCampaignPageMsg CreateCampaign.Msg
-    | ManageNumbersPageMsg ManageCampaignNumbers.Msg
-    | RoutingPageMsg Routing.Msg
+    = CampaignsCollectionPageMsg Page.Campaigns.Collection.Msg
+    | ShowCampaignPageMsg Page.Campaigns.Show.Msg
+    | CreateCampaignPageMsg Page.Campaigns.Create.Msg
+    | ManageNumbersPageMsg Page.Campaigns.Numbers.Msg
+    | RoutingPageMsg Page.Campaigns.Routing.Msg
 
 
 type Page
-    = ActiveCampaignsPage ActiveCampaigns.State
-    | InactiveCampaignsPage InactiveCampaigns.State
-    | AllCampaignsPage AllCampaigns.State
-    | CreateCampaignPage CreateCampaign.State
-    | ManageNumbersPage ManageCampaignNumbers.State
-    | RoutingPage Routing.State
+    = CampaignsCollectionPage Page.Campaigns.Collection.State
+    | ShowCampaignPage Page.Campaigns.Show.State
+    | CreateCampaignPage Page.Campaigns.Create.State
+    | ManageNumbersPage Page.Campaigns.Numbers.State
+    | RoutingPage Page.Campaigns.Routing.State

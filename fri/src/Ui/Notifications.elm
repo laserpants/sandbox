@@ -1,4 +1,4 @@
-module Ui.Notifications exposing (ModalMsg(..), Msg(..), State, fetchNotifications, inList, init, modalView, setActiveNotification, setModalVisibility, showNotification, subscriptions, update)
+module Ui.Notifications exposing (ModalMsg(..), Msg(..), State, component, fetchNotifications, inList, init, modalView, setActiveNotification, setModalVisibility, showNotification, subscriptions, update)
 
 import Bootstrap.Button as Button
 import Bootstrap.Modal as Modal
@@ -31,9 +31,22 @@ type alias State =
     }
 
 
-inList : In State (Api.Model (List Notification)) msg a
+component : (Msg -> msg) -> Wrap { b | notifications : State } msg State Msg a
+component msg =
+    wrapState
+        { get = .notifications
+        , set = \state notifications -> { state | notifications = notifications }
+        , msg = msg
+        }
+
+
+inList : Wrap State Msg (Api.Model (List Notification)) (Api.Msg (List Notification)) a
 inList =
-    inState { get = .list, set = \state list -> { state | list = list } }
+    wrapState
+        { get = .list
+        , set = \state list -> { state | list = list }
+        , msg = ApiMsg
+        }
 
 
 setModalVisibility : Modal.Visibility -> State -> Update State msg a
@@ -52,13 +65,13 @@ showNotification notification =
         >> andThen (setModalVisibility Modal.shown)
 
 
-fetchNotifications : (Msg -> msg) -> State -> Update State msg a
-fetchNotifications toMsg =
-    inList (Api.sendSimpleRequest (toMsg << ApiMsg))
+fetchNotifications : State -> Update State Msg a
+fetchNotifications =
+    inList Api.sendSimpleRequest
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     let
         api =
             Api.init
@@ -71,15 +84,13 @@ init toMsg =
         |> andMap api
         |> andMap (save Modal.hidden)
         |> andMap (save Nothing)
-        |> mapCmd toMsg
 
 
-update : { onDismissNotification : Int -> a } -> Msg -> (Msg -> msg) -> State -> Update State msg a
-update { onDismissNotification } msg toMsg =
+update : { onDismissNotification : Int -> a } -> Msg -> State -> Update State Msg a
+update { onDismissNotification } msg =
     case msg of
         ApiMsg apiMsg ->
-            Api.update { onSuccess = always save, onError = always save } apiMsg (toMsg << ApiMsg)
-                |> inList
+            inList (Api.update { onSuccess = always save, onError = always save } apiMsg)
 
         ModalMsg modalMsg ->
             case modalMsg of

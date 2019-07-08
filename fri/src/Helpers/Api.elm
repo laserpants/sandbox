@@ -22,7 +22,11 @@ httpErrorToString error =
             "This feature is not implemented"
 
         _ ->
-            "Something went wrong!"
+            Debug.toString error
+
+
+
+--"Something went wrong!"
 
 
 resourceErrorMessage : Api.Resource a -> Html msg

@@ -1,4 +1,4 @@
-module Update.Deep.Form exposing (Model, Msg, init, reset, setDisabled, update)
+module Update.Deep.Form exposing (Model, Msg, component, init, reset, setDisabled, update)
 
 import Form exposing (Form)
 import Form.Field exposing (Field)
@@ -15,6 +15,15 @@ type alias Model a b =
     , disabled : Bool
     , validation : Validation a b
     }
+
+
+component : (Msg -> msg) -> Wrap { b | formModel : Model c d } msg (Model c d) Msg a
+component msg =
+    wrapState
+        { get = .formModel
+        , set = \state formModel -> { state | formModel = formModel }
+        , msg = msg
+        }
 
 
 insertAsFormIn : Model a b -> Form a b -> Update (Model a b) msg c

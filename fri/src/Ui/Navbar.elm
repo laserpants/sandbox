@@ -1,4 +1,4 @@
-module Ui.Navbar exposing (Msg(..), State, init, subscriptions, update, view)
+module Ui.Navbar exposing (Msg(..), State, component, init, subscriptions, update, view)
 
 import Bootstrap.Button as Button
 import Browser.Events
@@ -55,6 +55,15 @@ type alias State =
     }
 
 
+component : (Msg -> msg) -> Wrap { b | navbar : State } msg State Msg a
+component msg =
+    wrapState
+        { get = .navbar
+        , set = \state navbar -> { state | navbar = navbar }
+        , msg = msg
+        }
+
+
 setDropdownStatus : Dropdown -> DropdownStatus -> State -> Update State msg a
 setDropdownStatus dropdown status state =
     case dropdown of
@@ -68,17 +77,16 @@ setDropdownStatus dropdown status state =
             save { state | languageDropdownStatus = status }
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     save State
         |> andMap (save Closed)
         |> andMap (save Closed)
         |> andMap (save Closed)
-        |> mapCmd toMsg
 
 
-update : { onChangeLocale : String -> a, onNotificationSelected : Notification -> a, onToggleSidebar : a } -> Msg -> (Msg -> msg) -> State -> Update State msg a
-update { onChangeLocale, onNotificationSelected, onToggleSidebar } msg toMsg =
+update : { onChangeLocale : String -> a, onNotificationSelected : Notification -> a, onToggleSidebar : a } -> Msg -> State -> Update State msg a
+update { onChangeLocale, onNotificationSelected, onToggleSidebar } msg =
     case msg of
         ToggleSidebar ->
             applyCallback onToggleSidebar

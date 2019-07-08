@@ -1,4 +1,4 @@
-module Page.Projects.Select exposing (Msg(..), Search, State, dashboardView, fetchProjects, highlightQuery, inApi, init, projectsTable, projectsView, setSearchQuery, setSearchResults, standaloneView, subscriptions, update)
+module Page.Projects.Select exposing (Msg(..), State, dashboardView, fetchProjects, inApi, init, projectsView, standaloneView, subscriptions, update)
 
 import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
@@ -13,58 +13,39 @@ import Html.Events exposing (..)
 import Json.Decode as Json
 import Json.Encode exposing (encode)
 import Ports
+import Table.Projects
 import Ui
 import Ui.Spinner exposing (spinner)
 import Update.Deep exposing (..)
-import Update.Deep.Api as Api exposing (Resource(..))
-import Websocket
-import Websocket.SearchProjects
+import Update.Deep.Api as Api exposing (Resource(..), sendSimpleRequest)
+import Websocket exposing (setSearchQuery, setSearchResults)
+import Websocket.Search
 
 
 type Msg
     = ApiMsg (Api.Msg (List Project))
     | ProjectSearchQuery String
     | WebsocketMsg String
-    | SelectProject Project
-
-
-type alias Search a =
-    { query : String
-    , results : List a
-    }
+    | Select Project
 
 
 type alias State =
     { projects : Api.Model (List Project)
-    , search : Search Project
+    , search : Websocket.Search Project
     }
 
 
-setSearchQuery : String -> State -> Update State msg a
-setSearchQuery query state =
-    let
-        { search } =
-            state
-    in
-    save { state | search = { search | query = query } }
-
-
-setSearchResults : List Project -> State -> Update State msg a
-setSearchResults results state =
-    let
-        { search } =
-            state
-    in
-    save { state | search = { search | results = results } }
-
-
-inApi : In State (Api.Model (List Project)) msg a
+inApi : Wrap State Msg (Api.Model (List Project)) (Api.Msg (List Project)) a
 inApi =
-    inState { get = .projects, set = \state projects -> { state | projects = projects } }
+    wrapState
+        { get = .projects
+        , set = \state projects -> { state | projects = projects }
+        , msg = ApiMsg
+        }
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State Msg a
+init =
     let
         projects =
             Api.init
@@ -76,24 +57,23 @@ init toMsg =
     save State
         |> andMap projects
         |> andMap (save { query = "", results = [] })
-        |> mapCmd toMsg
-        |> andThen (fetchProjects toMsg)
+        |> andThen fetchProjects
 
 
-fetchProjects : (Msg -> msg) -> State -> Update State msg a
-fetchProjects toMsg =
-    inApi (Api.sendSimpleRequest (toMsg << ApiMsg))
+fetchProjects : State -> Update State Msg a
+fetchProjects =
+    inApi sendSimpleRequest
 
 
-update : { onProjectSelected : Project -> a } -> Msg -> (Msg -> msg) -> State -> Update State msg a
-update { onProjectSelected } msg toMsg =
+update : { onProjectSelected : Project -> a } -> Msg -> State -> Update State Msg a
+update { onProjectSelected } msg =
     case msg of
         ApiMsg apiMsg ->
-            inApi (Api.update { onSuccess = always save, onError = always save } apiMsg (toMsg << ApiMsg))
+            inApi (Api.update { onSuccess = always save, onError = always save } apiMsg)
 
         ProjectSearchQuery query ->
             setSearchQuery query
-                >> andAddCmd (Ports.websocketOut (encode 0 (Websocket.SearchProjects.encodeQuery query)))
+                >> andAddCmd (Ports.websocketOut (encode 0 (Websocket.Search.encodeSearchQuery "projects" query)))
 
         WebsocketMsg websocketMsg ->
             case Json.decodeString Websocket.messageDecoder websocketMsg of
@@ -110,7 +90,7 @@ update { onProjectSelected } msg toMsg =
                 _ ->
                     save
 
-        SelectProject project ->
+        Select project ->
             applyCallback (onProjectSelected project)
 
 
@@ -119,90 +99,7 @@ subscriptions state toMsg =
     Ports.websocketIn (toMsg << WebsocketMsg)
 
 
-highlightQuery : String -> String -> Html msg
-highlightQuery query input =
-    case query of
-        "" ->
-            text input
-
-        _ ->
-            let
-                queryLength =
-                    String.length query
-
-                indexes =
-                    String.indexes (String.toLower query) (String.toLower input)
-
-                fun ix ( str, strs, prev ) =
-                    let
-                        wordLength =
-                            ix - prev
-
-                        tokenLength =
-                            wordLength + queryLength
-
-                        strs_ =
-                            String.slice wordLength tokenLength str :: String.left wordLength str :: strs
-                    in
-                    ( String.dropLeft tokenLength str, strs_, ix + queryLength )
-
-                ( head, tail, _ ) =
-                    List.foldl fun ( input, [], 0 ) indexes
-
-                pairs xs =
-                    case xs of
-                        fst :: snd :: rest ->
-                            ( fst, snd ) :: pairs rest
-
-                        fst :: [] ->
-                            [ ( fst, "" ) ]
-
-                        _ ->
-                            []
-
-                htmlPairs ( slice, query_ ) =
-                    [ text slice, b [] [ text query_ ] ]
-            in
-            span [] (head :: tail |> List.reverse |> pairs |> List.concatMap htmlPairs)
-
-
-projectsTable : String -> List Project -> (Msg -> msg) -> Html msg
-projectsTable searchQuery projects toMsg =
-    let
-        tableRow project =
-            Table.tr []
-                [ Table.td []
-                    [ Button.button
-                        [ Button.roleLink
-                        , Button.attrs
-                            [ onClick (toMsg (SelectProject project))
-                            , Spacing.p0
-                            ]
-                        ]
-                        [ highlightQuery searchQuery project.name
-                        ]
-                    ]
-                , Table.td [] [ text "Today" ]
-                , Table.td [] [ text project.country ]
-                ]
-    in
-    if List.isEmpty projects then
-        text "No projects found."
-
-    else
-        Table.table
-            { options = [ Table.attr (class "m-0"), Table.small ]
-            , thead =
-                Table.simpleThead
-                    [ Table.th [ Table.cellAttr (class "w-50") ] [ text "Project name" ]
-                    , Table.th [ Table.cellAttr (class "w-40") ] [ text "Last accessed" ]
-                    , Table.th [ Table.cellAttr (class "w-10") ] [ text "Country" ]
-                    ]
-            , tbody = Table.tbody [] (List.map tableRow projects)
-            }
-
-
-projectsView : Api.Model (List Project) -> Search Project -> (Msg -> msg) -> Html msg
+projectsView : Api.Model (List Project) -> Websocket.Search Project -> (Msg -> msg) -> Html msg
 projectsView { resource } { query, results } toMsg =
     div [ style "min-height" "200px" ]
         [ case resource of
@@ -224,7 +121,7 @@ projectsView { resource } { query, results } toMsg =
                         else
                             results
                 in
-                projectsTable query items toMsg
+                Table.Projects.view query items Select toMsg
         ]
 
 

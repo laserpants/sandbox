@@ -1,4 +1,4 @@
-module Form.Campaigns.Create exposing (Fields, toJson, validate, view)
+module Form.Content.Text.Create exposing (Fields, toJson, validate, view)
 
 import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
@@ -22,23 +22,23 @@ import Json.Encode.Extra as Encode
 
 
 type alias Fields =
-    { name : String
-    , description : Maybe String
+    { title : String
+    , body : Maybe String
     }
 
 
 validate : Validation Never Fields
 validate =
     succeed Fields
-        |> andMap (field "name" validateStringNonEmpty)
-        |> andMap (field "description" (Validate.maybe validateStringNonEmpty))
+        |> andMap (field "title" validateStringNonEmpty)
+        |> andMap (field "body" (Validate.maybe validateStringNonEmpty))
 
 
 toJson : Fields -> Json.Value
-toJson { name, description } =
+toJson { title, body } =
     Encode.object
-        [ ( "name", Encode.string name )
-        , ( "description", Encode.maybe Encode.string description )
+        [ ( "title", Encode.string title )
+        , ( "body", Encode.maybe Encode.string body )
         ]
 
 
@@ -48,37 +48,37 @@ view form disabled toMsg =
         info =
             fieldInfo (always "")
 
-        name =
-            form |> Form.getFieldAsString "name" |> info [] Input.danger
+        title =
+            form |> Form.getFieldAsString "title" |> info [] Input.danger
 
-        description =
-            form |> Form.getFieldAsString "description" |> info [] Textarea.danger
+        body =
+            form |> Form.getFieldAsString "body" |> info [] Textarea.danger
     in
     [ Fieldset.config
         |> Fieldset.disabled disabled
         |> Fieldset.children
             [ Bootstrap.Form.group []
-                [ Bootstrap.Form.label [] [ text "Name" ]
+                [ Bootstrap.Form.label [] [ text "Title" ]
                 , Input.text
-                    ([ Input.placeholder "Name"
-                     , Input.onInput (String >> Form.Input name.path Form.Text)
-                     , Input.value (Maybe.withDefault "" name.value)
-                     , Input.attrs [ onFocus (Form.Focus name.path), onBlur (Form.Blur name.path) ]
+                    ([ Input.placeholder "Title"
+                     , Input.onInput (String >> Form.Input title.path Form.Text)
+                     , Input.value (Maybe.withDefault "" title.value)
+                     , Input.attrs [ onFocus (Form.Focus title.path), onBlur (Form.Blur title.path) ]
                      ]
-                        ++ name.options
+                        ++ title.options
                     )
-                , Bootstrap.Form.invalidFeedback [] [ text name.errorMessage ]
+                , Bootstrap.Form.invalidFeedback [] [ text title.errorMessage ]
                 ]
             , Bootstrap.Form.group []
-                [ Bootstrap.Form.label [] [ text "Description" ]
+                [ Bootstrap.Form.label [] [ text "Body" ]
                 , Textarea.textarea
-                    ([ Textarea.onInput (String >> Form.Input description.path Form.Text)
-                     , Textarea.value (Maybe.withDefault "" description.value)
-                     , Textarea.attrs [ onFocus (Form.Focus description.path), onBlur (Form.Blur description.path) ]
+                    ([ Textarea.onInput (String >> Form.Input body.path Form.Text)
+                     , Textarea.value (Maybe.withDefault "" body.value)
+                     , Textarea.attrs [ onFocus (Form.Focus body.path), onBlur (Form.Blur body.path) ]
                      ]
-                        ++ description.options
+                        ++ body.options
                     )
-                , Bootstrap.Form.invalidFeedback [] [ text description.errorMessage ]
+                , Bootstrap.Form.invalidFeedback [] [ text body.errorMessage ]
                 ]
             , Bootstrap.Form.group []
                 [ Button.button

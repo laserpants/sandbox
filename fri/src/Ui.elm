@@ -1,4 +1,4 @@
-module Ui exposing (Msg(..), State, card, dashboardLayout, fetchNotifications, gdprBanner, init, layout, subscriptions, update)
+module Ui exposing (LayoutConfig, Msg(..), State, card, component, dashboardLayout, fetchNotifications, gdprBanner, init, layout, subscriptions, update)
 
 import Bootstrap.Button as Button
 import Bootstrap.Card as Card
@@ -19,7 +19,7 @@ import Json.Decode as Json
 import Maybe.Extra as Maybe
 import Ui.Gdpr as Gdpr
 import Ui.Navbar as Navbar
-import Ui.Notifications as Notifications
+import Ui.Notifications as Notifications exposing (showNotification)
 import Ui.Sidebar as Sidebar
 import Update.Deep exposing (..)
 import Update.Deep.Api as Api exposing (Resource(..))
@@ -38,55 +38,66 @@ type alias State =
     }
 
 
-inSidebar : In State Sidebar.State msg a
+component : (Msg -> msg) -> Wrap { b | ui : State } msg State Msg a
+component msg =
+    wrapState
+        { get = .ui
+        , set = \state ui -> { state | ui = ui }
+        , msg = msg
+        }
+
+
+inSidebar : Wrap State Msg Sidebar.State Sidebar.Msg a
 inSidebar =
-    inState { get = .sidebar, set = \state sidebar -> { state | sidebar = sidebar } }
+    Sidebar.component SidebarMsg
 
 
-inNavbar : In State Navbar.State msg a
+inNavbar : Wrap State Msg Navbar.State Navbar.Msg a
 inNavbar =
-    inState { get = .navbar, set = \state navbar -> { state | navbar = navbar } }
+    Navbar.component NavbarMsg
 
 
-inNotifications : In State Notifications.State msg a
+inNotifications : Wrap State Msg Notifications.State Notifications.Msg a
 inNotifications =
-    inState { get = .notifications, set = \state notifications -> { state | notifications = notifications } }
+    Notifications.component NotificationsMsg
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     save State
-        |> andMap (Sidebar.init SidebarMsg)
-        |> andMap (Navbar.init NavbarMsg)
-        |> andMap (Notifications.init NotificationsMsg)
-        |> mapCmd toMsg
+        |> andMap Sidebar.init
+        |> andMap Navbar.init
+        |> andMap Notifications.init
 
 
-fetchNotifications : (Msg -> msg) -> State -> Update State msg a
-fetchNotifications toMsg =
-    inNotifications (Notifications.fetchNotifications (toMsg << NotificationsMsg))
+fetchNotifications : State -> Update State Msg a
+fetchNotifications =
+    inNotifications Notifications.fetchNotifications
 
 
-update : { onDismissNotification : Int -> a, onChangeLocale : String -> a } -> Msg -> (Msg -> msg) -> State -> Update State msg a
-update { onDismissNotification, onChangeLocale } msg toMsg =
+update : { onDismissNotification : Int -> a, onChangeLocale : String -> a } -> Msg -> State -> Update State Msg a
+update { onDismissNotification, onChangeLocale } msg =
     case msg of
         SidebarMsg sidebarMsg ->
-            Sidebar.update sidebarMsg (toMsg << SidebarMsg)
-                |> inSidebar
+            inSidebar (Sidebar.update sidebarMsg)
 
         NavbarMsg navbarMsg ->
-            Navbar.update
-                { onNotificationSelected = inNotifications << Notifications.showNotification
-                , onToggleSidebar = inSidebar Sidebar.toggle
-                , onChangeLocale = applyCallback << onChangeLocale
-                }
-                navbarMsg
-                (toMsg << NavbarMsg)
-                |> inNavbar
+            let
+                callbacks =
+                    { onNotificationSelected = inNotifications << showNotification
+                    , onToggleSidebar = inSidebar Sidebar.toggle
+                    , onChangeLocale = applyCallback << onChangeLocale
+                    }
+            in
+            inNavbar (Navbar.update callbacks navbarMsg)
 
         NotificationsMsg notificationsMsg ->
-            Notifications.update { onDismissNotification = applyCallback << onDismissNotification } notificationsMsg (toMsg << NotificationsMsg)
-                |> inNotifications
+            let
+                callbacks =
+                    { onDismissNotification = applyCallback << onDismissNotification
+                    }
+            in
+            inNotifications (Notifications.update callbacks notificationsMsg)
 
 
 subscriptions : State -> (Msg -> msg) -> Sub msg

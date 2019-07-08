@@ -24,13 +24,13 @@ type alias State =
     }
 
 
-inForm : In State (Form.Model Never Form.User.ResetPassword.Fields) msg a
+inForm : Wrap State Msg (Form.Model Never Form.User.ResetPassword.Fields) Form.Msg a
 inForm =
-    inState { get = .formModel, set = \state form -> { state | formModel = form } }
+    Form.component FormMsg
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     let
         response =
             Api.init
@@ -42,11 +42,10 @@ init toMsg =
     save State
         |> andMap (Form.init [] Form.User.ResetPassword.validate)
         |> andMap response
-        |> mapCmd toMsg
 
 
-update : Msg -> (Msg -> msg) -> State -> Update State msg a
-update msg toMsg =
+update : Msg -> State -> Update State Msg a
+update msg =
     case msg of
         FormMsg formMsg ->
             inForm (Form.update { onSubmit = always save } formMsg)

@@ -17,6 +17,40 @@ var users =
   }
 ];
 
+var campaigns =
+[
+  {
+    id: 1,
+    name: 'Campaign #1',
+    description: 'This is a campaign'
+  },
+  {
+    id: 2,
+    name: 'Campaign #2',
+    description: 'This is a campaign'
+  },
+  {
+    id: 3,
+    name: 'Campaign #3',
+    description: 'This is a campaign'
+  },
+  {
+    id: 4,
+    name: 'Campaign #4',
+    description: 'This is a campaign'
+  },
+  {
+    id: 5,
+    name: 'Campaign #5',
+    description: 'This is a campaign'
+  },
+  {
+    id: 6,
+    name: 'Campaign #6',
+    description: 'This is a campaign'
+  }
+];
+
 var projects =
 [
   {
@@ -41,9 +75,108 @@ var projects =
   }
 ];
 
+var audioContent =
+[
+  {
+    id: 1,
+    title: 'Fall Armyworm Awareness'
+  },
+  {
+    id: 2,
+    title: 'Aquaculture 101'
+  },
+  {
+    id: 3,
+    title: 'The apocalypse'
+  },
+  {
+    id: 4,
+    title: 'Project Apollo'
+  }
+];
+
+var textContent =
+[
+  {
+    id: 1,
+    title: 'Fall Armyworm Awareness'
+  },
+  {
+    id: 2,
+    title: 'Aquaculture 101'
+  },
+  {
+    id: 3,
+    title: 'The apocalypse'
+  },
+  {
+    id: 4,
+    title: 'Project Apollo'
+  }
+];
+
+var audience =
+[
+  {
+    id: 1,
+    name: 'Listener #1'
+  },
+  {
+    id: 2,
+    name: 'Listener #2'
+  },
+  {
+    id: 3,
+    name: 'Listener #3'
+  },
+  {
+    id: 4,
+    name: 'Listener #4'
+  }
+];
+
+var listenerAudio =
+[
+  {
+    id: 1,
+    phoneNumber: '25682827645' 
+  },
+  {
+    id: 2,
+    phoneNumber: '25676458282' 
+  },
+  {
+    id: 3,
+    phoneNumber: '46727358682' 
+  },
+  {
+    id: 4,
+    phoneNumber: '25407333777' 
+  }
+];
+
 var delay = 600; // 800; //2300;
 
+function pagedRequest(collection, key, request, callback) {
+  var search = request.url.split('?')[1] || '',
+    params = new URLSearchParams(search),
+    offset = Number(params.get('offset') || 0),
+    limit = Number(params.get('limit') || 20),
+    data = { 
+      total: collection.length 
+    };
+  data[key] = collection.slice(offset, offset + limit);
+  callback({
+    status: 200,
+    data: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 xhook.before(function(request, callback) {
+
+  console.log(request.url);
+
   if (request.url.endsWith('auth/login') && 'POST' === request.method) {
     setTimeout(function() {
       var params = JSON.parse(request.body);
@@ -130,6 +263,26 @@ xhook.before(function(request, callback) {
         });
       }
     }, delay);
+  } else if (/listener-audio/.test(request.url) && 'GET' === request.method) {
+    setTimeout(function() {
+      pagedRequest(listenerAudio, 'listenerAudio', request, callback);
+    }, delay);
+  } else if (/content\/text/.test(request.url) && 'GET' === request.method) {
+    setTimeout(function() {
+      pagedRequest(textContent, 'text', request, callback);
+    }, delay);
+  } else if (/content\/audio/.test(request.url) && 'GET' === request.method) {
+    setTimeout(function() {
+      pagedRequest(audioContent, 'audio', request, callback);
+    }, delay);
+  } else if (/campaigns/.test(request.url) && 'GET' === request.method) {
+    setTimeout(function() {
+      pagedRequest(campaigns, 'campaigns', request, callback);
+    }, delay);
+  } else if (/audience/.test(request.url) && 'GET' === request.method) {
+    setTimeout(function() {
+      pagedRequest(audience, 'audience', request, callback);
+    }, delay);
   } else if (request.url.endsWith('projects') && 'GET' === request.method) {
     setTimeout(function() {
       callback({
@@ -169,6 +322,12 @@ xhook.before(function(request, callback) {
       }
     }, delay);
   }
+
 });
 
 module.exports.projects = projects;
+module.exports.campaigns = campaigns;
+module.exports.audience = audience;
+module.exports.audioContent = audioContent;
+module.exports.textContent = textContent;
+module.exports.listenerAudio = listenerAudio;

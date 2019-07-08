@@ -20,20 +20,19 @@ type alias State =
     }
 
 
-inForm : In State (Form.Model CustomError Form.User.Profile.Fields) msg a
+inForm : Wrap State Msg (Form.Model CustomError Form.User.Profile.Fields) Form.Msg a
 inForm =
-    inState { get = .formModel, set = \state form -> { state | formModel = form } }
+    Form.component FormMsg
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     save State
         |> andMap (Form.init [] Form.User.Profile.validate)
-        |> mapCmd toMsg
 
 
-update : Msg -> (Msg -> msg) -> State -> Update State msg a
-update msg toMsg state =
+update : Msg -> State -> Update State Msg a
+update msg state =
     save state
 
 

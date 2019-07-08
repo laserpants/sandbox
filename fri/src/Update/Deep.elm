@@ -1,8 +1,8 @@
 module Update.Deep exposing
     ( Update, save, addCmd, map, mapCmd, applyCallback, fold, join, kleisli
-    , andThen, andThenIf
+    , andThen, andThenIf, andWhen
     , andMap, ap, map2, map3, map4, map5, map6, map7
-    , In, inState
+    , In, Wrap, inState, wrapState
     , runUpdate, applicationInit, documentInit
     , andAddCmd, andApplyCallback, foldAndThen, with
     )
@@ -17,7 +17,7 @@ module Update.Deep exposing
 
 ## Chaining Updates
 
-@docs andThen, andThenIf
+@docs andThen, andThenIf, andWhen
 
 
 ## Applicative Interface
@@ -29,7 +29,7 @@ These functions address the need to map over functions of more than one argument
 
 # Nested State
 
-@docs In, inState
+@docs In, Wrap, inState, wrapState
 
 
 # Program Integration
@@ -258,6 +258,13 @@ andThenIf pred fun upd =
             )
 
 
+{-| TODO
+-}
+andWhen : Bool -> (a -> Update a c e) -> Update a c e -> Update a c e
+andWhen check =
+    andThenIf (always check)
+
+
 {-| Right-to-left (Kleisli) composition of two functions that return `Update` values,
 passing the state part of the first return value to the second function.
 -}
@@ -315,10 +322,27 @@ with get some state =
     some (get state) state
 
 
+{-| See [`wrapState`](#wrapState) for how to work with this type.
+-}
+type alias Wrap state msg state2 msg2 a =
+    (state2 -> Update state2 msg2 (state -> Update state msg a)) -> state -> Update state msg a
+
+
 {-| See [`inState`](#inState) for how to work with this type.
 -}
-type alias In state slice msg a =
-    (slice -> Update slice msg (state -> Update state msg a)) -> state -> Update state msg a
+type alias In state state2 msg e =
+    (state2 -> Update state2 msg (state -> Update state msg e)) -> state -> Update state msg e
+
+
+{-| TODO
+-}
+wrapState : { get : b -> d, set : b -> m -> a, msg : c -> f } -> (d -> Update m c (a -> Update a f e)) -> b -> Update a f e
+wrapState { get, set, msg } update state =
+    get state
+        |> update
+        |> andThen (set state >> save)
+        |> mapCmd msg
+        |> fold
 
 
 {-| The idea here is that you provide an `inX` for each nested `XState` that needs to be updated in your main `State`.
@@ -344,8 +368,8 @@ See the [README](https://github.com/laserpants/elm-update-deep/blob/master/READM
 
 -}
 inState : { get : b -> d, set : b -> m -> a } -> (d -> Update m c (a -> Update a c e)) -> b -> Update a c e
-inState { get, set } fun state =
-    get state |> fun |> foldAndThen (set state >> save)
+inState { get, set } =
+    wrapState { get = get, set = set, msg = identity }
 
 
 {-| Normally you shouldn't need to use this function directly in client code.

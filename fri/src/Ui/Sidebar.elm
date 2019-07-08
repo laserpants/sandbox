@@ -1,4 +1,4 @@
-module Ui.Sidebar exposing (Msg(..), State, init, subscriptions, toggle, update, view)
+module Ui.Sidebar exposing (Msg(..), State, component, init, subscriptions, toggle, update, view)
 
 import Browser.Events
 import Html exposing (..)
@@ -30,6 +30,15 @@ type alias State =
     { toggled : Bool
     , menuStatus : MenuStatus
     }
+
+
+component : (Msg -> msg) -> Wrap { b | sidebar : State } msg State Msg a
+component msg =
+    wrapState
+        { get = .sidebar
+        , set = \state sidebar -> { state | sidebar = sidebar }
+        , msg = msg
+        }
 
 
 setMenuStatus : MenuStatus -> State -> Update State msg a
@@ -100,15 +109,15 @@ toggle state =
     save { state | toggled = not state.toggled }
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     save State
         |> andMap (save False)
         |> andMap (save Closed)
 
 
-update : Msg -> (Msg -> msg) -> State -> Update State msg a
-update msg toMsg =
+update : Msg -> State -> Update State Msg a
+update msg =
     case msg of
         ToggleMenu menu ->
             with .menuStatus (setMenuStatus << toggleMenu menu)
@@ -228,13 +237,11 @@ view state toMsg =
             , isExpanded = currently.campaigns.isExpanded
             , children =
                 [ subMenuHeading "Campaigns"
-                , subMenuLink { href = "/campaigns/active", text = "Active" }
-                , subMenuLink { href = "/campaigns/inactive", text = "Inactive" }
-                , subMenuLink { href = "/campaigns/all", text = "All" }
+                , subMenuLink { href = "/campaigns", text = "Manage campaigns" }
                 , subMenuLink { href = "/campaigns/new", text = "Create new" }
                 , subMenuDivider
                 , subMenuHeading "Phone numbers"
-                , subMenuLink { href = "/numbers/manage", text = "Manage numbers" }
+                , subMenuLink { href = "/numbers/manage", text = "Number configuration" }
                 , subMenuLink { href = "/numbers/routing", text = "Routing" }
                 ]
             }

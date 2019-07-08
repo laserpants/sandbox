@@ -8,11 +8,12 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Json
+import Maybe exposing (withDefault)
 import Maybe.Extra as Maybe
 import Page exposing (..)
 import Ports
 import Route exposing (Route(..), fromUrl)
-import Ui
+import Ui exposing (fetchNotifications)
 import Update.Deep exposing (..)
 import Update.Deep.Router as Router
 import Url exposing (Url)
@@ -40,6 +41,21 @@ type alias State =
     , page : Page
     , cookiesAccepted : Bool
     }
+
+
+inRouter : Wrap State Msg (Router.State Route) Router.Msg a
+inRouter =
+    Router.component RouterMsg
+
+
+inUi : Wrap State Msg Ui.State Ui.Msg a
+inUi =
+    Ui.component UiMsg
+
+
+inPage : Wrap State Msg Page Page.Msg a
+inPage =
+    Page.component PageMsg
 
 
 setRestrictedUrl : Url -> State -> Update State msg a
@@ -82,21 +98,6 @@ setCookiesAccepted accepted state =
     save { state | cookiesAccepted = accepted }
 
 
-inRouter : In State (Router.State Route) msg a
-inRouter =
-    inState { get = .router, set = \state router -> { state | router = router } }
-
-
-inUi : In State Ui.State msg a
-inUi =
-    inState { get = .ui, set = \state ui -> { state | ui = ui } }
-
-
-inPage : In State Page msg a
-inPage =
-    inState { get = .page, set = \state page -> { state | page = page } }
-
-
 initSession : Flags -> Maybe Session
 initSession { session } =
     case Json.decodeString Session.decoder session of
@@ -111,32 +112,32 @@ init : Flags -> Url -> Navigation.Key -> Update State Msg a
 init flags url key =
     save State
         |> andMap (initSession flags |> save)
-        |> andMap (Router.init fromUrl flags.basePath key RouterMsg)
-        |> andMap (Ui.init UiMsg)
+        |> andMap (Router.init fromUrl flags.basePath key)
+        |> andMap Ui.init
         |> andMap (save Nothing)
         |> andMap (save NotFoundPage)
         |> andMap (save False)
         |> andThen (update (RouterMsg (Router.UrlChange url)))
-        |> andThen (inUi (Ui.fetchNotifications UiMsg))
+        |> andThen (inUi fetchNotifications)
 
 
-redirect : String -> State -> Update State msg a
+redirect : String -> State -> Update State Msg a
 redirect =
     inRouter << Router.redirect
 
 
-loadPage : Update Page msg (State -> Update State msg a) -> State -> Update State msg a
+loadPage : Update Page Page.Msg (State -> Update State Msg a) -> State -> Update State Msg a
 loadPage setPage state =
     let
         isLoginRoute =
-            always (Just Login == state.router.route)
+            Just Login == state.router.route
     in
     state
         |> inPage (always setPage)
-        |> andThenIf (not << isLoginRoute) resetRestrictedUrl
+        |> andWhen (not isLoginRoute) resetRestrictedUrl
 
 
-sessionRoute : Route -> Session -> Url -> State -> Update State Page.Msg a
+sessionRoute : Route -> Session -> Url -> State -> Update State Msg a
 sessionRoute route session url =
     case route of
         Login ->
@@ -149,13 +150,13 @@ sessionRoute route session url =
             redirect "/"
 
         Profile ->
-            loadPage (fromRoute route)
+            loadPage (fromRoute route url)
 
         Projects ->
-            loadPage (fromRoute route)
+            loadPage (fromRoute route url)
 
         NewProject ->
-            loadPage (fromRoute route)
+            loadPage (fromRoute route url)
 
         -- These routes require authentication ~and~ a working project
         _ ->
@@ -164,7 +165,7 @@ sessionRoute route session url =
                     redirect "/projects"
 
                 Just project ->
-                    loadPage (fromRoute route)
+                    loadPage (fromRoute route url)
 
 
 handleRouteChange : Url -> Maybe Route -> State -> Update State Msg a
@@ -174,7 +175,7 @@ handleRouteChange url maybeRoute =
             case ( maybeRoute, maybeSession ) of
                 -- No route (404)
                 ( Nothing, _ ) ->
-                    mapCmd PageMsg << loadPage (save NotFoundPage)
+                    loadPage (save NotFoundPage)
 
                 -- Public routes
                 ( Just Logout, _ ) ->
@@ -183,13 +184,13 @@ handleRouteChange url maybeRoute =
                         >> andThen (redirect "/")
 
                 ( Just Login, Nothing ) ->
-                    mapCmd PageMsg << loadPage (fromRoute Login)
+                    loadPage (fromRoute Login url)
 
                 ( Just Register, Nothing ) ->
-                    mapCmd PageMsg << loadPage (fromRoute Register)
+                    loadPage (fromRoute Register url)
 
                 ( Just ResetPassword, Nothing ) ->
-                    mapCmd PageMsg << loadPage (fromRoute ResetPassword)
+                    loadPage (fromRoute ResetPassword url)
 
                 -- Everything else requires authentication
                 ( _, Nothing ) ->
@@ -197,7 +198,7 @@ handleRouteChange url maybeRoute =
                         >> andThen (redirect "/login")
 
                 ( Just route, Just session ) ->
-                    mapCmd PageMsg << sessionRoute route session url
+                    sessionRoute route session url
         )
 
 
@@ -213,25 +214,25 @@ updateSessionStorage maybeSession =
 
 returnToRestrictedUrl : State -> Update State Msg a
 returnToRestrictedUrl =
-    with .restrictedUrl (redirect << Maybe.withDefault "/")
+    with .restrictedUrl (redirect << withDefault "/")
 
 
 handleAuthResponse : Maybe Session -> State -> Update State Msg a
 handleAuthResponse maybeSession =
     let
         authenticated =
-            always (Maybe.isJust maybeSession)
+            Maybe.isJust maybeSession
     in
     setSession maybeSession
         >> andThen (updateSessionStorage maybeSession)
-        >> andThenIf authenticated returnToRestrictedUrl
+        >> andWhen authenticated returnToRestrictedUrl
 
 
 handleProjectSelected : Project -> State -> Update State Msg a
 handleProjectSelected project =
     setWorkingProject project
         >> andThen (with .session updateSessionStorage)
-        >> andThen (inUi (Ui.fetchNotifications UiMsg))
+        >> andThen (inUi fetchNotifications)
         >> andThen (redirect "/")
 
 
@@ -245,13 +246,30 @@ update : Msg -> State -> Update State Msg a
 update msg =
     case msg of
         RouterMsg routerMsg ->
-            inRouter (Router.update { onRouteChange = handleRouteChange } routerMsg)
+            let
+                callbacks =
+                    { onRouteChange = handleRouteChange
+                    }
+            in
+            inRouter (Router.update callbacks routerMsg)
 
         PageMsg pageMsg ->
-            inPage (Page.update { onAuthResponse = handleAuthResponse, onProjectSelected = handleProjectSelected } pageMsg PageMsg)
+            let
+                callbacks =
+                    { onAuthResponse = handleAuthResponse
+                    , onProjectSelected = handleProjectSelected
+                    }
+            in
+            inPage (Page.update callbacks pageMsg)
 
         UiMsg uiMsg ->
-            inUi (Ui.update { onDismissNotification = always save, onChangeLocale = handleChangeLocale } uiMsg UiMsg)
+            let
+                callbacks =
+                    { onDismissNotification = always save
+                    , onChangeLocale = handleChangeLocale
+                    }
+            in
+            inUi (Ui.update callbacks uiMsg)
 
         AcceptCookies ->
             setCookiesAccepted True
@@ -266,10 +284,17 @@ subscriptions { page, ui } =
 
 
 view : State -> Document Msg
-view ({ page, session, ui, cookiesAccepted } as state) =
+view { page, session, ui, cookiesAccepted } =
+    let
+        uiLayout =
+            Ui.layout ui UiMsg
+
+        dashboardLayout user project locale =
+            Ui.dashboardLayout ui user project locale UiMsg
+    in
     { title = Page.title page
     , body =
-        [ Page.view page session ui PageMsg UiMsg
+        [ Page.view page session uiLayout dashboardLayout PageMsg
         , Ui.gdprBanner AcceptCookies session cookiesAccepted
         ]
     }

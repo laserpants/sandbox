@@ -15,9 +15,8 @@ type Route
     | NewProject
     | Settings
     | Notifications
-    | ActiveCampaigns
-    | InactiveCampaigns
-    | AllCampaigns
+    | CampaignsCollection
+    | ShowCampaign Int
     | NewCampaign
     | ManageNumbers
     | Routing
@@ -47,9 +46,8 @@ parser =
         , map Projects (s "projects")
         , map NewProject (s "projects" </> s "new")
         , map Notifications (s "notifications")
-        , map ActiveCampaigns (s "campaigns" </> s "active")
-        , map InactiveCampaigns (s "campaigns" </> s "inactive")
-        , map AllCampaigns (s "campaigns" </> s "all")
+        , map CampaignsCollection (s "campaigns")
+        , map ShowCampaign (s "campaigns" </> int)
         , map NewCampaign (s "campaigns" </> s "new")
         , map ManageNumbers (s "numbers" </> s "manage")
         , map Routing (s "numbers" </> s "routing")

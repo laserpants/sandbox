@@ -1,20 +1,20 @@
 module Page.Content exposing (Msg(..), Page(..))
 
-import Page.Content.Audio.Archive as AudioArchive
-import Page.Content.Audio.Upload as UploadAudio
-import Page.Content.Text.Archive as TextArchive
-import Page.Content.Text.Create as CreateText
+import Page.Content.Audio.Archive
+import Page.Content.Audio.Upload
+import Page.Content.Text.Archive
+import Page.Content.Text.Create
 
 
 type Msg
-    = AudioArchivePageMsg AudioArchive.Msg
-    | UploadAudioPageMsg UploadAudio.Msg
-    | TextArchivePageMsg TextArchive.Msg
-    | CreateTextPageMsg CreateText.Msg
+    = AudioArchivePageMsg Page.Content.Audio.Archive.Msg
+    | UploadAudioPageMsg Page.Content.Audio.Upload.Msg
+    | TextArchivePageMsg Page.Content.Text.Archive.Msg
+    | CreateTextPageMsg Page.Content.Text.Create.Msg
 
 
 type Page
-    = AudioArchivePage AudioArchive.State
-    | UploadAudioPage UploadAudio.State
-    | TextArchivePage TextArchive.State
-    | CreateTextPage CreateText.State
+    = AudioArchivePage Page.Content.Audio.Archive.State
+    | UploadAudioPage Page.Content.Audio.Upload.State
+    | TextArchivePage Page.Content.Text.Archive.State
+    | CreateTextPage Page.Content.Text.Create.State

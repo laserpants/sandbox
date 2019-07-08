@@ -1,18 +1,21 @@
-module Page exposing (Msg(..), Page(..), current, fromRoute, subscriptions, title, update, view)
+module Page exposing (Msg(..), Page(..), component, current, fromRoute, subscriptions, title, update, view)
 
+import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
+import Bootstrap.Grid.Row as Row
+import Bootstrap.Utilities.Spacing as Spacing
 import Data.Project exposing (Project)
 import Data.Session exposing (Session)
+import Data.User exposing (User)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Page.Campaigns as Campaigns
-import Page.Campaigns.Active
-import Page.Campaigns.All
+import Page.Campaigns.Collection
 import Page.Campaigns.Create
-import Page.Campaigns.Inactive
 import Page.Campaigns.Numbers
 import Page.Campaigns.Routing
+import Page.Campaigns.Show
 import Page.Content as Content
 import Page.Content.Audio.Archive
 import Page.Content.Audio.Upload
@@ -41,6 +44,7 @@ import Page.User.ResetPassword
 import Route exposing (Route(..))
 import Ui
 import Update.Deep exposing (..)
+import Url exposing (Url)
 
 
 type Msg
@@ -62,15 +66,23 @@ type Page
     | ResultsPage Results.Page
 
 
+component : (Msg -> msg) -> Wrap { b | page : Page } msg Page Msg a
+component msg =
+    wrapState
+        { get = .page
+        , set = \state page -> { state | page = page }
+        , msg = msg
+        }
+
+
 current :
     Page
     ->
         { isAppsPage : Bool
         , isAudiencePage : Bool
-        , isActiveCampaignsPage : Bool
-        , isAllCampaignsPage : Bool
+        , isCampaignsCollectionPage : Bool
+        , isShowCampaignPage : Bool
         , isCreateCampaignPage : Bool
-        , isInactiveCampaignsPage : Bool
         , isCampaignsManageNumbersPage : Bool
         , isCampaignsRoutingPage : Bool
         , isAudioArchivePage : Bool
@@ -106,9 +118,8 @@ current page =
             , isUserRegisterPage = False
             , isUserProfilePage = False
             , isUserResetPasswordPage = False
-            , isActiveCampaignsPage = False
-            , isInactiveCampaignsPage = False
-            , isAllCampaignsPage = False
+            , isCampaignsCollectionPage = False
+            , isShowCampaignPage = False
             , isCreateCampaignPage = False
             , isCampaignsManageNumbersPage = False
             , isCampaignsRoutingPage = False
@@ -162,14 +173,11 @@ current page =
 
         CampaignsPage campaignsPage ->
             case campaignsPage of
-                Campaigns.ActiveCampaignsPage _ ->
-                    { none | isActiveCampaignsPage = True }
+                Campaigns.CampaignsCollectionPage _ ->
+                    { none | isCampaignsCollectionPage = True }
 
-                Campaigns.InactiveCampaignsPage _ ->
-                    { none | isInactiveCampaignsPage = True }
-
-                Campaigns.AllCampaignsPage _ ->
-                    { none | isAllCampaignsPage = True }
+                Campaigns.ShowCampaignPage _ ->
+                    { none | isShowCampaignPage = True }
 
                 Campaigns.CreateCampaignPage _ ->
                     { none | isCreateCampaignPage = True }
@@ -220,8 +228,142 @@ current page =
                     { none | isResultsCostPage = True }
 
 
-update : { onAuthResponse : Maybe Session -> a, onProjectSelected : Project -> a } -> Msg -> (Msg -> msg) -> Page -> Update Page msg a
-update { onAuthResponse, onProjectSelected } msg toMsg page =
+updatePage : (b -> m) -> (c -> d) -> Update b c (m -> Update m c e) -> Update m d e
+updatePage constr msg =
+    mapCmd msg << fold << andThen (save << constr)
+
+
+type alias UpdatePage a b e =
+    Update a b (Page -> Update Page b e) -> Update Page Msg e
+
+
+mainDashboard : UpdatePage Page.Main.Dashboard.State Page.Main.Dashboard.Msg e
+mainDashboard =
+    updatePage (MainPage << Main.Dashboard) (MainPageMsg << Main.DashboardMsg)
+
+
+appsPage : UpdatePage Page.Main.Apps.State Page.Main.Apps.Msg e
+appsPage =
+    updatePage (MainPage << Main.AppsPage) (MainPageMsg << Main.AppsPageMsg)
+
+
+audiencePage : UpdatePage Page.Main.Audience.State Page.Main.Audience.Msg e
+audiencePage =
+    updatePage (MainPage << Main.AudiencePage) (MainPageMsg << Main.AudiencePageMsg)
+
+
+listenerAudioPage : UpdatePage Page.Main.ListenerAudio.State Page.Main.ListenerAudio.Msg e
+listenerAudioPage =
+    updatePage (MainPage << Main.ListenerAudioPage) (MainPageMsg << Main.ListenerAudioPageMsg)
+
+
+notificationsPage : UpdatePage Page.Main.Notifications.State Page.Main.Notifications.Msg e
+notificationsPage =
+    updatePage (MainPage << Main.NotificationsPage) (MainPageMsg << Main.NotificationsPageMsg)
+
+
+campaignsCollectionPage : UpdatePage Page.Campaigns.Collection.State Page.Campaigns.Collection.Msg e
+campaignsCollectionPage =
+    updatePage (CampaignsPage << Campaigns.CampaignsCollectionPage) (CampaignsPageMsg << Campaigns.CampaignsCollectionPageMsg)
+
+
+showCampaignPage : UpdatePage Page.Campaigns.Show.State Page.Campaigns.Show.Msg e
+showCampaignPage =
+    updatePage (CampaignsPage << Campaigns.ShowCampaignPage) (CampaignsPageMsg << Campaigns.ShowCampaignPageMsg)
+
+
+createCampaignPage : UpdatePage Page.Campaigns.Create.State Page.Campaigns.Create.Msg e
+createCampaignPage =
+    updatePage (CampaignsPage << Campaigns.CreateCampaignPage) (CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
+
+
+manageNumbersPage : UpdatePage Page.Campaigns.Numbers.State Page.Campaigns.Numbers.Msg e
+manageNumbersPage =
+    updatePage (CampaignsPage << Campaigns.ManageNumbersPage) (CampaignsPageMsg << Campaigns.ManageNumbersPageMsg)
+
+
+routingPage : UpdatePage Page.Campaigns.Routing.State Page.Campaigns.Routing.Msg e
+routingPage =
+    updatePage (CampaignsPage << Campaigns.RoutingPage) (CampaignsPageMsg << Campaigns.RoutingPageMsg)
+
+
+audioArchivePage : UpdatePage Page.Content.Audio.Archive.State Page.Content.Audio.Archive.Msg e
+audioArchivePage =
+    updatePage (ContentPage << Content.AudioArchivePage) (ContentPageMsg << Content.AudioArchivePageMsg)
+
+
+uploadAudioPage : UpdatePage Page.Content.Audio.Upload.State Page.Content.Audio.Upload.Msg e
+uploadAudioPage =
+    updatePage (ContentPage << Content.UploadAudioPage) (ContentPageMsg << Content.UploadAudioPageMsg)
+
+
+createMessagePage : UpdatePage Page.Content.Text.Create.State Page.Content.Text.Create.Msg e
+createMessagePage =
+    updatePage (ContentPage << Content.CreateTextPage) (ContentPageMsg << Content.CreateTextPageMsg)
+
+
+messageArchivePage : UpdatePage Page.Content.Text.Archive.State Page.Content.Text.Archive.Msg e
+messageArchivePage =
+    updatePage (ContentPage << Content.TextArchivePage) (ContentPageMsg << Content.TextArchivePageMsg)
+
+
+createProjectPage : UpdatePage Page.Projects.Create.State Page.Projects.Create.Msg e
+createProjectPage =
+    updatePage (ProjectsPage << Projects.CreateProjectPage) (ProjectsPageMsg << Projects.CreateProjectPageMsg)
+
+
+selectProjectPage : UpdatePage Page.Projects.Select.State Page.Projects.Select.Msg e
+selectProjectPage =
+    updatePage (ProjectsPage << Projects.SelectProjectPage) (ProjectsPageMsg << Projects.SelectProjectPageMsg)
+
+
+projectSettingsPage : UpdatePage Page.Projects.Settings.State Page.Projects.Settings.Msg e
+projectSettingsPage =
+    updatePage (ProjectsPage << Projects.ProjectSettingsPage) (ProjectsPageMsg << Projects.ProjectSettingsPageMsg)
+
+
+analyticsPage : UpdatePage Page.Results.Analytics.State Page.Results.Analytics.Msg e
+analyticsPage =
+    updatePage (ResultsPage << Results.AnalyticsPage) (ResultsPageMsg << Results.AnalyticsPageMsg)
+
+
+answersPage : UpdatePage Page.Results.Answers.State Page.Results.Answers.Msg e
+answersPage =
+    updatePage (ResultsPage << Results.AnswersPage) (ResultsPageMsg << Results.AnswersPageMsg)
+
+
+costPage : UpdatePage Page.Results.Cost.State Page.Results.Cost.Msg e
+costPage =
+    updatePage (ResultsPage << Results.CostPage) (ResultsPageMsg << Results.CostPageMsg)
+
+
+pollResultsPage : UpdatePage Page.Results.Polls.State Page.Results.Polls.Msg e
+pollResultsPage =
+    updatePage (ResultsPage << Results.PollResultsPage) (ResultsPageMsg << Results.PollResultsPageMsg)
+
+
+loginPage : UpdatePage Page.User.Login.State Page.User.Login.Msg e
+loginPage =
+    updatePage (UserPage << User.LoginPage) (UserPageMsg << User.LoginPageMsg)
+
+
+registerPage : UpdatePage Page.User.Register.State Page.User.Register.Msg e
+registerPage =
+    updatePage (UserPage << User.RegisterPage) (UserPageMsg << User.RegisterPageMsg)
+
+
+profilePage : UpdatePage Page.User.Profile.State Page.User.Profile.Msg e
+profilePage =
+    updatePage (UserPage << User.ProfilePage) (UserPageMsg << User.ProfilePageMsg)
+
+
+resetPasswordPage : UpdatePage Page.User.ResetPassword.State Page.User.ResetPassword.Msg e
+resetPasswordPage =
+    updatePage (UserPage << User.ResetPasswordPage) (UserPageMsg << User.ResetPasswordPageMsg)
+
+
+update : { onAuthResponse : Maybe Session -> a, onProjectSelected : Project -> a } -> Msg -> Page -> Update Page Msg a
+update { onAuthResponse, onProjectSelected } msg page =
     case ( page, msg ) of
         ( NotFoundPage, _ ) ->
             save page
@@ -229,29 +371,19 @@ update { onAuthResponse, onProjectSelected } msg toMsg page =
         ( MainPage mainPage, MainPageMsg mainPageMsg ) ->
             case ( mainPage, mainPageMsg ) of
                 ( Main.Dashboard dashboardState, Main.DashboardMsg dashboardMsg ) ->
-                    dashboardState
-                        |> Page.Main.Dashboard.update dashboardMsg (toMsg << MainPageMsg << Main.DashboardMsg)
-                        |> Update.Deep.map (MainPage << Main.Dashboard)
+                    mainDashboard (Page.Main.Dashboard.update dashboardMsg dashboardState)
 
                 ( Main.AppsPage appsPageState, Main.AppsPageMsg appsPageMsg ) ->
-                    appsPageState
-                        |> Page.Main.Apps.update appsPageMsg (toMsg << MainPageMsg << Main.AppsPageMsg)
-                        |> Update.Deep.map (MainPage << Main.AppsPage)
+                    appsPage (Page.Main.Apps.update appsPageMsg appsPageState)
 
                 ( Main.AudiencePage audiencePageState, Main.AudiencePageMsg audiencePageMsg ) ->
-                    audiencePageState
-                        |> Page.Main.Audience.update audiencePageMsg (toMsg << MainPageMsg << Main.AudiencePageMsg)
-                        |> Update.Deep.map (MainPage << Main.AudiencePage)
+                    audiencePage (Page.Main.Audience.update audiencePageMsg audiencePageState)
 
                 ( Main.ListenerAudioPage listenerAudioPageState, Main.ListenerAudioPageMsg listenerAudioPageMsg ) ->
-                    listenerAudioPageState
-                        |> Page.Main.ListenerAudio.update listenerAudioPageMsg (toMsg << MainPageMsg << Main.ListenerAudioPageMsg)
-                        |> Update.Deep.map (MainPage << Main.ListenerAudioPage)
+                    listenerAudioPage (Page.Main.ListenerAudio.update listenerAudioPageMsg listenerAudioPageState)
 
                 ( Main.NotificationsPage notificationsPageState, Main.NotificationsPageMsg notificationsPageMsg ) ->
-                    notificationsPageState
-                        |> Page.Main.Notifications.update notificationsPageMsg (toMsg << MainPageMsg << Main.NotificationsPageMsg)
-                        |> Update.Deep.map (MainPage << Main.NotificationsPage)
+                    notificationsPage (Page.Main.Notifications.update notificationsPageMsg notificationsPageState)
 
                 _ ->
                     save page
@@ -259,59 +391,36 @@ update { onAuthResponse, onProjectSelected } msg toMsg page =
         ( UserPage userPage, UserPageMsg userPageMsg ) ->
             case ( userPage, userPageMsg ) of
                 ( User.LoginPage loginPageState, User.LoginPageMsg loginPageMsg ) ->
-                    loginPageState
-                        |> Page.User.Login.update { onAuthResponse = onAuthResponse } loginPageMsg (toMsg << UserPageMsg << User.LoginPageMsg)
-                        |> Update.Deep.map (UserPage << User.LoginPage)
+                    loginPage (Page.User.Login.update { onAuthResponse = applyCallback << onAuthResponse } loginPageMsg loginPageState)
 
                 ( User.RegisterPage registerPageState, User.RegisterPageMsg registerPageMsg ) ->
-                    registerPageState
-                        |> Page.User.Register.update registerPageMsg (toMsg << UserPageMsg << User.RegisterPageMsg)
-                        |> Update.Deep.map (UserPage << User.RegisterPage)
+                    registerPage (Page.User.Register.update registerPageMsg registerPageState)
 
                 ( User.ProfilePage profilePageState, User.ProfilePageMsg profilePageMsg ) ->
-                    profilePageState
-                        |> Page.User.Profile.update profilePageMsg (toMsg << UserPageMsg << User.ProfilePageMsg)
-                        |> Update.Deep.map (UserPage << User.ProfilePage)
+                    profilePage (Page.User.Profile.update profilePageMsg profilePageState)
 
                 ( User.ResetPasswordPage resetPasswordPageState, User.ResetPasswordPageMsg resetPasswordPageMsg ) ->
-                    resetPasswordPageState
-                        |> Page.User.ResetPassword.update resetPasswordPageMsg (toMsg << UserPageMsg << User.ResetPasswordPageMsg)
-                        |> Update.Deep.map (UserPage << User.ResetPasswordPage)
+                    resetPasswordPage (Page.User.ResetPassword.update resetPasswordPageMsg resetPasswordPageState)
 
                 _ ->
                     save page
 
         ( CampaignsPage campaignsPage, CampaignsPageMsg campaignsPageMsg ) ->
             case ( campaignsPage, campaignsPageMsg ) of
-                ( Campaigns.ActiveCampaignsPage activeCampaignsPageState, Campaigns.ActiveCampaignsPageMsg activeCampaignsPageMsg ) ->
-                    activeCampaignsPageState
-                        |> Page.Campaigns.Active.update activeCampaignsPageMsg (toMsg << CampaignsPageMsg << Campaigns.ActiveCampaignsPageMsg)
-                        |> Update.Deep.map (CampaignsPage << Campaigns.ActiveCampaignsPage)
+                ( Campaigns.CampaignsCollectionPage campaignsCollectionPageState, Campaigns.CampaignsCollectionPageMsg campaignsCollectionPageMsg ) ->
+                    campaignsCollectionPage (Page.Campaigns.Collection.update campaignsCollectionPageMsg campaignsCollectionPageState)
 
-                ( Campaigns.InactiveCampaignsPage inactiveCampaignsPageState, Campaigns.InactiveCampaignsPageMsg inactiveCampaignsPageMsg ) ->
-                    inactiveCampaignsPageState
-                        |> Page.Campaigns.Inactive.update inactiveCampaignsPageMsg (toMsg << CampaignsPageMsg << Campaigns.InactiveCampaignsPageMsg)
-                        |> Update.Deep.map (CampaignsPage << Campaigns.InactiveCampaignsPage)
-
-                ( Campaigns.AllCampaignsPage allCampaignsPageState, Campaigns.AllCampaignsPageMsg allCampaignsPageMsg ) ->
-                    allCampaignsPageState
-                        |> Page.Campaigns.All.update allCampaignsPageMsg (toMsg << CampaignsPageMsg << Campaigns.AllCampaignsPageMsg)
-                        |> Update.Deep.map (CampaignsPage << Campaigns.AllCampaignsPage)
+                ( Campaigns.ShowCampaignPage showCampaignPageState, Campaigns.ShowCampaignPageMsg showCampaignPageMsg ) ->
+                    showCampaignPage (Page.Campaigns.Show.update showCampaignPageMsg showCampaignPageState)
 
                 ( Campaigns.CreateCampaignPage createCampaignPageState, Campaigns.CreateCampaignPageMsg createCampaignPageMsg ) ->
-                    createCampaignPageState
-                        |> Page.Campaigns.Create.update createCampaignPageMsg (toMsg << CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
-                        |> Update.Deep.map (CampaignsPage << Campaigns.CreateCampaignPage)
+                    createCampaignPage (Page.Campaigns.Create.update createCampaignPageMsg createCampaignPageState)
 
                 ( Campaigns.ManageNumbersPage manageNumbersPageState, Campaigns.ManageNumbersPageMsg manageNumbersPageMsg ) ->
-                    manageNumbersPageState
-                        |> Page.Campaigns.Numbers.update manageNumbersPageMsg (toMsg << CampaignsPageMsg << Campaigns.ManageNumbersPageMsg)
-                        |> Update.Deep.map (CampaignsPage << Campaigns.ManageNumbersPage)
+                    manageNumbersPage (Page.Campaigns.Numbers.update manageNumbersPageMsg manageNumbersPageState)
 
                 ( Campaigns.RoutingPage routingPageState, Campaigns.RoutingPageMsg routingPageMsg ) ->
-                    routingPageState
-                        |> Page.Campaigns.Routing.update routingPageMsg (toMsg << CampaignsPageMsg << Campaigns.RoutingPageMsg)
-                        |> Update.Deep.map (CampaignsPage << Campaigns.RoutingPage)
+                    routingPage (Page.Campaigns.Routing.update routingPageMsg routingPageState)
 
                 _ ->
                     save page
@@ -319,24 +428,16 @@ update { onAuthResponse, onProjectSelected } msg toMsg page =
         ( ContentPage contentPage, ContentPageMsg contentPageMsg ) ->
             case ( contentPage, contentPageMsg ) of
                 ( Content.AudioArchivePage audioArchivePageState, Content.AudioArchivePageMsg audioArchivePageMsg ) ->
-                    audioArchivePageState
-                        |> Page.Content.Audio.Archive.update audioArchivePageMsg (toMsg << ContentPageMsg << Content.AudioArchivePageMsg)
-                        |> Update.Deep.map (ContentPage << Content.AudioArchivePage)
+                    audioArchivePage (Page.Content.Audio.Archive.update audioArchivePageMsg audioArchivePageState)
 
                 ( Content.UploadAudioPage uploadAudioPageState, Content.UploadAudioPageMsg uploadAudioPageMsg ) ->
-                    uploadAudioPageState
-                        |> Page.Content.Audio.Upload.update uploadAudioPageMsg (toMsg << ContentPageMsg << Content.UploadAudioPageMsg)
-                        |> Update.Deep.map (ContentPage << Content.UploadAudioPage)
+                    uploadAudioPage (Page.Content.Audio.Upload.update uploadAudioPageMsg uploadAudioPageState)
 
-                ( Content.TextArchivePage textArchivePageState, Content.TextArchivePageMsg textArchivePageMsg ) ->
-                    textArchivePageState
-                        |> Page.Content.Text.Archive.update textArchivePageMsg (toMsg << ContentPageMsg << Content.TextArchivePageMsg)
-                        |> Update.Deep.map (ContentPage << Content.TextArchivePage)
+                ( Content.TextArchivePage messageArchivePageState, Content.TextArchivePageMsg messageArchivePageMsg ) ->
+                    messageArchivePage (Page.Content.Text.Archive.update messageArchivePageMsg messageArchivePageState)
 
-                ( Content.CreateTextPage createTextPageState, Content.CreateTextPageMsg createTextPageMsg ) ->
-                    createTextPageState
-                        |> Page.Content.Text.Create.update createTextPageMsg (toMsg << ContentPageMsg << Content.CreateTextPageMsg)
-                        |> Update.Deep.map (ContentPage << Content.CreateTextPage)
+                ( Content.CreateTextPage createMessagePageState, Content.CreateTextPageMsg createMessagePageMsg ) ->
+                    createMessagePage (Page.Content.Text.Create.update createMessagePageMsg createMessagePageState)
 
                 _ ->
                     save page
@@ -344,19 +445,13 @@ update { onAuthResponse, onProjectSelected } msg toMsg page =
         ( ProjectsPage projectsPage, ProjectsPageMsg projectsPageMsg ) ->
             case ( projectsPage, projectsPageMsg ) of
                 ( Projects.CreateProjectPage createProjectPageState, Projects.CreateProjectPageMsg createProjectPageMsg ) ->
-                    createProjectPageState
-                        |> Page.Projects.Create.update createProjectPageMsg (toMsg << ProjectsPageMsg << Projects.CreateProjectPageMsg)
-                        |> Update.Deep.map (ProjectsPage << Projects.CreateProjectPage)
+                    createProjectPage (Page.Projects.Create.update createProjectPageMsg createProjectPageState)
 
                 ( Projects.SelectProjectPage selectProjectPageState, Projects.SelectProjectPageMsg selectProjectPageMsg ) ->
-                    selectProjectPageState
-                        |> Page.Projects.Select.update { onProjectSelected = onProjectSelected } selectProjectPageMsg (toMsg << ProjectsPageMsg << Projects.SelectProjectPageMsg)
-                        |> Update.Deep.map (ProjectsPage << Projects.SelectProjectPage)
+                    selectProjectPage (Page.Projects.Select.update { onProjectSelected = applyCallback << onProjectSelected } selectProjectPageMsg selectProjectPageState)
 
                 ( Projects.ProjectSettingsPage projectSettingsPageState, Projects.ProjectSettingsPageMsg projectSettingsPageMsg ) ->
-                    projectSettingsPageState
-                        |> Page.Projects.Settings.update projectSettingsPageMsg (toMsg << ProjectsPageMsg << Projects.ProjectSettingsPageMsg)
-                        |> Update.Deep.map (ProjectsPage << Projects.ProjectSettingsPage)
+                    projectSettingsPage (Page.Projects.Settings.update projectSettingsPageMsg projectSettingsPageState)
 
                 _ ->
                     save page
@@ -364,24 +459,16 @@ update { onAuthResponse, onProjectSelected } msg toMsg page =
         ( ResultsPage resultsPage, ResultsPageMsg resultsPageMsg ) ->
             case ( resultsPage, resultsPageMsg ) of
                 ( Results.AnalyticsPage analyticsPageState, Results.AnalyticsPageMsg analyticsPageMsg ) ->
-                    analyticsPageState
-                        |> Page.Results.Analytics.update analyticsPageMsg (toMsg << ResultsPageMsg << Results.AnalyticsPageMsg)
-                        |> Update.Deep.map (ResultsPage << Results.AnalyticsPage)
+                    analyticsPage (Page.Results.Analytics.update analyticsPageMsg analyticsPageState)
 
                 ( Results.AnswersPage answersPageState, Results.AnswersPageMsg answersPageMsg ) ->
-                    answersPageState
-                        |> Page.Results.Answers.update answersPageMsg (toMsg << ResultsPageMsg << Results.AnswersPageMsg)
-                        |> Update.Deep.map (ResultsPage << Results.AnswersPage)
+                    answersPage (Page.Results.Answers.update answersPageMsg answersPageState)
 
                 ( Results.PollResultsPage pollResultsPageState, Results.PollResultsPageMsg pollResultsPageMsg ) ->
-                    pollResultsPageState
-                        |> Page.Results.Polls.update pollResultsPageMsg (toMsg << ResultsPageMsg << Results.PollResultsPageMsg)
-                        |> Update.Deep.map (ResultsPage << Results.PollResultsPage)
+                    pollResultsPage (Page.Results.Polls.update pollResultsPageMsg pollResultsPageState)
 
                 ( Results.CostPage costPageState, Results.CostPageMsg costPageMsg ) ->
-                    costPageState
-                        |> Page.Results.Cost.update costPageMsg (toMsg << ResultsPageMsg << Results.CostPageMsg)
-                        |> Update.Deep.map (ResultsPage << Results.CostPage)
+                    costPage (Page.Results.Cost.update costPageMsg costPageState)
 
                 _ ->
                     save page
@@ -429,14 +516,11 @@ subscriptions page toMsg =
 
         CampaignsPage campaignsPage ->
             case campaignsPage of
-                Campaigns.ActiveCampaignsPage activeCampaignsPageState ->
-                    Page.Campaigns.Active.subscriptions activeCampaignsPageState (toMsg << CampaignsPageMsg << Campaigns.ActiveCampaignsPageMsg)
+                Campaigns.CampaignsCollectionPage campaignsCollectionPageState ->
+                    Page.Campaigns.Collection.subscriptions campaignsCollectionPageState (toMsg << CampaignsPageMsg << Campaigns.CampaignsCollectionPageMsg)
 
-                Campaigns.InactiveCampaignsPage inactiveCampaignsPageState ->
-                    Page.Campaigns.Inactive.subscriptions inactiveCampaignsPageState (toMsg << CampaignsPageMsg << Campaigns.InactiveCampaignsPageMsg)
-
-                Campaigns.AllCampaignsPage allCampaignsPageState ->
-                    Page.Campaigns.All.subscriptions allCampaignsPageState (toMsg << CampaignsPageMsg << Campaigns.AllCampaignsPageMsg)
+                Campaigns.ShowCampaignPage showCampaignPageState ->
+                    Page.Campaigns.Show.subscriptions showCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.ShowCampaignPageMsg)
 
                 Campaigns.CreateCampaignPage createCampaignPageState ->
                     Page.Campaigns.Create.subscriptions createCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
@@ -455,11 +539,11 @@ subscriptions page toMsg =
                 Content.UploadAudioPage uploadAudioPageState ->
                     Page.Content.Audio.Upload.subscriptions uploadAudioPageState (toMsg << ContentPageMsg << Content.UploadAudioPageMsg)
 
-                Content.TextArchivePage textArchivePageState ->
-                    Page.Content.Text.Archive.subscriptions textArchivePageState (toMsg << ContentPageMsg << Content.TextArchivePageMsg)
+                Content.TextArchivePage messageArchivePageState ->
+                    Page.Content.Text.Archive.subscriptions messageArchivePageState (toMsg << ContentPageMsg << Content.TextArchivePageMsg)
 
-                Content.CreateTextPage createTextPageState ->
-                    Page.Content.Text.Create.subscriptions createTextPageState (toMsg << ContentPageMsg << Content.CreateTextPageMsg)
+                Content.CreateTextPage createMessagePageState ->
+                    Page.Content.Text.Create.subscriptions createMessagePageState (toMsg << ContentPageMsg << Content.CreateTextPageMsg)
 
         ProjectsPage projectsPage ->
             case projectsPage of
@@ -487,170 +571,131 @@ subscriptions page toMsg =
                     Page.Results.Cost.subscriptions costPageState (toMsg << ResultsPageMsg << Results.CostPageMsg)
 
 
-fromRoute : Route -> Update Page Msg a
-fromRoute route =
+fromRoute : Route -> Url -> Update Page Msg a
+fromRoute route url =
     case route of
         Logout ->
             save NotFoundPage
 
         ResetPassword ->
-            Page.User.ResetPassword.init User.ResetPasswordPageMsg
-                |> Update.Deep.map (UserPage << User.ResetPasswordPage)
-                |> mapCmd UserPageMsg
+            resetPasswordPage Page.User.ResetPassword.init
 
         Login ->
-            Page.User.Login.init User.LoginPageMsg
-                |> Update.Deep.map (UserPage << User.LoginPage)
-                |> mapCmd UserPageMsg
+            loginPage Page.User.Login.init
 
         Register ->
-            Page.User.Register.init User.RegisterPageMsg
-                |> Update.Deep.map (UserPage << User.RegisterPage)
-                |> mapCmd UserPageMsg
+            registerPage Page.User.Register.init
 
         Profile ->
-            Page.User.Profile.init User.ProfilePageMsg
-                |> Update.Deep.map (UserPage << User.ProfilePage)
-                |> mapCmd UserPageMsg
+            profilePage Page.User.Profile.init
 
         Settings ->
-            Page.Projects.Settings.init Projects.ProjectSettingsPageMsg
-                |> Update.Deep.map (ProjectsPage << Projects.ProjectSettingsPage)
-                |> mapCmd ProjectsPageMsg
+            projectSettingsPage Page.Projects.Settings.init
 
         Projects ->
-            Page.Projects.Select.init Projects.SelectProjectPageMsg
-                |> Update.Deep.map (ProjectsPage << Projects.SelectProjectPage)
-                |> mapCmd ProjectsPageMsg
+            selectProjectPage Page.Projects.Select.init
 
         NewProject ->
-            Page.Projects.Create.init Projects.CreateProjectPageMsg
-                |> Update.Deep.map (ProjectsPage << Projects.CreateProjectPage)
-                |> mapCmd ProjectsPageMsg
+            createProjectPage Page.Projects.Create.init
 
         Home ->
-            Page.Main.Dashboard.init Main.DashboardMsg
-                |> Update.Deep.map (MainPage << Main.Dashboard)
-                |> mapCmd MainPageMsg
+            mainDashboard Page.Main.Dashboard.init
 
         Notifications ->
-            Page.Main.Notifications.init Main.NotificationsPageMsg
-                |> Update.Deep.map (MainPage << Main.NotificationsPage)
-                |> mapCmd MainPageMsg
+            notificationsPage Page.Main.Notifications.init
 
-        ActiveCampaigns ->
-            Page.Campaigns.Active.init Campaigns.ActiveCampaignsPageMsg
-                |> Update.Deep.map (CampaignsPage << Campaigns.ActiveCampaignsPage)
-                |> mapCmd CampaignsPageMsg
+        CampaignsCollection ->
+            campaignsCollectionPage (Page.Campaigns.Collection.init url)
 
-        InactiveCampaigns ->
-            Page.Campaigns.Inactive.init Campaigns.InactiveCampaignsPageMsg
-                |> Update.Deep.map (CampaignsPage << Campaigns.InactiveCampaignsPage)
-                |> mapCmd CampaignsPageMsg
-
-        AllCampaigns ->
-            Page.Campaigns.All.init Campaigns.AllCampaignsPageMsg
-                |> Update.Deep.map (CampaignsPage << Campaigns.AllCampaignsPage)
-                |> mapCmd CampaignsPageMsg
+        ShowCampaign id ->
+            showCampaignPage Page.Campaigns.Show.init
 
         NewCampaign ->
-            Page.Campaigns.Create.init Campaigns.CreateCampaignPageMsg
-                |> Update.Deep.map (CampaignsPage << Campaigns.CreateCampaignPage)
-                |> mapCmd CampaignsPageMsg
+            createCampaignPage Page.Campaigns.Create.init
 
         ManageNumbers ->
-            Page.Campaigns.Numbers.init Campaigns.ManageNumbersPageMsg
-                |> Update.Deep.map (CampaignsPage << Campaigns.ManageNumbersPage)
-                |> mapCmd CampaignsPageMsg
+            manageNumbersPage Page.Campaigns.Numbers.init
 
         Routing ->
-            Page.Campaigns.Routing.init Campaigns.RoutingPageMsg
-                |> Update.Deep.map (CampaignsPage << Campaigns.RoutingPage)
-                |> mapCmd CampaignsPageMsg
+            routingPage Page.Campaigns.Routing.init
 
         Audience ->
-            Page.Main.Audience.init Main.AudiencePageMsg
-                |> Update.Deep.map (MainPage << Main.AudiencePage)
-                |> mapCmd MainPageMsg
+            audiencePage Page.Main.Audience.init
 
         AudioArchive ->
-            Page.Content.Audio.Archive.init Content.AudioArchivePageMsg
-                |> Update.Deep.map (ContentPage << Content.AudioArchivePage)
-                |> mapCmd ContentPageMsg
+            audioArchivePage Page.Content.Audio.Archive.init
 
         UploadAudio ->
-            Page.Content.Audio.Upload.init Content.UploadAudioPageMsg
-                |> Update.Deep.map (ContentPage << Content.UploadAudioPage)
-                |> mapCmd ContentPageMsg
+            uploadAudioPage Page.Content.Audio.Upload.init
 
         MessageArchive ->
-            Page.Content.Text.Archive.init Content.TextArchivePageMsg
-                |> Update.Deep.map (ContentPage << Content.TextArchivePage)
-                |> mapCmd ContentPageMsg
+            messageArchivePage Page.Content.Text.Archive.init
 
         CreateMessage ->
-            Page.Content.Text.Create.init Content.CreateTextPageMsg
-                |> Update.Deep.map (ContentPage << Content.CreateTextPage)
-                |> mapCmd ContentPageMsg
+            createMessagePage Page.Content.Text.Create.init
 
         PollResults ->
-            Page.Results.Polls.init Results.PollResultsPageMsg
-                |> Update.Deep.map (ResultsPage << Results.PollResultsPage)
-                |> mapCmd ResultsPageMsg
+            pollResultsPage Page.Results.Polls.init
 
         Answers ->
-            Page.Results.Answers.init Results.AnswersPageMsg
-                |> Update.Deep.map (ResultsPage << Results.AnswersPage)
-                |> mapCmd ResultsPageMsg
+            answersPage Page.Results.Answers.init
 
         Cost ->
-            Page.Results.Cost.init Results.CostPageMsg
-                |> Update.Deep.map (ResultsPage << Results.CostPage)
-                |> mapCmd ResultsPageMsg
+            costPage Page.Results.Cost.init
 
         Analytics ->
-            Page.Results.Analytics.init Results.AnalyticsPageMsg
-                |> Update.Deep.map (ResultsPage << Results.AnalyticsPage)
-                |> mapCmd ResultsPageMsg
+            analyticsPage Page.Results.Analytics.init
 
         ListenerAudio ->
-            Page.Main.ListenerAudio.init Main.ListenerAudioPageMsg
-                |> Update.Deep.map (MainPage << Main.ListenerAudioPage)
-                |> mapCmd MainPageMsg
+            listenerAudioPage Page.Main.ListenerAudio.init
 
         Apps ->
-            Page.Main.Apps.init Main.AppsPageMsg
-                |> Update.Deep.map (MainPage << Main.AppsPage)
-                |> mapCmd MainPageMsg
+            appsPage Page.Main.Apps.init
 
 
-view : Page -> Maybe Session -> Ui.State -> (Msg -> msg) -> (Ui.Msg -> msg) -> Html msg
-view page maybeSession ui toMsg toUiMsg =
+type alias UiLayout msg =
+    Ui.LayoutConfig msg -> List (Html msg) -> Html msg
+
+
+type alias DashboardLayout msg =
+    User -> Project -> String -> List (Html msg) -> Html msg
+
+
+view : Page -> Maybe Session -> UiLayout msg -> DashboardLayout msg -> (Msg -> msg) -> Html msg
+view page maybeSession uiLayout dashboardLayout toMsg =
     case ( page, maybeSession ) of
         ( NotFoundPage, _ ) ->
-            text "not found"
+            uiLayout
+                { colAttrs = [ Col.md10 ], bgClass = "bg-primary" }
+                [ Grid.row []
+                    [ Grid.col
+                        [ Col.lg12
+                        ]
+                        [ div [ Spacing.p5 ]
+                            [ h2
+                                [ Spacing.mb4
+                                , class "text-gray-900 text-center"
+                                ]
+                                [ text "Page not found" ]
+                            ]
+                        ]
+                    ]
+                ]
 
-        -- TODO
         ( UserPage (User.LoginPage loginPageState), Nothing ) ->
-            Ui.layout
-                ui
-                toUiMsg
+            uiLayout
                 { colAttrs = [ Col.md10 ], bgClass = "bg-primary" }
                 [ Page.User.Login.view loginPageState (toMsg << UserPageMsg << User.LoginPageMsg)
                 ]
 
         ( UserPage (User.RegisterPage registerPageState), Nothing ) ->
-            Ui.layout
-                ui
-                toUiMsg
+            uiLayout
                 { colAttrs = [ Col.lg8, Col.xl6 ], bgClass = "bg-success" }
                 [ Page.User.Register.view registerPageState (toMsg << UserPageMsg << User.RegisterPageMsg)
                 ]
 
         ( UserPage (User.ResetPasswordPage resetPasswordPageState), Nothing ) ->
-            Ui.layout
-                ui
-                toUiMsg
+            uiLayout
                 { colAttrs = [ Col.lg6, Col.xl5 ], bgClass = "bg-primary" }
                 [ Page.User.ResetPassword.view resetPasswordPageState (toMsg << UserPageMsg << User.ResetPasswordPageMsg)
                 ]
@@ -658,13 +703,13 @@ view page maybeSession ui toMsg toUiMsg =
         ( _, Nothing ) ->
             text ""
 
-        ( _, Just session ) ->
+        ( _, Just ({ user, locale } as session) ) ->
             case session.project of
                 Nothing ->
-                    Ui.layout
-                        ui
-                        toUiMsg
-                        { colAttrs = [ Col.md10 ], bgClass = "bg-success" }
+                    uiLayout
+                        { colAttrs = [ Col.md10 ]
+                        , bgClass = "bg-success"
+                        }
                         [ case page of
                             ProjectsPage (Projects.CreateProjectPage createProjectPageState) ->
                                 Page.Projects.Create.standaloneView createProjectPageState (toMsg << ProjectsPageMsg << Projects.CreateProjectPageMsg)
@@ -680,12 +725,9 @@ view page maybeSession ui toMsg toUiMsg =
                         ]
 
                 Just project ->
-                    Ui.dashboardLayout
-                        ui
-                        session.user
+                    dashboardLayout user
                         project
-                        session.locale
-                        toUiMsg
+                        locale
                         [ case page of
                             MainPage mainPage ->
                                 case mainPage of
@@ -714,17 +756,14 @@ view page maybeSession ui toMsg toUiMsg =
 
                             CampaignsPage campaignsPage ->
                                 case campaignsPage of
-                                    Campaigns.ActiveCampaignsPage activeCampaignsPageState ->
-                                        Page.Campaigns.Active.view activeCampaignsPageState (toMsg << CampaignsPageMsg << Campaigns.ActiveCampaignsPageMsg)
-
-                                    Campaigns.InactiveCampaignsPage inactiveCampaignsPageState ->
-                                        Page.Campaigns.Inactive.view inactiveCampaignsPageState (toMsg << CampaignsPageMsg << Campaigns.InactiveCampaignsPageMsg)
-
-                                    Campaigns.AllCampaignsPage allCampaignsPageState ->
-                                        Page.Campaigns.All.view allCampaignsPageState (toMsg << CampaignsPageMsg << Campaigns.AllCampaignsPageMsg)
+                                    Campaigns.CampaignsCollectionPage campaignsCollectionPageState ->
+                                        Page.Campaigns.Collection.view campaignsCollectionPageState (toMsg << CampaignsPageMsg << Campaigns.CampaignsCollectionPageMsg)
 
                                     Campaigns.CreateCampaignPage createCampaignPageState ->
                                         Page.Campaigns.Create.view createCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
+
+                                    Campaigns.ShowCampaignPage showCampaignPageState ->
+                                        Page.Campaigns.Show.view showCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.ShowCampaignPageMsg)
 
                                     Campaigns.ManageNumbersPage manageNumbersPageState ->
                                         Page.Campaigns.Numbers.view manageNumbersPageState (toMsg << CampaignsPageMsg << Campaigns.ManageNumbersPageMsg)
@@ -740,11 +779,11 @@ view page maybeSession ui toMsg toUiMsg =
                                     Content.UploadAudioPage uploadAudioPageState ->
                                         Page.Content.Audio.Upload.view uploadAudioPageState (toMsg << ContentPageMsg << Content.UploadAudioPageMsg)
 
-                                    Content.TextArchivePage textArchivePageState ->
-                                        Page.Content.Text.Archive.view textArchivePageState (toMsg << ContentPageMsg << Content.TextArchivePageMsg)
+                                    Content.TextArchivePage messageArchivePageState ->
+                                        Page.Content.Text.Archive.view messageArchivePageState (toMsg << ContentPageMsg << Content.TextArchivePageMsg)
 
-                                    Content.CreateTextPage createTextPageState ->
-                                        Page.Content.Text.Create.view createTextPageState (toMsg << ContentPageMsg << Content.CreateTextPageMsg)
+                                    Content.CreateTextPage createMessagePageState ->
+                                        Page.Content.Text.Create.view createMessagePageState (toMsg << ContentPageMsg << Content.CreateTextPageMsg)
 
                             ProjectsPage projectsPage ->
                                 case projectsPage of
@@ -815,16 +854,13 @@ title page =
 
         CampaignsPage campaignsPage ->
             case campaignsPage of
-                Campaigns.ActiveCampaignsPage activeCampaignsPageState ->
-                    ""
-
-                Campaigns.InactiveCampaignsPage inactiveCampaignsPageState ->
-                    ""
-
-                Campaigns.AllCampaignsPage allCampaignsPageState ->
+                Campaigns.CampaignsCollectionPage campaignsCollectionPageState ->
                     ""
 
                 Campaigns.CreateCampaignPage createCampaignPageState ->
+                    ""
+
+                Campaigns.ShowCampaignPage showCampaignPageState ->
                     ""
 
                 Campaigns.ManageNumbersPage manageNumbersPageState ->
@@ -841,10 +877,10 @@ title page =
                 Content.UploadAudioPage uploadAudioPageState ->
                     ""
 
-                Content.TextArchivePage textArchivePageState ->
+                Content.TextArchivePage messageArchivePageState ->
                     ""
 
-                Content.CreateTextPage createTextPageState ->
+                Content.CreateTextPage createMessagePageState ->
                     ""
 
         ProjectsPage projectsPage ->

@@ -28,18 +28,18 @@ type alias State =
     }
 
 
-inApi : In State (Api.Model Session) msg a
+inApi : Wrap State Msg (Api.Model Session) (Api.Msg Session) a
 inApi =
-    inState { get = .api, set = \state api -> { state | api = api } }
+    Api.component ApiMsg
 
 
-inForm : In State (Form.Model Never Form.User.Login.Fields) msg a
+inForm : Wrap State Msg (Form.Model Never Form.User.Login.Fields) Form.Msg a
 inForm =
-    inState { get = .formModel, set = \state form -> { state | formModel = form } }
+    Form.component FormMsg
 
 
-init : (Msg -> msg) -> Update State msg a
-init toMsg =
+init : Update State msg a
+init =
     let
         api =
             Api.init
@@ -51,20 +51,19 @@ init toMsg =
     save State
         |> andMap api
         |> andMap (Form.init [] Form.User.Login.validate)
-        |> mapCmd toMsg
 
 
-handleSubmit : (Msg -> msg) -> Form.User.Login.Fields -> State -> Update State msg a
-handleSubmit toMsg form =
+handleSubmit : Form.User.Login.Fields -> State -> Update State Msg a
+handleSubmit form =
     let
         json =
             form |> Form.User.Login.toJson |> Http.jsonBody
     in
-    inApi (Api.sendRequest "" (Just json) (toMsg << ApiMsg))
+    inApi (Api.sendRequest "" (Just json))
 
 
-update : { onAuthResponse : Maybe Session -> a } -> Msg -> (Msg -> msg) -> State -> Update State msg a
-update { onAuthResponse } msg toMsg =
+update : { onAuthResponse : Maybe Session -> a } -> Msg -> State -> Update State Msg a
+update { onAuthResponse } msg =
     let
         handleApiResponse maybeSession =
             inForm (Form.reset [])
@@ -72,10 +71,10 @@ update { onAuthResponse } msg toMsg =
     in
     case msg of
         ApiMsg apiMsg ->
-            inApi (Api.update { onSuccess = Just >> handleApiResponse, onError = always (handleApiResponse Nothing) } apiMsg (toMsg << ApiMsg))
+            inApi (Api.update { onSuccess = Just >> handleApiResponse, onError = always (handleApiResponse Nothing) } apiMsg)
 
         FormMsg formMsg ->
-            inForm (Form.update { onSubmit = handleSubmit toMsg } formMsg)
+            inForm (Form.update { onSubmit = handleSubmit } formMsg)
 
 
 subscriptions : State -> (Msg -> msg) -> Sub msg

@@ -1,17 +1,17 @@
 module Page.Projects exposing (Msg(..), Page(..))
 
-import Page.Projects.Create as CreateProject
-import Page.Projects.Select as SelectProject
-import Page.Projects.Settings as ProjectSettings
+import Page.Projects.Create
+import Page.Projects.Select
+import Page.Projects.Settings
 
 
 type Msg
-    = CreateProjectPageMsg CreateProject.Msg
-    | SelectProjectPageMsg SelectProject.Msg
-    | ProjectSettingsPageMsg ProjectSettings.Msg
+    = CreateProjectPageMsg Page.Projects.Create.Msg
+    | SelectProjectPageMsg Page.Projects.Select.Msg
+    | ProjectSettingsPageMsg Page.Projects.Settings.Msg
 
 
 type Page
-    = CreateProjectPage CreateProject.State
-    | SelectProjectPage SelectProject.State
-    | ProjectSettingsPage ProjectSettings.State
+    = CreateProjectPage Page.Projects.Create.State
+    | SelectProjectPage Page.Projects.Select.State
+    | ProjectSettingsPage Page.Projects.Settings.State

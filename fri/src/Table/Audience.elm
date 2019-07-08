@@ -1,49 +1,32 @@
 module Table.Audience exposing (view)
 
 import Bootstrap.Table as Table
+import Data.Listener exposing (Listener)
+import Helpers.Table
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
 
-view : Html msg
-view =
-    div []
-        [ Table.table
+view : String -> List Listener -> Html msg
+view searchQuery listeners =
+    let
+        tableRow { id, name } =
+            Table.tr []
+                [ Table.td [] [ text (String.fromInt id) ]
+                , Table.td [] [ a [ href "#" ] [ Helpers.Table.highlightQuery searchQuery name ] ]
+                ]
+    in
+    if List.isEmpty listeners then
+        h6 [] [ text "Nothing to show" ]
+
+    else
+        Table.table
             { options = [ Table.bordered, Table.small ]
             , thead =
                 Table.simpleThead
-                    [ Table.th [] [ text "Name" ]
-                    , Table.th [] [ text "Status" ]
+                    [ Table.th [] [ text "Id" ]
+                    , Table.th [] [ text "Name" ]
                     ]
-            , tbody =
-                Table.tbody []
-                    [ Table.tr []
-                        [ Table.td [] [ a [ href "#" ] [ text "Hello" ] ]
-                        , Table.td [] [ text "Active" ]
-                        ]
-                    , Table.tr []
-                        [ Table.td [] [ a [ href "#" ] [ text "Hello" ] ]
-                        , Table.td [] [ text "Active" ]
-                        ]
-                    , Table.tr []
-                        [ Table.td [] [ a [ href "#" ] [ text "Hello" ] ]
-                        , Table.td [] [ text "Inactive" ]
-                        ]
-                    ]
+            , tbody = Table.tbody [] (List.map tableRow listeners)
             }
-        , nav []
-            [ ul [ class "pagination pagination-sm" ]
-                [ li [ class "page-item" ]
-                    [ a [ href "#", class "page-link" ] [ text "Previous" ] ]
-                , li [ class "page-item" ]
-                    [ a [ href "#", class "page-link" ] [ text "1" ] ]
-                , li [ class "page-item" ]
-                    [ a [ href "#", class "page-link" ] [ text "2" ] ]
-                , li [ class "page-item" ]
-                    [ a [ href "#", class "page-link" ] [ text "3" ] ]
-                , li [ class "page-item" ]
-                    [ a [ href "#", class "page-link" ] [ text "Next" ] ]
-                ]
-            ]
-        ]

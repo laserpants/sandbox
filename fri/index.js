@@ -32,6 +32,17 @@ if (app.ports && app.ports.clearSession) {
   });
 }
 
+function wsSearchResponse(collection, resource, prop, message) {
+  var filtered = collection.filter(function(item) {
+    return -1 !== item[prop].toLowerCase().indexOf(message.query.toLowerCase());
+  });
+  app.ports.websocketIn.send(JSON.stringify({
+    type: resource + '_search_response',
+    query: message.query,
+    results: filtered
+  }));
+}
+
 if (app.ports && app.ports.websocketOut && app.ports.websocketIn) {
   app.ports.websocketOut.subscribe(function(data) {
     var message = JSON.parse(data);
@@ -45,15 +56,18 @@ if (app.ports && app.ports.websocketOut && app.ports.websocketIn) {
         };
         app.ports.websocketIn.send(JSON.stringify(response));
       }, 300);
+    } else if ('listener_audio_search_query' === message.type) {
+      wsSearchResponse(api.listenerAudio, 'listener_audio', 'phoneNumber', message);
+    } else if ('text_content_search_query' === message.type) {
+      wsSearchResponse(api.textContent, 'text_content', 'title', message);
+    } else if ('audio_content_search_query' === message.type) {
+      wsSearchResponse(api.audioContent, 'audio_content', 'title', message);
     } else if ('projects_search_query' === message.type) {
-      var filtered = api.projects.filter(function(project) {
-        return -1 !== project.name.toLowerCase().indexOf(message.query.toLowerCase());
-      });
-      app.ports.websocketIn.send(JSON.stringify({
-        type: 'projects_search_response',
-        query: message.query,
-        results: filtered
-      }));
+      wsSearchResponse(api.projects, 'projects', 'name', message);
+    } else if ('campaigns_search_query' === message.type) {
+      wsSearchResponse(api.campaigns, 'campaigns', 'name', message);
+    } else if ('audience_search_query' === message.type) {
+      wsSearchResponse(api.audience, 'audience', 'name', message);
     }
   });
 }

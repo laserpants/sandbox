@@ -1,4 +1,4 @@
-module Page.Campaigns.Routing exposing (Msg(..), State, init, subscriptions, update, view)
+module Page.Campaigns.Show exposing (Msg(..), State, init, subscriptions, update, view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -32,6 +32,6 @@ subscriptions state toMsg =
 
 view : State -> (Msg -> msg) -> Html msg
 view state toMsg =
-    Ui.card "Routing"
+    Ui.card "Show campaign"
         [ text "here"
         ]
