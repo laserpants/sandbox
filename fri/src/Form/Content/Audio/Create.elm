@@ -1,4 +1,4 @@
-module Form.Content.Text.Create exposing (Fields, toJson, validate, view)
+module Form.Content.Audio.Create exposing (Fields, toJson, validate, view)
 
 import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
@@ -24,33 +24,22 @@ import Ui.TagInput
 
 type alias Fields =
     { title : String
-    , message : String
-    , tags : List String
+    , description : Maybe String
     }
-
-
-validateStringList : Field -> Result (Error e) (List String)
-validateStringList =
-    [ Validate.emptyString |> andThen (always (succeed []))
-    , Validate.string |> andThen (succeed << String.split ";")
-    ]
-        |> oneOf
 
 
 validate : Validation Never Fields
 validate =
     succeed Fields
         |> andMap (field "title" validateStringNonEmpty)
-        |> andMap (field "message" validateStringNonEmpty)
-        |> andMap (field "tags" validateStringList)
+        |> andMap (field "description" (Validate.maybe validateStringNonEmpty))
 
 
 toJson : Fields -> Json.Value
-toJson { title, message, tags } =
+toJson { title, description } =
     Encode.object
         [ ( "title", Encode.string title )
-        , ( "message", Encode.string message )
-        , ( "tags", Encode.list Encode.string tags )
+        , ( "description", Encode.maybe Encode.string description )
         ]
 
 
@@ -63,8 +52,8 @@ view tags form disabled toMsg =
         title =
             form |> Form.getFieldAsString "title" |> info [] Input.danger
 
-        message =
-            form |> Form.getFieldAsString "message" |> info [] Textarea.danger
+        description =
+            form |> Form.getFieldAsString "description" |> info [] Textarea.danger
 
         { options, errorMessage } =
             form |> Form.getFieldAsString "tags" |> info [] Input.danger
@@ -86,16 +75,16 @@ view tags form disabled toMsg =
                 , Bootstrap.Form.invalidFeedback [] [ text title.errorMessage ]
                 ]
             , Bootstrap.Form.group []
-                [ Bootstrap.Form.label [] [ text "Message" ]
+                [ Bootstrap.Form.label [] [ text "Description" ]
                 , Textarea.textarea
-                    ([ Textarea.onInput (String >> Form.Input message.path Form.Text)
-                     , Textarea.value (Maybe.withDefault "" message.value)
-                     , Textarea.attrs [ onFocus (Form.Focus message.path), onBlur (Form.Blur message.path) ]
+                    ([ Textarea.onInput (String >> Form.Input description.path Form.Text)
+                     , Textarea.value (Maybe.withDefault "" description.value)
+                     , Textarea.attrs [ onFocus (Form.Focus description.path), onBlur (Form.Blur description.path) ]
                      ]
-                        ++ message.options
+                        ++ description.options
                     )
                     |> Html.map toMsg
-                , Bootstrap.Form.invalidFeedback [] [ text message.errorMessage ]
+                , Bootstrap.Form.invalidFeedback [] [ text description.errorMessage ]
                 ]
             , Bootstrap.Form.group []
                 [ Bootstrap.Form.label [] [ text "Tags" ]

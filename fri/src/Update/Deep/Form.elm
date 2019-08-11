@@ -1,7 +1,7 @@
-module Update.Deep.Form exposing (Model, Msg, component, init, reset, setDisabled, update)
+module Update.Deep.Form exposing (Model, Msg, component, formInput, init, reset, setDisabled, update)
 
-import Form exposing (Form)
-import Form.Field exposing (Field)
+import Form exposing (Form, InputType)
+import Form.Field exposing (Field, FieldValue(..))
 import Form.Validate exposing (Validation)
 import Update.Deep exposing (..)
 
@@ -49,6 +49,15 @@ reset fields model =
     Form.initial fields model.validation
         |> insertAsFormIn model
         |> andThen (setDisabled False)
+
+
+formInput : String -> InputType -> FieldValue -> Model a b -> Update (Model a b) msg c
+formInput field inputType value model =
+    let
+        { form, validation } =
+            model
+    in
+    save { model | form = Form.update validation (Form.Input field inputType value) form }
 
 
 update : { onSubmit : b -> c } -> Form.Msg -> Model a b -> Update (Model a b) msg c

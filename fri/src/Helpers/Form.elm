@@ -1,4 +1,4 @@
-module Helpers.Form exposing (CustomError(..), customErrorToString, errorToString, fieldInfo, selectItem, validateChecked, validateEmail, validatePassword, validatePasswordConfirmation, validateStringNonEmpty)
+module Helpers.Form exposing (CustomError(..), customErrorToString, errorToString, fieldInfo, selectItem, validateChecked, validateEmail, validatePassword, validatePasswordConfirmation, validateStringEquals, validateStringNonEmpty)
 
 import Bootstrap.Form.Select as Select
 import Form.Error exposing (Error, ErrorValue(..))
@@ -11,6 +11,7 @@ import Html.Events exposing (..)
 
 type CustomError
     = PasswordConfirmationMismatch
+    | StringMustMatch String
     | MustAgreeWithTerms
 
 
@@ -22,6 +23,9 @@ customErrorToString error =
 
         MustAgreeWithTerms ->
             "You must agree with the terms of this service to complete the registration"
+
+        StringMustMatch string ->
+            "You must enter the string '" ++ string ++ "'."
 
 
 validatePasswordConfirmation : String -> String -> Field -> Result (Error CustomError) String
@@ -62,6 +66,19 @@ validatePassword : Field -> Result (Error e) String
 validatePassword =
     validateStringNonEmpty
         |> andThen (minLength 8)
+
+
+validateStringEquals : String -> Field -> Result (Error CustomError) String
+validateStringEquals string =
+    validateStringNonEmpty
+        |> Validate.andThen
+            (\value ->
+                if String.toLower value == String.toLower string then
+                    succeed value
+
+                else
+                    fail (customError (StringMustMatch string))
+            )
 
 
 validateStringNonEmpty : Field -> Result (Error e) String

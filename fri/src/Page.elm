@@ -13,6 +13,8 @@ import Html.Events exposing (..)
 import Page.Campaigns as Campaigns
 import Page.Campaigns.Collection
 import Page.Campaigns.Create
+import Page.Campaigns.Delete
+import Page.Campaigns.Edit
 import Page.Campaigns.Numbers
 import Page.Campaigns.Routing
 import Page.Campaigns.Show
@@ -82,6 +84,8 @@ current :
         , isAudiencePage : Bool
         , isCampaignsCollectionPage : Bool
         , isShowCampaignPage : Bool
+        , isEditCampaignPage : Bool
+        , isDeleteCampaignPage : Bool
         , isCreateCampaignPage : Bool
         , isCampaignsManageNumbersPage : Bool
         , isCampaignsRoutingPage : Bool
@@ -120,6 +124,8 @@ current page =
             , isUserResetPasswordPage = False
             , isCampaignsCollectionPage = False
             , isShowCampaignPage = False
+            , isEditCampaignPage = False
+            , isDeleteCampaignPage = False
             , isCreateCampaignPage = False
             , isCampaignsManageNumbersPage = False
             , isCampaignsRoutingPage = False
@@ -178,6 +184,12 @@ current page =
 
                 Campaigns.ShowCampaignPage _ ->
                     { none | isShowCampaignPage = True }
+
+                Campaigns.EditCampaignPage _ ->
+                    { none | isEditCampaignPage = True }
+
+                Campaigns.DeleteCampaignPage _ ->
+                    { none | isDeleteCampaignPage = True }
 
                 Campaigns.CreateCampaignPage _ ->
                     { none | isCreateCampaignPage = True }
@@ -272,6 +284,16 @@ showCampaignPage =
     updatePage (CampaignsPage << Campaigns.ShowCampaignPage) (CampaignsPageMsg << Campaigns.ShowCampaignPageMsg)
 
 
+editCampaignPage : UpdatePage Page.Campaigns.Edit.State Page.Campaigns.Edit.Msg e
+editCampaignPage =
+    updatePage (CampaignsPage << Campaigns.EditCampaignPage) (CampaignsPageMsg << Campaigns.EditCampaignPageMsg)
+
+
+deleteCampaignPage : UpdatePage Page.Campaigns.Delete.State Page.Campaigns.Delete.Msg e
+deleteCampaignPage =
+    updatePage (CampaignsPage << Campaigns.DeleteCampaignPage) (CampaignsPageMsg << Campaigns.DeleteCampaignPageMsg)
+
+
 createCampaignPage : UpdatePage Page.Campaigns.Create.State Page.Campaigns.Create.Msg e
 createCampaignPage =
     updatePage (CampaignsPage << Campaigns.CreateCampaignPage) (CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
@@ -362,8 +384,8 @@ resetPasswordPage =
     updatePage (UserPage << User.ResetPasswordPage) (UserPageMsg << User.ResetPasswordPageMsg)
 
 
-update : { onAuthResponse : Maybe Session -> a, onProjectSelected : Project -> a } -> Msg -> Page -> Update Page Msg a
-update { onAuthResponse, onProjectSelected } msg page =
+update : { redirect : String -> a, onAuthResponse : Maybe Session -> a, onProjectSelected : Project -> a } -> Msg -> Page -> Update Page Msg a
+update { redirect, onAuthResponse, onProjectSelected } msg page =
     case ( page, msg ) of
         ( NotFoundPage, _ ) ->
             save page
@@ -413,8 +435,14 @@ update { onAuthResponse, onProjectSelected } msg page =
                 ( Campaigns.ShowCampaignPage showCampaignPageState, Campaigns.ShowCampaignPageMsg showCampaignPageMsg ) ->
                     showCampaignPage (Page.Campaigns.Show.update showCampaignPageMsg showCampaignPageState)
 
+                ( Campaigns.EditCampaignPage editCampaignPageState, Campaigns.EditCampaignPageMsg editCampaignPageMsg ) ->
+                    editCampaignPage (Page.Campaigns.Edit.update editCampaignPageMsg editCampaignPageState)
+
+                ( Campaigns.DeleteCampaignPage deleteCampaignPageState, Campaigns.DeleteCampaignPageMsg deleteCampaignPageMsg ) ->
+                    deleteCampaignPage (Page.Campaigns.Delete.update deleteCampaignPageMsg deleteCampaignPageState)
+
                 ( Campaigns.CreateCampaignPage createCampaignPageState, Campaigns.CreateCampaignPageMsg createCampaignPageMsg ) ->
-                    createCampaignPage (Page.Campaigns.Create.update createCampaignPageMsg createCampaignPageState)
+                    createCampaignPage (Page.Campaigns.Create.update { redirect = applyCallback << redirect } createCampaignPageMsg createCampaignPageState)
 
                 ( Campaigns.ManageNumbersPage manageNumbersPageState, Campaigns.ManageNumbersPageMsg manageNumbersPageMsg ) ->
                     manageNumbersPage (Page.Campaigns.Numbers.update manageNumbersPageMsg manageNumbersPageState)
@@ -522,6 +550,12 @@ subscriptions page toMsg =
                 Campaigns.ShowCampaignPage showCampaignPageState ->
                     Page.Campaigns.Show.subscriptions showCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.ShowCampaignPageMsg)
 
+                Campaigns.EditCampaignPage editCampaignPageState ->
+                    Page.Campaigns.Edit.subscriptions editCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.EditCampaignPageMsg)
+
+                Campaigns.DeleteCampaignPage deleteCampaignPageState ->
+                    Page.Campaigns.Delete.subscriptions deleteCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.DeleteCampaignPageMsg)
+
                 Campaigns.CreateCampaignPage createCampaignPageState ->
                     Page.Campaigns.Create.subscriptions createCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
 
@@ -608,10 +642,16 @@ fromRoute route url =
             campaignsCollectionPage (Page.Campaigns.Collection.init url)
 
         ShowCampaign id ->
-            showCampaignPage Page.Campaigns.Show.init
+            showCampaignPage (Page.Campaigns.Show.init id)
 
         NewCampaign ->
             createCampaignPage Page.Campaigns.Create.init
+
+        EditCampaign id ->
+            editCampaignPage (Page.Campaigns.Edit.init id)
+
+        DeleteCampaign id ->
+            deleteCampaignPage (Page.Campaigns.Delete.init id)
 
         ManageNumbers ->
             manageNumbersPage Page.Campaigns.Numbers.init
@@ -658,7 +698,7 @@ type alias UiLayout msg =
 
 
 type alias DashboardLayout msg =
-    User -> Project -> String -> List (Html msg) -> Html msg
+    User -> Project -> String -> ( Html msg, List ( String, Maybe String ) ) -> Html msg
 
 
 view : Page -> Maybe Session -> UiLayout msg -> DashboardLayout msg -> (Msg -> msg) -> Html msg
@@ -728,91 +768,149 @@ view page maybeSession uiLayout dashboardLayout toMsg =
                     dashboardLayout user
                         project
                         locale
-                        [ case page of
+                        (case page of
                             MainPage mainPage ->
                                 case mainPage of
                                     Main.Dashboard dashboardState ->
-                                        Page.Main.Dashboard.view dashboardState (toMsg << MainPageMsg << Main.DashboardMsg)
+                                        ( Page.Main.Dashboard.view dashboardState (toMsg << MainPageMsg << Main.DashboardMsg)
+                                        , []
+                                        )
 
                                     Main.AppsPage appsPageState ->
-                                        Page.Main.Apps.view appsPageState (toMsg << MainPageMsg << Main.AppsPageMsg)
+                                        ( Page.Main.Apps.view appsPageState (toMsg << MainPageMsg << Main.AppsPageMsg)
+                                        , []
+                                        )
 
                                     Main.AudiencePage audiencePageState ->
-                                        Page.Main.Audience.view audiencePageState (toMsg << MainPageMsg << Main.AudiencePageMsg)
+                                        ( Page.Main.Audience.view audiencePageState (toMsg << MainPageMsg << Main.AudiencePageMsg)
+                                        , []
+                                        )
 
                                     Main.ListenerAudioPage listenerAudioPageState ->
-                                        Page.Main.ListenerAudio.view listenerAudioPageState (toMsg << MainPageMsg << Main.ListenerAudioPageMsg)
+                                        ( Page.Main.ListenerAudio.view listenerAudioPageState (toMsg << MainPageMsg << Main.ListenerAudioPageMsg)
+                                        , []
+                                        )
 
                                     Main.NotificationsPage notificationsPageState ->
-                                        Page.Main.Notifications.view notificationsPageState (toMsg << MainPageMsg << Main.NotificationsPageMsg)
+                                        ( Page.Main.Notifications.view notificationsPageState (toMsg << MainPageMsg << Main.NotificationsPageMsg)
+                                        , []
+                                        )
 
                             UserPage userPage ->
                                 case userPage of
                                     User.ProfilePage profilePageState ->
-                                        Page.User.Profile.dashboardView profilePageState (toMsg << UserPageMsg << User.ProfilePageMsg)
+                                        ( Page.User.Profile.dashboardView profilePageState (toMsg << UserPageMsg << User.ProfilePageMsg)
+                                        , []
+                                        )
 
                                     _ ->
-                                        text ""
+                                        ( text ""
+                                        , []
+                                        )
 
                             CampaignsPage campaignsPage ->
                                 case campaignsPage of
                                     Campaigns.CampaignsCollectionPage campaignsCollectionPageState ->
-                                        Page.Campaigns.Collection.view campaignsCollectionPageState (toMsg << CampaignsPageMsg << Campaigns.CampaignsCollectionPageMsg)
+                                        ( Page.Campaigns.Collection.view campaignsCollectionPageState (toMsg << CampaignsPageMsg << Campaigns.CampaignsCollectionPageMsg)
+                                        , Page.Campaigns.Collection.breadcrumbs campaignsCollectionPageState
+                                        )
 
                                     Campaigns.CreateCampaignPage createCampaignPageState ->
-                                        Page.Campaigns.Create.view createCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
+                                        ( Page.Campaigns.Create.view createCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.CreateCampaignPageMsg)
+                                        , []
+                                        )
 
                                     Campaigns.ShowCampaignPage showCampaignPageState ->
-                                        Page.Campaigns.Show.view showCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.ShowCampaignPageMsg)
+                                        ( Page.Campaigns.Show.view showCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.ShowCampaignPageMsg)
+                                        , Page.Campaigns.Show.breadcrumbs showCampaignPageState
+                                        )
+
+                                    Campaigns.EditCampaignPage editCampaignPageState ->
+                                        ( Page.Campaigns.Edit.view editCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.EditCampaignPageMsg)
+                                        , Page.Campaigns.Edit.breadcrumbs editCampaignPageState
+                                        )
+
+                                    Campaigns.DeleteCampaignPage deleteCampaignPageState ->
+                                        ( Page.Campaigns.Delete.view deleteCampaignPageState (toMsg << CampaignsPageMsg << Campaigns.DeleteCampaignPageMsg)
+                                        , Page.Campaigns.Delete.breadcrumbs deleteCampaignPageState
+                                        )
 
                                     Campaigns.ManageNumbersPage manageNumbersPageState ->
-                                        Page.Campaigns.Numbers.view manageNumbersPageState (toMsg << CampaignsPageMsg << Campaigns.ManageNumbersPageMsg)
+                                        ( Page.Campaigns.Numbers.view manageNumbersPageState (toMsg << CampaignsPageMsg << Campaigns.ManageNumbersPageMsg)
+                                        , []
+                                        )
 
                                     Campaigns.RoutingPage routingPageState ->
-                                        Page.Campaigns.Routing.view routingPageState (toMsg << CampaignsPageMsg << Campaigns.RoutingPageMsg)
+                                        ( Page.Campaigns.Routing.view routingPageState (toMsg << CampaignsPageMsg << Campaigns.RoutingPageMsg)
+                                        , []
+                                        )
 
                             ContentPage contentPage ->
                                 case contentPage of
                                     Content.AudioArchivePage audioArchivePageState ->
-                                        Page.Content.Audio.Archive.view audioArchivePageState (toMsg << ContentPageMsg << Content.AudioArchivePageMsg)
+                                        ( Page.Content.Audio.Archive.view audioArchivePageState (toMsg << ContentPageMsg << Content.AudioArchivePageMsg)
+                                        , []
+                                        )
 
                                     Content.UploadAudioPage uploadAudioPageState ->
-                                        Page.Content.Audio.Upload.view uploadAudioPageState (toMsg << ContentPageMsg << Content.UploadAudioPageMsg)
+                                        ( Page.Content.Audio.Upload.view uploadAudioPageState (toMsg << ContentPageMsg << Content.UploadAudioPageMsg)
+                                        , []
+                                        )
 
                                     Content.TextArchivePage messageArchivePageState ->
-                                        Page.Content.Text.Archive.view messageArchivePageState (toMsg << ContentPageMsg << Content.TextArchivePageMsg)
+                                        ( Page.Content.Text.Archive.view messageArchivePageState (toMsg << ContentPageMsg << Content.TextArchivePageMsg)
+                                        , []
+                                        )
 
                                     Content.CreateTextPage createMessagePageState ->
-                                        Page.Content.Text.Create.view createMessagePageState (toMsg << ContentPageMsg << Content.CreateTextPageMsg)
+                                        ( Page.Content.Text.Create.view createMessagePageState (toMsg << ContentPageMsg << Content.CreateTextPageMsg)
+                                        , []
+                                        )
 
                             ProjectsPage projectsPage ->
                                 case projectsPage of
                                     Projects.CreateProjectPage createProjectPageState ->
-                                        Page.Projects.Create.dashboardView createProjectPageState (toMsg << ProjectsPageMsg << Projects.CreateProjectPageMsg)
+                                        ( Page.Projects.Create.dashboardView createProjectPageState (toMsg << ProjectsPageMsg << Projects.CreateProjectPageMsg)
+                                        , []
+                                        )
 
                                     Projects.SelectProjectPage selectProjectPageState ->
-                                        Page.Projects.Select.dashboardView selectProjectPageState (toMsg << ProjectsPageMsg << Projects.SelectProjectPageMsg)
+                                        ( Page.Projects.Select.dashboardView selectProjectPageState (toMsg << ProjectsPageMsg << Projects.SelectProjectPageMsg)
+                                        , []
+                                        )
 
                                     Projects.ProjectSettingsPage projectSettingsPageState ->
-                                        Page.Projects.Settings.view projectSettingsPageState (toMsg << ProjectsPageMsg << Projects.ProjectSettingsPageMsg)
+                                        ( Page.Projects.Settings.view projectSettingsPageState (toMsg << ProjectsPageMsg << Projects.ProjectSettingsPageMsg)
+                                        , []
+                                        )
 
                             ResultsPage resultsPage ->
                                 case resultsPage of
                                     Results.AnalyticsPage analyticsPageState ->
-                                        Page.Results.Analytics.view analyticsPageState (toMsg << ResultsPageMsg << Results.AnalyticsPageMsg)
+                                        ( Page.Results.Analytics.view analyticsPageState (toMsg << ResultsPageMsg << Results.AnalyticsPageMsg)
+                                        , []
+                                        )
 
                                     Results.AnswersPage answersPageState ->
-                                        Page.Results.Answers.view answersPageState (toMsg << ResultsPageMsg << Results.AnswersPageMsg)
+                                        ( Page.Results.Answers.view answersPageState (toMsg << ResultsPageMsg << Results.AnswersPageMsg)
+                                        , []
+                                        )
 
                                     Results.PollResultsPage pollResultsPageState ->
-                                        Page.Results.Polls.view pollResultsPageState (toMsg << ResultsPageMsg << Results.PollResultsPageMsg)
+                                        ( Page.Results.Polls.view pollResultsPageState (toMsg << ResultsPageMsg << Results.PollResultsPageMsg)
+                                        , []
+                                        )
 
                                     Results.CostPage costPageState ->
-                                        Page.Results.Cost.view costPageState (toMsg << ResultsPageMsg << Results.CostPageMsg)
+                                        ( Page.Results.Cost.view costPageState (toMsg << ResultsPageMsg << Results.CostPageMsg)
+                                        , []
+                                        )
 
                             _ ->
-                                text ""
-                        ]
+                                ( text ""
+                                , []
+                                )
+                        )
 
 
 title : Page -> String
@@ -861,6 +959,12 @@ title page =
                     ""
 
                 Campaigns.ShowCampaignPage showCampaignPageState ->
+                    ""
+
+                Campaigns.EditCampaignPage editCampaignPageState ->
+                    ""
+
+                Campaigns.DeleteCampaignPage deleteCampaignPageState ->
                     ""
 
                 Campaigns.ManageNumbersPage manageNumbersPageState ->

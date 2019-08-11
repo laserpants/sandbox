@@ -18,6 +18,8 @@ type Route
     | CampaignsCollection
     | ShowCampaign Int
     | NewCampaign
+    | EditCampaign Int
+    | DeleteCampaign Int
     | ManageNumbers
     | Routing
     | Audience
@@ -49,6 +51,8 @@ parser =
         , map CampaignsCollection (s "campaigns")
         , map ShowCampaign (s "campaigns" </> int)
         , map NewCampaign (s "campaigns" </> s "new")
+        , map EditCampaign (s "campaigns" </> int </> s "edit")
+        , map DeleteCampaign (s "campaigns" </> int </> s "delete")
         , map ManageNumbers (s "numbers" </> s "manage")
         , map Routing (s "numbers" </> s "routing")
         , map Audience (s "audience")

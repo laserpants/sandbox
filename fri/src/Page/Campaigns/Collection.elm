@@ -1,4 +1,4 @@
-module Page.Campaigns.Collection exposing (Msg(..), State, init, subscriptions, update, view)
+module Page.Campaigns.Collection exposing (Msg(..), State, breadcrumbs, init, subscriptions, update, view)
 
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
@@ -143,3 +143,9 @@ view { page, search, tab } toMsg =
             |> Tab.view tab
         ]
         |> Html.map toMsg
+
+
+breadcrumbs : State -> List ( String, Maybe String )
+breadcrumbs state =
+    [ ( "Campaigns", Nothing )
+    ]

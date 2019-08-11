@@ -175,7 +175,26 @@ function pagedRequest(collection, key, request, callback) {
 
 xhook.before(function(request, callback) {
 
-  console.log(request.url);
+  console.log(request);
+
+  if (request.url.endsWith('content/audio/upload') && 'POST' === request.method) {
+
+    var loaded = 0;
+
+    function tick() {
+      request.xhr.upload.dispatchEvent('progress', { loaded: loaded, total: 100 });
+      loaded = Math.min(loaded + Math.random()*23, 100);
+      if (loaded < 100) {
+        setTimeout(tick, 200);
+      } else {
+        request.xhr.upload.dispatchEvent('progress', { loaded: loaded, total: 100 });
+        callback({ status: 200, data: new ArrayBuffer() });
+      }
+    }
+
+    request.xhr.upload.dispatchEvent('loadstart');
+    tick();
+  } 
 
   if (request.url.endsWith('auth/login') && 'POST' === request.method) {
     setTimeout(function() {
@@ -274,6 +293,38 @@ xhook.before(function(request, callback) {
   } else if (/content\/audio/.test(request.url) && 'GET' === request.method) {
     setTimeout(function() {
       pagedRequest(audioContent, 'audio', request, callback);
+    }, delay);
+  } else if (/campaigns\/\d+$/.test(request.url) && 'GET' === request.method) {
+    setTimeout(function() {
+      var id = request.url.match(/campaigns\/(\d+)$/)[1];
+      var filtered = campaigns.filter(function(item) { return item.id == id; });
+      if (filtered.length > 0) {
+        callback({
+          status: 200,
+          data: JSON.stringify({ campaign: filtered[0] }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } else {
+        console.log('Not Found');
+        callback({
+          status: 404,
+          data: JSON.stringify({ error: 'Not Found' }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }, delay);
+
+  } else if (request.url.endsWith('campaigns') && 'POST' === request.method) {
+    setTimeout(function() {
+      var campaign = JSON.parse(request.body);
+      campaign.id = campaigns.length + 1;
+      campaigns.push(campaign);
+      var response = {
+        status: 200,
+        data: JSON.stringify({ campaign: campaign }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+      callback(response);
     }, delay);
   } else if (/campaigns/.test(request.url) && 'GET' === request.method) {
     setTimeout(function() {

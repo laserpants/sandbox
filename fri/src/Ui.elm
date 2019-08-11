@@ -131,8 +131,43 @@ layout state toMsg { colAttrs, bgClass } pageElements =
         ]
 
 
-dashboardLayout : State -> User -> Project -> String -> (Msg -> msg) -> List (Html msg) -> Html msg
-dashboardLayout { navbar, sidebar, notifications } user project locale toMsg pageElements =
+dashboardLayout : State -> User -> Project -> String -> (Msg -> msg) -> ( Html msg, List ( String, Maybe String ) ) -> Html msg
+dashboardLayout { navbar, sidebar, notifications } user project locale toMsg ( page, breadcrumbs ) =
+    let
+        breadcrumbsLen =
+            List.length breadcrumbs
+
+        breadcrumbItem ix ( title, maybeHref ) =
+            let
+                isLast =
+                    breadcrumbsLen - 1 == ix
+            in
+            li
+                ([ class
+                    ("breadcrumb-item"
+                        ++ (if isLast then
+                                " active"
+
+                            else
+                                ""
+                           )
+                    )
+                 ]
+                    ++ (if isLast then
+                            [ attribute "aria-current" "page" ]
+
+                        else
+                            []
+                       )
+                )
+                [ case maybeHref of
+                    Nothing ->
+                        text title
+
+                    Just href ->
+                        a [ Html.Attributes.href href ] [ text title ]
+                ]
+    in
     div []
         [ Navbar.view navbar
             { user = user
@@ -143,11 +178,33 @@ dashboardLayout { navbar, sidebar, notifications } user project locale toMsg pag
         , div [ id "wrapper" ]
             [ Sidebar.view sidebar (toMsg << SidebarMsg)
             , div [ id "content-wrapper", class "d-flex flex-column" ]
-                [ div [ id "content" ]
-                    [ div [ Spacing.mt4, class "container-fluid" ] pageElements ]
+                [ case breadcrumbs of
+                    [] ->
+                        text ""
+
+                    _ ->
+                        nav [ attribute "aria-label" "breadcrumb" ]
+                            [ ol
+                                [ class "breadcrumb"
+                                , style "border-radius" "0"
+                                , style "background" "inherit"
+                                ]
+                                (li [ class "breadcrumb-item" ] [ a [ href "/" ] [ text "Home" ] ] :: List.indexedMap breadcrumbItem breadcrumbs)
+                            ]
+                , div [ id "content" ]
+                    [ div
+                        [ if List.isEmpty breadcrumbs then
+                            Spacing.mt4
+
+                          else
+                            Spacing.m0
+                        , class "container-fluid"
+                        ]
+                        [ div [ class "col col-xl-8" ] [ page ] ]
+                    ]
                 ]
+            , Notifications.modalView notifications (toMsg << NotificationsMsg)
             ]
-        , Notifications.modalView notifications (toMsg << NotificationsMsg)
         ]
 
 

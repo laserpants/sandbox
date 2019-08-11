@@ -258,6 +258,7 @@ update msg =
                 callbacks =
                     { onAuthResponse = handleAuthResponse
                     , onProjectSelected = handleProjectSelected
+                    , redirect = redirect
                     }
             in
             inPage (Page.update callbacks pageMsg)
