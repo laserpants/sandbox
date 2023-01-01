@@ -6,11 +6,11 @@
   "dependencies": {},
   "devDependencies": {
     "dotenv": "^8.0.0",
-    "elm-webpack-loader": "^5.0.0",
-    "file-loader": "^3.0.1",
+    "elm-webpack-loader": "^8.0.0",
+    "file-loader": "^6.2.0",
     "startbootstrap-sb-admin-2": "^4.0.5",
-    "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.2",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^3.3.1"
   }
 }
